@@ -11,8 +11,7 @@ enable_sound_btn.addEventListener("click", () => {
 
 addNoteButton.addEventListener('click', () => {
     counter++;
-    let synth = new Tone.PolySynth().toDestination()
-    synth.set({ detune: -1200 });
+    let synth = new Tone.Synth().toDestination()
     let divId = `noteDiv${counter}`;
     let newDiv = document.createElement('div');
     newDiv.id = divId;
@@ -42,7 +41,11 @@ addNoteButton.addEventListener('click', () => {
     play_1_sec_col.appendChild(play_1_sec_btn)
 
     play_1_sec_btn.addEventListener("click", () => {
-        synth.triggerAttackRelease(frekvence_input.value, 1)
+        let f = 440
+        if (frekvence_input.value) {
+            f = frekvence_input.value
+        }
+        synth.triggerAttackRelease(f, 1)
     })
 
     // play inf button a col
@@ -56,9 +59,15 @@ addNoteButton.addEventListener('click', () => {
 
     play_infinitely_btn.addEventListener("click", () => {
         if (play_infinitely_btn.innerText == "Play") {
+            console.log("playing")
             play_infinitely_btn.innerText = "Stop"
-            synth.triggerAttack(frekvence_input.value, 1)
+            let f = 440
+            if (frekvence_input.value) {
+                f = frekvence_input.value
+            }
+            synth.triggerAttack(f, 1)
         } else {
+            console.log("stopping")
             play_infinitely_btn.innerText = "Play"
             synth.triggerRelease()
         }
