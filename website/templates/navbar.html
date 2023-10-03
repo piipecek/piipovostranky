@@ -12,11 +12,17 @@
         </ul>
     </li>
     <li class="nav-item"><a class="nav-link active" href="{{url_for("visuals_views.frekvence")}}">Frekvence</a></li>
-    <li class="nav-item"><a class="nav-link active" href="{{url_for("visuals_views.hadej_slova")}}">Hádej slova</a></li>
-    <li class="nav-item"><a class="nav-link active" href="{{url_for("visuals_views.cernabila")}}">Černá bílá</a></li>
-
-    <li class="nav-item"><a class="nav-link active" href="{{url_for("visuals_views.catan")}}">Katan</a></li> 
+    
     <li class="nav-item"><a class="nav-link active" href="https://piipecek.github.io/tomio.html">Tomiem Ipsum</a></li>
+    <li class="nav-item dropdown">
+        <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">Hry</a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li class="nav-item"><a class="nav-link active" href="{{url_for("visuals_views.catan")}}">Katan</a></li> 
+            <li class="nav-item"><a class="nav-link active" href="{{url_for("visuals_views.hadej_slova")}}">Hádej slova</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{{url_for("visuals_views.cernabila")}}">Černá bílá</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{{url_for('visuals_views.semihra')}}">Semihra</a></li>
+            </ul>
+        </li>
     <li class="nav-item dropdown">
     <a class="nav-link active dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">Matlab-tools</a>
         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -25,8 +31,8 @@
         </ul>
     </li>
     <li class="nav-item"><a class="nav-link active" href="{{url_for('default_views.mutace')}}">Jazykové mutace</a></li>    
-    <li class="nav-item"><a class="nav-link active" href="{{url_for('visuals_views.semihra')}}">Semihra</a></li>
     <li class="nav-item"><a class="nav-link active" href="{{url_for('richard_views.get_sunturtle')}}">Sunturtle</a></li> 
+    <li class="nav-item"><a class="nav-link active" href="{{url_for('default_views.vydaje')}}">Výdaje</a></li> 
     {% if current_user.is_authenticated %}
     <li class="nav-item"><a class="nav-link active" href="{{url_for("default_views.account")}}">Účet</a></li>
     <li class="nav-item"><a class="nav-link active" href="{{url_for("auth_views.logout")}}">Logout</a></li>

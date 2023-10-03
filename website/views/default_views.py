@@ -76,3 +76,7 @@ def account():
 @default_views.route("/mutace")
 def mutace():
 	return render_template("jazykova_mutace.html")
+
+@default_views.route("/vydaje")
+def vydaje():
+    return render_template("vydaje.html")

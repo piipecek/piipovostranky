@@ -1,0 +1,22 @@
+.nevytrideny-div{
+    max-height: 20rem;
+}
+
+.pravidla-div{
+    max-height: 20rem;
+}
+.vysledny-div{
+    max-height: 20rem;
+}
+
+.hover-blue:hover{
+    background-color: #76ACF0;
+    cursor: pointer;
+}
+
+.sort-span {
+    color:#0C6FFD;
+}
+.sort-th:hover {
+    cursor: pointer;
+}
