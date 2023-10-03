@@ -1,9 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_required, current_user
-from website.json_handlers.admin_handling import is_admin
-from website.models.chyba import Chyba
-from website.models.slovnik import Slovnik
-from website.models.settings import Settings
+from website.models.suggestion import Suggestion
 
 
 default_views = Blueprint("default_views",__name__)

@@ -1,4 +1,4 @@
-import website.paths.paths as p
+import website.paths as p
 import json
 
 def create_user_files()-> None:

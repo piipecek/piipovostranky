@@ -1,8 +1,8 @@
 import json
 from dateutil import parser
 from website.json_handlers.db_handling import sort_slovnik, jazykovej_filtr
-from website.helpers.pairser import smart_sample
-import website.paths.paths as p
+from aaa_legacy_slovnik.pairser import smart_sample
+import website.paths as p
 from typing import List
 
 def get_user_set_slovicek() -> dict:

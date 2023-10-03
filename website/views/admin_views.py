@@ -1,13 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user
-from website.json_handlers.admin_handling import is_admin
-from website.models.chyba import Chyba
+from website.models.suggestion import Suggestion
 from website.models.user import User
 from website.json_handlers.logs_handling import delete_logs
 import json
 import shutil
-from website.paths.paths import user_data_folder_path
-
 
 admin_views = Blueprint("admin_views",__name__)
 

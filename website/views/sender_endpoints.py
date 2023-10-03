@@ -1,10 +1,10 @@
 from flask import Blueprint
 import json
-from website.models.chyba import Chyba
+from website.models.suggestion import Suggestion
 from website.json_handlers.logs_handling import get_logs
-import website.paths.paths as p
+import website.paths as p
 from website.models.user import User
-from website.paths.paths import multilang_path
+from website.paths import multilang_path
 
 
 sender = Blueprint("sender", __name__)

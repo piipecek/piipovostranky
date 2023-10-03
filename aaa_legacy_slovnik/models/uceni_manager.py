@@ -1,7 +1,7 @@
 from website.json_handlers import set_handling
 import random
 from website.models.slovicko import Slovicko
-from website.helpers.pairser import vyhodnot, smart_sample
+from aaa_legacy_slovnik.pairser import vyhodnot, smart_sample
 from typing import List, Tuple
 import math
 

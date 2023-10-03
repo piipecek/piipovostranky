@@ -19,6 +19,8 @@ six = "==1.16.0"
 chardet = "*"
 flask-cors = "*"
 flask-mail = "*"
+python-dotenv = "*"
+pymysql = "*"
 
 [dev-packages]
 ipykernel = "*"

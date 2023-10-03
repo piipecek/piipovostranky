@@ -1,6 +1,3 @@
-from website.models.slovicko import Slovicko
-from website.models.slovnik import Slovnik
-from website.models.settings import Settings
 from random import sample
 from typing import Tuple, Sequence
 
@@ -78,7 +75,7 @@ def pairse_and_insert(data: str, jazyky: list, asociace: str, druh: str, kategor
         
 
 
-def vyhodnot(jazyk: str, predloha: Slovicko, string: str) -> bool:
+def vyhodnot(jazyk: str, predloha, string: str) -> bool:
     for j in Settings.get().data["jazyky"]:
         if j == jazyk:
             if string in [p.replace("zde","") for p in predloha.v_jazyce[jazyk]]:

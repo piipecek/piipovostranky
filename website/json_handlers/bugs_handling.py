@@ -1,6 +1,6 @@
 import json
 from typing import List
-from website.paths.paths import known_bugs_path
+from website.paths import known_bugs_path
 
 def get_chyby() -> List[dict]:
 	with open(known_bugs_path()) as file:

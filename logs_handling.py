@@ -1,5 +1,5 @@
 import datetime
-from website.paths.paths import log_file_path
+from website.paths import log_file_path
 
 def log(data: str) -> None:
     with open(log_file_path(), "a") as file:

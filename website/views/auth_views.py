@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_required, login_user, logout_user, current_user
 from website import db
 from website.mails.mail_handler import mail_sender
-from website.helpers.create_user_files import create_user_files
+from aaa_legacy_slovnik.create_user_files import create_user_files
 
 auth_views = Blueprint("auth_views",__name__, template_folder="auth")
 

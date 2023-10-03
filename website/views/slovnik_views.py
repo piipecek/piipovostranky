@@ -1,13 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required
-from website.helpers.pairser import  pairse_and_insert, vyhodnot
-from website.models.slovicko import Slovicko
-from website.models.set_slovicek import SetSlovicek
-from website.models.uceni_manager import UceniManager
-from website.models.zkouseni_manager import ZkouseniManager
-from website.models.slovnik import Slovnik
-from website.json_handlers import db_handling
-from website.models.settings import Settings
+from aaa_legacy_slovnik.pairser import  pairse_and_insert, vyhodnot
 import json
 
 

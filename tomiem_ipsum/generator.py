@@ -1,6 +1,6 @@
 import random
 from pathlib import Path
-from website.paths.paths import tomiem_result_path
+from website.paths import tomiem_result_path
 
 def get_tomiem(words:  int) -> str:
     result = "Tomiem ipsum dolor sit amet. "

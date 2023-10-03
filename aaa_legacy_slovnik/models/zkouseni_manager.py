@@ -1,5 +1,5 @@
 from website.helpers.pretty_date import pretty_date
-from website.helpers.pairser import vyhodnot
+from aaa_legacy_slovnik.pairser import vyhodnot
 from website.models.slovicko import Slovicko
 import random
 from datetime import datetime

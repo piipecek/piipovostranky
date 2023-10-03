@@ -1,6 +1,6 @@
 import json
 from typing import List
-import website.paths.paths as p
+import website.paths as p
 
 def get_user_database() -> List[dict]:
     with open(p.user_database_path()) as file:

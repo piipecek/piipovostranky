@@ -1,5 +1,5 @@
 import json
-import website.paths.paths as p
+import website.paths as p
 from typing import List
 
 
