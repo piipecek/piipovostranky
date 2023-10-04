@@ -1,12 +1,11 @@
-.datecolumn {
-    width: auto;
+body {
+    background-color: #FFF1E2 !important;
 }
-
-.container {
-    margin: 20px;
+header{
+    background-color: #FFF1E2;
 }
-hr {
-    margin: 5px;
+.dropdown-menu{
+    background-color: #FFF1E2 !important;
 }
 
 .alertcolor-info {
@@ -18,6 +17,37 @@ hr {
 .alertcolor-success {
     background-color: rgb(138, 253, 138  );
 }
+canvas {
+    background-color: white;
+}
+
+.border-orange{
+    border: 1px solid;
+    border-color: rgb(243,133,8);
+}
+
+.white-div {
+    background-color: white;
+}
+.main-section{
+    /* background-color: #FEE5CB; */
+    background-color: white;
+}
+.datecolumn {
+    width: auto;
+}
+
+.container {
+    margin: 20px;
+}
+hr {
+    margin: 5px;
+}
+
+.link{
+    color:darkblue;
+}
+
 
 .col-md-1 {
     width: 130px;
@@ -27,15 +57,4 @@ hr {
 }
 .w2 {
     width: 1500px;
-}
-body {
-    background-color: whitesmoke !important ;
-    margin-left: 20px;
-}
-canvas {
-    background-color: white;
-}
-
-.white-div {
-    background-color: white;
 }

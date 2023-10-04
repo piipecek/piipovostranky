@@ -1,5 +1,5 @@
 from typing import List
-from website.json_handlers import bugs_handling
+from aaa_legacy_slovnik import bugs_handling
 
 
 class Chyba:

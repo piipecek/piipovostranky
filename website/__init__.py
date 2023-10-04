@@ -6,7 +6,7 @@ from flask_cors import CORS
 from flask_login import LoginManager
 from flask_mail import Mail
 from .helpers.check_files import check_logs_file
-from .json_handlers.logs_handling import log
+from .logs import log
 from .paths import dotenv_path
 
 db = SQLAlchemy()
@@ -38,22 +38,24 @@ def create_app() -> Flask:
     cors.init_app(app)
     mail.init_app(app)
 
-    from .views.default_views import default_views
+    from .views.noauth_views import noauth_views
     from .views.auth_views import auth_views
     from .views.slovnik_views import slovnik_views
     from .views.visuals_views import visuals_views
     from .views.richard_views import richard_views
     from .views.sender_endpoints import sender
     from .views.admin_views import admin_views
+    from .api.admin_api import admin_api
 
 
-    app.register_blueprint(default_views, url_prefix="/")
+    app.register_blueprint(noauth_views, url_prefix="/")
     app.register_blueprint(auth_views, url_prefix="/auth")
     app.register_blueprint(slovnik_views, url_prefix="/slovnik")
     app.register_blueprint(visuals_views, url_prefix="/visuals")
     app.register_blueprint(richard_views, url_prefix="/api")
     app.register_blueprint(sender, url_prefix="/")
     app.register_blueprint(admin_views, url_prefix = "/admin")
+    app.register_blueprint(admin_api, url_prefix = "/admin_api")
 
 
     from .models.answer import Answer

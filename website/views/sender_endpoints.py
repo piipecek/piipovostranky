@@ -1,7 +1,6 @@
 from flask import Blueprint
 import json
 from website.models.suggestion import Suggestion
-from website.json_handlers.logs_handling import get_logs
 import website.paths as p
 from website.models.user import User
 from website.paths import multilang_path
@@ -10,7 +9,7 @@ from website.paths import multilang_path
 sender = Blueprint("sender", __name__)
 
 
-@sender.route("/send_noauth/<string:query>")
+@sender.route("/send_noauth/<string:query>") 
 def send_noauth(query):
     if query == "chyby":
         return json.dumps(Chyba.get_all())
@@ -19,9 +18,7 @@ def send_noauth(query):
 
 @sender.route("/send_admin/<string:query>")
 def send_admin(query):
-    if query == "logs":
-        return json.dumps(get_logs())
-    elif query == "users_from_data_folder":
+    if query == "users_from_data_folder":
         result = []
         for folder in p.user_data_folder_path().iterdir():
             if folder.name == ".DS_Store":

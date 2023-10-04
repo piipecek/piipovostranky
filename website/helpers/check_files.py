@@ -1,6 +1,6 @@
 import website.paths as p
 import json
-from website.json_handlers.logs_handling import log
+from website.logs import log
 
 
 def check_logs_file() -> None:
