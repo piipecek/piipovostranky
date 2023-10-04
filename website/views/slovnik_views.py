@@ -27,7 +27,7 @@ def pridej_slovicka():
         jazyky = settings.data["jazyky"]
         if len(jazyky) < 2:
             flash("Váš slovník neumí dost jazyků, asi jste tu poprvé. Přidejte alespoň dva v okýnku níže.", category="info")
-            return redirect(url_for("noauth_views.account"))
+            return redirect(url_for("guest_views.account"))
         return render_template("slovnik_pridej_slovicka.html", jazyky = json.dumps(jazyky))
     if request.method == "POST":
         inpt = request.form.get("input")

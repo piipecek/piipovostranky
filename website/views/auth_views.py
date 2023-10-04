@@ -11,7 +11,7 @@ auth_views = Blueprint("auth_views",__name__, template_folder="auth")
 @auth_views.route("/login", methods=["GET","POST"])
 def login():
 	if current_user.is_authenticated:
-		return redirect(url_for("noauth_views.dashboard"))
+		return redirect(url_for("guest_views.dashboard"))
 	if request.method == "GET":
 		return render_template("auth_login.html")
 	else:
@@ -27,7 +27,7 @@ def login():
 		if user and check_password_hash(user.password, password):
 			login_user(user, remember=True)
 			flash("úspěšné přihlášení", category="success")
-			return redirect(url_for("noauth_views.dashboard"))
+			return redirect(url_for("guest_views.dashboard"))
 		else:
 			flash("E-mail nebo heslo byly špatně", category="error")
 			return redirect(url_for("auth_views.login"))
@@ -35,7 +35,7 @@ def login():
 @auth_views.route("/register", methods=["GET","POST"])
 def register():
 	if current_user.is_authenticated:
-		return redirect(url_for("noauth_views.dashboard"))
+		return redirect(url_for("guest_views.dashboard"))
 	if request.method == "GET":
 		return render_template("auth_register.html")
 	else:
@@ -52,20 +52,20 @@ def register():
 			new_user.update()
 			login_user(new_user, remember=True)
 			flash("Úspěšná registrace.", category="success")
-			return redirect(url_for("noauth_views.dashboard"))
+			return redirect(url_for("guest_views.dashboard"))
 
 @auth_views.route("/logout")
 @login_required
 def logout():
 	logout_user()
 	flash("Odhlášení proběhlo úspěšně.", category="info")
-	return redirect(url_for("noauth_views.dashboard"))
+	return redirect(url_for("guest_views.dashboard"))
 
 
 @auth_views.route("/reset_password", methods=["GET","POST"])
 def request_reset():
 	if current_user.is_authenticated:
-		return redirect(url_for("noauth_views.home"))
+		return redirect(url_for("guest_views.home"))
 	if request.method == "GET":
 		return render_template("auth_request_reset.html")
 	else:
@@ -83,7 +83,7 @@ def request_reset():
 @auth_views.route("/reset_password/<token>", methods=["GET","POST"])
 def reset_password(token):
 	if current_user.is_authenticated:
-		return redirect(url_for("noauth_views.home"))
+		return redirect(url_for("guest_views.home"))
 	user = User.verify_reset_token(token)
 	if user is None:
 		flash("Obnovovací link vypršel, nebo je jinak neplatný.", category="info")

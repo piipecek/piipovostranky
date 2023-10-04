@@ -1,6 +1,6 @@
 {% extends "index.html" %}
 {% block nav %}
-    <li class="nav-item"><a class="nav-link active" href="{{url_for('noauth_views.dashboard')}}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{{url_for('guest_views.dashboard')}}">Dashboard</a></li>
     <li class="nav-item"><a class="nav-link active" href="{{url_for('slovnik_views.slovnik_home')}}">Slovník </a></li>
     <li class="nav-item"><a class="nav-link active" href="{{url_for('visuals_views.rybicky')}}">Rybičky</a></li>
     <li class="nav-item dropdown">
@@ -30,12 +30,12 @@
             <li class="nav-item"><a class="nav-link active" href="{{url_for('visuals_views.tabulky')}}">Tabulky</a></li>
         </ul>
     </li>
-    <li class="nav-item"><a class="nav-link active" href="{{url_for('noauth_views.mutace')}}">Jazykové mutace</a></li>    
+    <li class="nav-item"><a class="nav-link active" href="{{url_for('guest_views.mutace')}}">Jazykové mutace</a></li>    
     <li class="nav-item"><a class="nav-link active" href="{{url_for('richard_views.get_sunturtle')}}">Sunturtle</a></li> 
-    <li class="nav-item"><a class="nav-link active" href="{{url_for('noauth_views.vydaje')}}">Výdaje</a></li> 
+    <li class="nav-item"><a class="nav-link active" href="{{url_for('guest_views.vydaje')}}">Výdaje</a></li> 
     {% if "prihlasen" in roles %}
         {% if "user" in roles%} 
-            <li class="nav-item"><a class="nav-link active" href="{{url_for('noauth_views.account')}}">Účet</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{{url_for('guest_views.account')}}">Účet</a></li>
         {% endif %}
         {% if "admin" in roles %}
             <li  class="nav-item"><a class="nav-link active" href="{{url_for('admin_views.admin_dashboard')}}">Admin sekce</a></li>
@@ -51,12 +51,12 @@
 {% block footer %}
     <a class="link" target="_blank" href="https://github.com/piipecek/piipovo_stranky">Repo se zdrojovým kódem na githubu (otevře novou kartu)</a>
     <br>
-    <a class="link" href="{{url_for('noauth_views.planovane_featury')}}">Plánované featury</a>
+    <a class="link" href="{{url_for('guest_views.planovane_featury')}}">Plánované featury</a>
     <br>
-    <a class="link" href="{{url_for('noauth_views.known_bugs')}}">Známé připomínky</a>
+    <a class="link" href="{{url_for('guest_views.known_bugs')}}">Známé připomínky</a>
     <br>
-    <a class="link" href="{{url_for('noauth_views.nahlasit_bug')}}">Nová připomínka, nápad, bug</a>
+    <a class="link" href="{{url_for('guest_views.nahlasit_bug')}}">Nová připomínka, nápad, bug</a>
     <br>
-    <a class="link" href="{{url_for('noauth_views.historie')}}">Historie verzí</a>
+    <a class="link" href="{{url_for('guest_views.historie')}}">Historie verzí</a>
     <br>
 {% endblock %}

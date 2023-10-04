@@ -38,7 +38,7 @@ def create_app() -> Flask:
     cors.init_app(app)
     mail.init_app(app)
 
-    from .views.noauth_views import noauth_views
+    from .views.guest_views import guest_views
     from .views.auth_views import auth_views
     from .views.slovnik_views import slovnik_views
     from .views.visuals_views import visuals_views
@@ -46,9 +46,10 @@ def create_app() -> Flask:
     from .views.sender_endpoints import sender
     from .views.admin_views import admin_views
     from .api.admin_api import admin_api
+    from .api.guest_api import guest_api
 
 
-    app.register_blueprint(noauth_views, url_prefix="/")
+    app.register_blueprint(guest_views, url_prefix="/")
     app.register_blueprint(auth_views, url_prefix="/auth")
     app.register_blueprint(slovnik_views, url_prefix="/slovnik")
     app.register_blueprint(visuals_views, url_prefix="/visuals")
@@ -56,6 +57,7 @@ def create_app() -> Flask:
     app.register_blueprint(sender, url_prefix="/")
     app.register_blueprint(admin_views, url_prefix = "/admin")
     app.register_blueprint(admin_api, url_prefix = "/admin_api")
+    app.register_blueprint(guest_api, url_prefix = "/guest_api")
 
 
     from .models.answer import Answer

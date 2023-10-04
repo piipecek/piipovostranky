@@ -1,12 +1,12 @@
 import httpGet from "./httpGet.js"
 
-let chyby = JSON.parse(httpGet("/send_noauth/chyby"))
+let suggestions = JSON.parse(httpGet("/guest_api/suggestions"))
 let content_div = document.getElementById("content")
 
-function generator(data) {
+for (let s of suggestions) {
     let div = document.createElement("div")
     content_div.appendChild(div)
-    div.classList.add("border", "rounded-2", "border-secondary", "my-2", "p-2")
+    div.classList.add("border", "rounded-2", "border-secondary", "my-2", "p-2", "suggestion")
     div.classList.add("bug")
 
     function row_generator() {
@@ -29,17 +29,13 @@ function generator(data) {
 
     let cols_array = row_generator()
     cols_array[0].innerHTML = "Autor"
-    cols_array[1].innerHTML = data["autor"]
+    cols_array[1].innerHTML = s["author"]
 
     cols_array = row_generator()
     cols_array[0].innerHTML = "Popis:"
-    cols_array[1].innerHTML = data["popis"]
+    cols_array[1].innerHTML = s["value"]
 
     cols_array = row_generator()
     cols_array[0].innerHTML = "Stav řešení:"
-    cols_array[1].innerHTML = data["stav"]
-}
-
-for (let i=0;i<chyby.length;i++) {
-    generator(chyby[i])
+    cols_array[1].innerHTML = s["state"]
 }

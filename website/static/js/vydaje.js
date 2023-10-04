@@ -231,7 +231,7 @@ function prepocitat() {
 function novy_div_roztrizenych(kategorie, platby) {
     let div = document.createElement("div") // v tomhle divu je h3, row a tablediv
     result_div.appendChild(div)
-    div.classList.add("white-div", "border", "border-primary", "rounded", "p-2", "my-2")
+    div.classList.add("vydaje-white-div", "border", "border-primary", "rounded", "p-2", "my-2")
     
     let h3 = document.createElement("h3")
     div.appendChild(h3)

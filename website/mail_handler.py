@@ -19,6 +19,6 @@ def mail_sender(mail_identifier, target, data) -> None:
         msg = Message("Potvrzení e-mailu na 3D Portálu",
                       sender="josef.latj@gmail.com",
                       recipients=[target])
-        msg.html = render_template("mails/potvrzeni_emailu.html", url=url_for("noauth_views.account_verified", token = data, _external = True))
+        msg.html = render_template("mails/potvrzeni_emailu.html", url=url_for("guest_views.account_verified", token = data, _external = True))
         mail.send(msg)
     

@@ -7,7 +7,6 @@ header{
 .dropdown-menu{
     background-color: #FFF1E2 !important;
 }
-
 .alertcolor-info {
     background-color: rgb(253, 235, 138  );
 }
@@ -20,41 +19,19 @@ header{
 canvas {
     background-color: white;
 }
-
 .border-orange{
     border: 1px solid;
     border-color: rgb(243,133,8);
 }
-
-.white-div {
+.vydaje-white-div {
     background-color: white;
 }
 .main-section{
-    /* background-color: #FEE5CB; */
     background-color: white;
 }
-.datecolumn {
-    width: auto;
+.suggestion{
+    background-color: #FFF1E2;
 }
-
-.container {
-    margin: 20px;
-}
-hr {
-    margin: 5px;
-}
-
 .link{
     color:darkblue;
-}
-
-
-.col-md-1 {
-    width: 130px;
-}
-.w1 {
-    width: 220px;
-}
-.w2 {
-    width: 1500px;
 }

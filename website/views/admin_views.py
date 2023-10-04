@@ -18,17 +18,21 @@ def admin_dashboard():
 
 
 @admin_views.route("/uprava_znamych_bugu", methods=["GET","POST"])
+@require_role_system_name_on_current_user("editing_suggestions")
 def uprava_znamych_bugu():
-    if current_user.is_authenticated:
-        if is_admin(current_user.email):
-            if request.method == "GET":
-                return render_template("admin_uprava_znamych_chyb.html")
-            else:
-                Chyba.save_po_upravach(json.loads(request.form.get("result")))
-                return redirect(url_for("admin_views.admin_dashboard"))
-    
-    flash("Na tuto stránku nemáte přístup.", "error")
-    return redirect(url_for("noauth_views.home"))
+    if request.method == "GET":
+        return render_template("admin_uprava_znamych_chyb.html")
+    else:
+        if _id := request.form.get("smazat_suggestion"):
+            Suggestion.get_by_id(_id).delete()
+            flash("Záznam smazán", category="success")
+        elif _id := request.form.get("ulozit_stav"):
+            popis = request.form.get(_id)
+            s = Suggestion.get_by_id(_id)
+            s.state = popis
+            s.update()
+            flash("Záznam upraven", category="success")
+        return redirect(url_for("admin_views.uprava_znamych_bugu"))
     
 
 @admin_views.route("/logs_file", methods=["GET","POST"])
@@ -57,4 +61,4 @@ def edit_users():
                 return redirect(url_for("admin_views.admin_dashboard"))
     
     flash("Na tuto stránku nemáte přístup.", "error")
-    return redirect(url_for("noauth_views.home"))
+    return redirect(url_for("guest_views.home"))

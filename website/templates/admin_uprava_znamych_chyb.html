@@ -1,17 +1,11 @@
 {% extends "admin_navbar.html" %}
 {% block content %}
 
-<h2>Úprava známých bugů</h2>
-Tady bude seznam nahlášených chyb a možnost na ně odpovědět.
+<h2>Úprava známých připomínek</h2>
 
-<button type="button" class="btn btn-success" id ="save_button">Uložit</button>
-
-<form method="post" id="form">
-    <div id="content">
-
-    </div>
-    <input hidden id="result" name="result"/>
+<form method="post">
+    <div id="content"></div>
 </form>
 
-<script type="module" src="{{url_for('static', filename='js/uprava_znamych_chyb.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/admin_uprava_znamych_chyb.js')}}"></script>
 {% endblock %}
