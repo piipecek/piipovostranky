@@ -10,11 +10,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script type="module" src="{{url_for('static', filename='js/httpGet.js')}}"></script>
+    <script type="module" src="{{url_for('static', filename='js/http_get.js')}}"></script>
     <title>Pípovo stránky</title>
 </head>
 
-<body>
+<body class="mx-3">
 
     <header class="px-3">
         <nav class="navbar navbar-expand-lg navbar-light">
@@ -31,7 +31,7 @@
         </nav>
     
         {% for category, message in get_flashed_messages(with_categories=True) %}
-        <div class="container-sm border border-primary border-2 rounded-3 p-2 my-2 alertcolor-{{category}}">
+        <div class="container-sm border-orange border-2 rounded-3 p-2 my-2 alertcolor-{{category}}">
             {{message}}
         </div>
         {% endfor %}

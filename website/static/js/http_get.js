@@ -1,4 +1,4 @@
-function httpGet(theUrl)
+function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
@@ -6,4 +6,4 @@ function httpGet(theUrl)
     return xmlHttp.responseText;
 }
 
-export default httpGet
+export default http_get

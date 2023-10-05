@@ -1,5 +1,5 @@
 import Cookies from "./js.cookie.mjs"
-import httpGet from "./httpGet.js"
+import http_get from "./http_get.js"
 let names_to_translate =  ["nadpis", "myslenka_o_multilang", "name_neprislo", "nenasel_jazyk"]
 
 let cs_button = document.getElementById("cs")
@@ -16,7 +16,7 @@ function zmen_cookie(jazyk) {
 function zmen_jazyk() {
     if (Cookies.get("jazyk")) {
         let jazyk = Cookies.get("jazyk")
-        let multilang_soubor = JSON.parse(httpGet("/send_multilang/"+jazyk+"/jazykova_mutace"))
+        let multilang_soubor = JSON.parse(http_get("/send_multilang/"+jazyk+"/jazykova_mutace"))
         for (let id of names_to_translate) {
             let preklad = "Ze serveru nepřišel překlad pro tohle name: " + id + ". Nejspíše je špatně definovaný záznam v multilang souboru."
             for (let zaznam of multilang_soubor) {

@@ -1,6 +1,6 @@
-import httpGet from "./httpGet.js"
+import http_get from "./http_get.js"
 
-let suggestions = JSON.parse(httpGet("/admin_api/suggestions"))
+let suggestions = JSON.parse(http_get("/admin_api/suggestions"))
 let content_div = document.getElementById("content")
 
 function generator(s) { 

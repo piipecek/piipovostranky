@@ -43,10 +43,11 @@ def create_app() -> Flask:
     from .views.slovnik_views import slovnik_views
     from .views.visuals_views import visuals_views
     from .views.richard_views import richard_views
-    from .views.sender_endpoints import sender
     from .views.admin_views import admin_views
+    from .views.user_views import user_views
     from .api.admin_api import admin_api
     from .api.guest_api import guest_api
+    from .api.user_api import user_api
 
 
     app.register_blueprint(guest_views, url_prefix="/")
@@ -54,10 +55,11 @@ def create_app() -> Flask:
     app.register_blueprint(slovnik_views, url_prefix="/slovnik")
     app.register_blueprint(visuals_views, url_prefix="/visuals")
     app.register_blueprint(richard_views, url_prefix="/api")
-    app.register_blueprint(sender, url_prefix="/")
     app.register_blueprint(admin_views, url_prefix = "/admin")
     app.register_blueprint(admin_api, url_prefix = "/admin_api")
     app.register_blueprint(guest_api, url_prefix = "/guest_api")
+    app.register_blueprint(user_views, url_prefix = "/")
+    app.register_blueprint(user_api, url_prefix = "/user_api")
 
 
     from .models.answer import Answer

@@ -1,7 +1,7 @@
-import httpGet from "./httpGet.js"
+import http_get from "../website/static/js/http_get.js"
 
-let users_from_data_folder = JSON.parse(httpGet("/send_admin/users_from_data_folder"))
-let users_from_db = JSON.parse(httpGet("/send_admin/users_from_db"))
+let users_from_data_folder = JSON.parse(http_get("/send_admin/users_from_data_folder"))
+let users_from_db = JSON.parse(http_get("/send_admin/users_from_db"))
 
 function generator_from_folder(id, pocet_slovicek, jazyky) {
     let row = document.createElement("div")

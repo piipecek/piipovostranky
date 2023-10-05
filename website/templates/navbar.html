@@ -35,7 +35,7 @@
     <li class="nav-item"><a class="nav-link active" href="{{url_for('guest_views.vydaje')}}">Výdaje</a></li> 
     {% if "prihlasen" in roles %}
         {% if "user" in roles%} 
-            <li class="nav-item"><a class="nav-link active" href="{{url_for('guest_views.account')}}">Účet</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{{url_for('user_views.ucet')}}">Účet</a></li>
         {% endif %}
         {% if "admin" in roles %}
             <li  class="nav-item"><a class="nav-link active" href="{{url_for('admin_views.admin_dashboard')}}">Admin sekce</a></li>

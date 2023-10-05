@@ -1,6 +1,6 @@
-import httpGet from "./httpGet.js"
+import http_get from "./http_get.js"
 
-let db = JSON.parse(httpGet("/visuals/hadej_slova_getter"))
+let db = JSON.parse(http_get("/visuals/hadej_slova_getter"))
 let slova = [] //sem se ukládaj slova, která si uživatel vybral
 let dbs = [db] // sem se ukládaj databáze po jednotlivejch krocích
 let temp_db = [] //se mse ukládá jednotlivej krok

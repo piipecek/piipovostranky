@@ -1,7 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from flask_login import login_required, current_user
+from flask_login import current_user
 from website.models.user import get_roles
 from website.models.suggestion import Suggestion
+from website.paths import multilang_path
+import json
 
 
 guest_views = Blueprint("guest_views",__name__)
@@ -36,14 +38,6 @@ def nahlasit_bug():
 def planovane_featury():
     return render_template("planovane_featury.html", roles=get_roles(current_user))
 
-@guest_views.route("/account", methods=["GET","POST"])
-@login_required
-def account():
-    if request.method == "GET":
-        return render_template("account.html", roles=get_roles(current_user))
-    else:
-         return request.form.to_dict()
-
 
 @guest_views.route("/mutace")
 def mutace():
@@ -52,3 +46,23 @@ def mutace():
 @guest_views.route("/vydaje")
 def vydaje():
     return render_template("vydaje.html", roles=get_roles(current_user))
+
+@guest_views.route("send_multilang/<string:lang>/<string:location>")
+def send_multilang(lang, location) -> str:
+    with open(multilang_path()) as file:
+        file = json.load(file)
+
+    result = []
+    for zaznam in file:
+        if zaznam["location"] == location:
+            novy_zaznam = {
+                "name": zaznam["name"],
+            }
+            if lang in zaznam["translations"]:
+                novy_zaznam["preklad"] = zaznam["translations"][lang]
+            else:
+                name = zaznam["name"]
+                novy_zaznam["preklad"] = f"Tahle kombinace jména a lokace ({name}, {location}) nemá překald pro {lang}."
+            result.append(novy_zaznam)
+
+    return json.dumps(result)

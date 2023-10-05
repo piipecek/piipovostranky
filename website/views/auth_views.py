@@ -25,7 +25,7 @@ def login():
 			return redirect(url_for("auth_views.login"))
 		user = User.get_by_email(email=email)
 		if user and check_password_hash(user.password, password):
-			login_user(user, remember=True)
+			user.login()
 			flash("úspěšné přihlášení", category="success")
 			return redirect(url_for("guest_views.dashboard"))
 		else:
@@ -50,7 +50,7 @@ def register():
 			new_user = User(email=email, password=generate_password_hash(password, method="sha256"))
 			new_user.roles.append(Role.get_by_system_name("user"))
 			new_user.update()
-			login_user(new_user, remember=True)
+			new_user.login()
 			flash("Úspěšná registrace.", category="success")
 			return redirect(url_for("guest_views.dashboard"))
 

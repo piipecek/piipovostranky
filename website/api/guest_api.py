@@ -1,6 +1,5 @@
 import json
 from flask import Blueprint
-from website.logs import get_app_logs
 from website.models.suggestion import Suggestion
 
 guest_api = Blueprint("guest_api", __name__)

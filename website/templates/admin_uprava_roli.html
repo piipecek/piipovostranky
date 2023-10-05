@@ -1,0 +1,43 @@
+{% extends "admin_navbar.html" %}
+{% block content %}
+<h2>Úprava rolí v databázi</h2>
+<p>
+    <ul>
+        <li>Tahle stránka slouží primárně k systematickému přidání rolí na začátku funkčnosti webu a v době nasazení by neměla mít užitek.</li>
+        <li>Pokud odtud bude odebrána role, automaticky zmizí od všech uživatelů, kteří ji měli.</li>
+        <li>Přepsání <code>systémového jména</code> rolí skoro jistě způsobí rozbití něčeho.</li>
+        <li>Cokoli by se odtud ale rozbilo, jde opětovným přidáním role opravit.</li>
+        <li>Jediná komplikace by byla odebrání rolí pro jmenování adminů, řešení ale existuje z konsole na deploynutém prostředí.</li>
+    </ul>
+</p>
+<hr>
+<h3>Stávající role</h3>
+<form method="post">
+    <div class="table-responsive"><table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Systémové jméno</th>
+                <th scope="col">Display jméno</th>
+                <th scope="col">Počet uživatelů s rolí</th>
+                <th scope="col">Smazat</th>
+            </tr>
+        </thead>
+        <tbody id="stavajici_role"></tbody>
+    </table></div>
+</form>
+<h3>Přidat roli</h3>
+<form method="post">
+    <div class="row">
+        <div class="col-sm-3 my-2">Systémovej název</div>
+        <div class="col"><input name="system_name" class="form-control"/></div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3 my-2">Display název</div>
+        <div class="col"><input name="display_name" class="form-control"/></div>
+    </div>
+    <button type="submit" class="btn btn-success">Přidat</button>
+</form>
+
+
+<script type="module" src="{{url_for('static', filename='js/admin_uprava_roli.js')}}"></script>
+{% endblock %}

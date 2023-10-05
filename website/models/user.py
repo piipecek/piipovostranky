@@ -1,11 +1,21 @@
 from website import db
 from website.models.common_methods_db_model import Common_methods_db_model
 from website.models.jointables import user_role_jointable
+from website.helpers.pretty_date import pretty_datetime
 from datetime import datetime, timedelta, timezone
 from flask import current_app
-from flask_login import UserMixin, current_user
+from flask_login import UserMixin, current_user, login_user
 from typing import List
 import jwt
+
+
+def get_roles(u: "User" = current_user) -> List[str]:
+    result = []
+    if u.is_authenticated:
+        result.append("prihlasen")
+        result.extend([r.system_name for r in u.roles])
+    return result
+
 
 class User(Common_methods_db_model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,11 +59,54 @@ class User(Common_methods_db_model, UserMixin):
             return None
         return User.get_by_id(data["user_id"])
     
-
-
-def get_roles(u: User = current_user) -> List["str"]:
-    result = []
-    if u.is_authenticated:
-        result.append("prihlasen")
-        result.extend([r.system_name for r in u.roles])
-    return result
+    @staticmethod
+    def get_seznam_pro_jmenovani_adminu() -> list:
+        result = {
+            "admins": [],
+            "users": []
+        }
+        for u in User.get_all():
+            data = {
+                "id": u.id,
+                "email": u.email
+            }
+            if "admin" in get_roles(u):
+                result["admins"].append(data)
+            else:
+                result["users"].append(data)
+        return result
+    
+    def get_info_pro_seznam_useru(self) -> dict:
+        return {
+            "id": self.id,
+            "email": self.email,
+            "last_login_datetime": pretty_datetime(self.last_login_datetime),
+            "confirmed": "Ano" if self.confirmed else "Ne"
+        }
+    
+    def login(self):
+        login_user(self, remember=True)
+        self.last_login_datetime = datetime.now()
+        self.update()
+        
+    def get_info_for_admin_detail_usera(self) -> dict:
+        return {
+            "id": self.id,
+            "email": self.email,
+            "last_login_datetime": pretty_datetime(self.last_login_datetime),
+            "registration_datetime": pretty_datetime(self.registration_datetime),
+            "confirmed": "Ano" if self.confirmed else "Ne",
+            "number_of_decks": len(self.decks),
+            "number_of_terms": len(self.terms),
+            "number_of_exams": len(self.exams)
+        }
+        
+    def get_info_for_detail_usera(self) -> dict:
+        return {
+            "email": self.email,
+            "registration_datetime": pretty_datetime(self.registration_datetime),
+            "confirmed": "Ano" if self.confirmed else "Ne",
+            "number_of_decks": len(self.decks),
+            "number_of_terms": len(self.terms),
+            "number_of_exams": len(self.exams)
+        }

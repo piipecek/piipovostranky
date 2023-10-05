@@ -1,7 +1,11 @@
-import httpGet from "./httpGet.js"
+import http_get from "./http_get.js"
 
-let suggestions = JSON.parse(httpGet("/guest_api/suggestions"))
+let suggestions = JSON.parse(http_get("/guest_api/suggestions"))
 let content_div = document.getElementById("content")
+
+if (suggestions.length == 0) {
+    content_div.innerText = "Žádná připomínka tu není."
+}
 
 for (let s of suggestions) {
     let div = document.createElement("div")
