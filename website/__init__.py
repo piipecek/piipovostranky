@@ -41,7 +41,7 @@ def create_app() -> Flask:
     from .views.guest_views import guest_views
     from .views.auth_views import auth_views
     from .views.slovnik_views import slovnik_views
-    from .views.visuals_views import visuals_views
+    from .views.one_page_apps_views import one_page_apps_views
     from .views.admin_views import admin_views
     from .views.user_views import user_views
     from .api.admin_api import admin_api
@@ -52,7 +52,7 @@ def create_app() -> Flask:
     app.register_blueprint(guest_views, url_prefix="/")
     app.register_blueprint(auth_views, url_prefix="/auth")
     app.register_blueprint(slovnik_views, url_prefix="/slovnik")
-    app.register_blueprint(visuals_views, url_prefix="/visuals")
+    app.register_blueprint(one_page_apps_views, url_prefix="/")
     app.register_blueprint(admin_views, url_prefix = "/admin")
     app.register_blueprint(admin_api, url_prefix = "/admin_api")
     app.register_blueprint(guest_api, url_prefix = "/guest_api")
@@ -68,7 +68,7 @@ def create_app() -> Flask:
     from .models.suggestion import Suggestion
     from .models.term import Term
     from .models.translation import Translation
-    from .models.user import User
+    from .models.user import User, get_roles
  
     with app.app_context():
         db.create_all()
@@ -82,10 +82,10 @@ def create_app() -> Flask:
 
     @app.errorhandler(404)
     def not_found(e):
-        return render_template("not_found.html"), 404
+        return render_template("guest/not_found.html", roles=get_roles()), 404
 
     @app.errorhandler(401)
     def not_authorised(e):
-        return render_template("not_authorised.html"), 401
+        return render_template("guest/not_authorised.html", roles=get_roles()), 401
 
     return app

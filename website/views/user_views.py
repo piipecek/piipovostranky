@@ -11,6 +11,6 @@ user_views = Blueprint("user_views",__name__)
 @require_role_system_name_on_current_user("user")
 def ucet():
     if request.method == "GET":
-        return render_template("ucet.html", roles=get_roles(current_user))
+        return render_template("user/ucet.html", roles=get_roles(current_user))
     else:
          return request.form.to_dict()

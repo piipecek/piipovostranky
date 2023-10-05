@@ -4,7 +4,6 @@ from website.models.suggestion import Suggestion
 from website.models.user import User, get_roles
 from website.models.role import Role
 from website.logs import delete_app_logs
-import shutil
 import json
 from website.helpers.require_role import require_role_system_name_on_current_user
 
@@ -15,14 +14,14 @@ admin_views = Blueprint("admin_views",__name__)
 @admin_views.route("/dashboard")
 @require_role_system_name_on_current_user("admin")
 def admin_dashboard():
-    return render_template("admin_dashboard.html", roles=get_roles())
+    return render_template("admin/admin_dashboard.html", roles=get_roles())
 
 
 @admin_views.route("/uprava_znamych_bugu", methods=["GET","POST"])
 @require_role_system_name_on_current_user("editing_suggestions")
 def uprava_znamych_bugu():
     if request.method == "GET":
-        return render_template("admin_uprava_znamych_chyb.html", roles=get_roles())
+        return render_template("admin/admin_uprava_znamych_chyb.html", roles=get_roles())
     else:
         if _id := request.form.get("smazat_suggestion"):
             Suggestion.get_by_id(_id).delete()
@@ -40,7 +39,7 @@ def uprava_znamych_bugu():
 @require_role_system_name_on_current_user("editing_app_logs")
 def logs_file():
     if request.method == "GET":
-        return render_template("admin_logs_file.html", roles=get_roles())
+        return render_template("admin/admin_logs_file.html", roles=get_roles())
     else:
         delete_app_logs()
         flash("Logy úspěšně smazány", category="success")
@@ -51,7 +50,7 @@ def logs_file():
 @require_role_system_name_on_current_user("editing_users")
 def edit_users():
     if request.method == "GET":
-        return render_template("admin_seznam_uzivatelu.html", roles=get_roles())
+        return render_template("admin/admin_seznam_uzivatelu.html", roles=get_roles())
     else:
         result = request.form.get("result")
         return redirect(url_for("admin_views.detail_usera", id=result))
@@ -60,7 +59,7 @@ def edit_users():
 @require_role_system_name_on_current_user("editing_users")
 def edit_admins():
     if request.method == "GET":
-        return render_template("admin_seznam_adminu.html", roles=get_roles())
+        return render_template("admin/admin_seznam_adminu.html", roles=get_roles())
     else:
         result = request.form.get("result")
         return redirect(url_for("admin_views.detail_usera", id=result))
@@ -69,7 +68,7 @@ def edit_admins():
 @require_role_system_name_on_current_user("editing_roles")
 def uprava_roli():
     if request.method == "GET":
-        return render_template("admin_uprava_roli.html", roles=get_roles())
+        return render_template("admin/admin_uprava_roli.html", roles=get_roles())
     else:
         if request.form.get("smazat"):
             system_name = request.form.get("smazat")
@@ -92,7 +91,7 @@ def uprava_roli():
 @require_role_system_name_on_current_user("editing_admins")
 def jmenovat_adminy():
     if request.method == "GET":
-        return render_template("admin_jmenovat_adminy.html", roles=get_roles())
+        return render_template("admin/admin_jmenovat_adminy.html", roles=get_roles())
     else:
         id = int(request.form.get("result"))
         print(id)
@@ -103,7 +102,7 @@ def jmenovat_adminy():
 def vybrat_role_adminovi(id):
     user = User.get_by_id(id)
     if request.method == "GET":
-        return render_template("admin_vybrat_role_adminovi.html", user=user, roles=get_roles())
+        return render_template("admin/admin_vybrat_role_adminovi.html", user=user, roles=get_roles())
     else:
         if request.form.get("detail"):
             return redirect(url_for("admin_views.detail_usera", id=request.form.get("detail")))
@@ -124,7 +123,7 @@ def vybrat_role_adminovi(id):
 def detail_usera(id):
     if request.method == "GET":
         if id in [u.id for u in User.get_all()]:
-            return render_template("admin_detail_uzivatele.html", roles=get_roles(), id=id)
+            return render_template("admin/admin_detail_uzivatele.html", roles=get_roles(), id=id)
         else:
             flash("Uživatel s tímhle ID neexistuje.", category="error")
             return redirect(url_for("admin_views.edit_users"))

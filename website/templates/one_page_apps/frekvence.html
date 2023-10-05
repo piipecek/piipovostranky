@@ -1,0 +1,14 @@
+{% extends "guest/navbar.html" %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js" integrity="sha512-jduERlz7En1IUZR54bqzpNI64AbffZWR//KJgF71SJ8D8/liKFZ+s1RxmUmB+bhCnIfzebdZsULwOrbVB5f3nQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<button id="enable" class="btn btn-primary my-2">Zapnout zvuk na tomto okně</button>
+<div id="container"></div>
+<button class="btn btn-success" id="new_tone">Nový tón</button>
+
+
+
+
+<script type="module" src="{{url_for('static', filename='js/one_page_apps/frekvence.js')}}"></script>
+
+{% endblock %}

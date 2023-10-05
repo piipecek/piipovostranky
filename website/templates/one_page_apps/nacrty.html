@@ -1,0 +1,15 @@
+{% extends "guest/navbar.html" %}
+
+{% block content %}
+
+<h1>Moje náčrty</h1>
+A hraní si s tim vykreslovačem
+<hr>
+
+<canvas id="ppr0_1"></canvas>
+
+
+<script type="module" src="{{url_for('static', filename='js/one_page_apps/nacrty.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/one_page_apps/cartesian_graph.js')}}"></script>
+
+{% endblock %}

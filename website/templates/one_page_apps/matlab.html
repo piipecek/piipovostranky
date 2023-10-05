@@ -1,0 +1,55 @@
+{% extends "guest/navbar.html" %}
+
+{% block content %}
+
+<h1>Převod českého textu pro Matlab \(\LaTeX\) interpreter</h1>
+
+Při vykreslování grafů v Matlabu lze použít \(\LaTeX\) vzhled písma. Stačí kdekoli nad příkazem <code>plot()</code> použít 
+<div class="m-2 p-2 border border-primary rounded" ><code><pre>
+set(0,'defaulttextInterpreter','latex');
+set(groot, 'defaultAxesTickLabelInterpreter','latex');
+set(groot, 'defaultLegendInterpreter','latex');
+set(groot,'defaultfigureposition',[0 0 1500 1000])
+</pre></code></div>
+
+Matlab ale má problém s háčky a čárkami, vyžaduje speciální syntax: např. <code>\v{z}</code> znamená ž. Tenhle converter to zařídí. <br>   
+
+<div class="m-2 p-2 border border-primary rounded">
+    <h2>Input</h2>
+    <textarea class="form-control" id="in">úhlová rychlost</textarea>
+    <h2>Výsledek</h2>
+    <textarea class="form-control" id="out" disabled></textarea>
+</div>
+
+Poznámka pro Pípa, kterej sem leze často: další užitečný věci ke grafu:
+
+<div class="m-2 p-2 border border-primary rounded" ><code><pre>
+figure(1);
+p = plot(x,y);
+p.Marker = "+";
+p.LineStyle = "none";
+p.Color = "red";
+p.MarkerSize = 6;
+p.LineWidth = 2;
+set(gca,'FontSize',20);
+xlabel("");
+ylabel("");
+title("");
+%xlim([]);
+%ylim([]);
+grid on;</pre></code></div>
+
+Pro subplot:
+
+<div class="m-2 p-2 border border-primary rounded" ><code><pre>
+figure(1);
+subplot(1,2,1);
+...
+subplot(1,2,2);
+...
+sgtitle("Celej nadpis", "fontsize", 30)
+grid on;</pre></code></div>
+
+
+<script src="{{url_for('static', filename='js/one_page_apps/matlab.js')}}"></script>
+{% endblock %}

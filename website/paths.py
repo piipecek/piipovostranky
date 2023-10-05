@@ -5,7 +5,7 @@ def piipuv_omnislovnik_path() -> Path:
     return cwd / "piipuv_omnislovnik_k_3_10_2021.json"
 
 def hadej_slova_db_path() -> Path:
-    return Path.cwd() / "hadej_slova.json"
+    return Path.cwd() / "data" / "hadej_slova.json"
 
 def tomiem_result_path() -> Path:
     return Path.cwd() / "tomiem_ipsum" / "result.txt"

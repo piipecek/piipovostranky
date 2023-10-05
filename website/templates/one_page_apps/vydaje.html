@@ -1,0 +1,130 @@
+{% extends "guest/navbar.html" %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/vydaje.css')}}">
+<script src="https://cdn.plot.ly/plotly-2.25.2.min.js" charset="utf-8"></script>
+
+
+<h1>Analýza výdajů s pomocí ČSOB IB</h1>
+<ul>
+    <li>V IB ČSOB jde generovat seznam výdajů v Přehledy -> Pohyby</li>
+    <li>Filtr umožňuje vybrat platby z celého roku</li>
+    <li>Tato aplikace zatím řeší pouze odchozí platby</li>
+    <li>Data je třeba stáhnout v <code>.csv</code></li>
+</ul>
+<h2>Použití</h2>
+<ul>
+    <li>Před nahráním je třeba mít dva soubory. Jeden je <code>.csv</code> s výdaji, druhý obsahuje klíč, podle kterého platby třídit. </li>
+    <li>Ten druhý soubor vzniká na této stránce. Dá se tu nahrát z minula, nebo vytvořit nový. Po vytvoření se dá stáhnout a použít příště.</li>
+    <li>Při vytváření pravidel se dá kliknout na hodnotu ve sloupci <code>číslo protiúčtu</code> nebo <code>zpráva</code> pro automatické vyplnění konkrétního pravidla.</li>
+    <li>Seznam zbývajících plateb se dá seřadit podle data, částky a místa.</li>
+</ul>
+
+<h2>Pravidla</h2>
+<div id="pravidla_buttons">
+    <div class="row">
+        <div class="col">
+            <div class="d-flex align-items-center justify-content-center">
+                <button class="btn btn-outline-primary" id="jsem_tu_nove_button">Jsem tu poprvé a soubor s pravidly ještě nemám</button>
+            </div>
+        </div>
+        <div class="col">
+            <div class="d-flex align-items-center justify-content-center">
+                <button class="btn btn-outline-primary" id="mam_pravidla_button">Mám soubor s pravidly a chci ho nahrát</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="nahrat_pravidla" hidden>
+    <input type="file" id="pravidlaFileInput" accept=".json" class="form-control">
+</div>
+<div id="pravidla_div" hidden>
+    <button class="btn btn-outline-primary my-2" id="stahnout_pravidla">Stáhnout soubor s pravidly</button>
+    <button class="btn btn-outline-primary m-2" id="prepocitat_button">Přepočítat</button>
+    <div class="border border-primary rounded vydaje-white-div table-responsive pravidla-div">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Údaj</th>
+                    <th>Výskyt</th>
+                    <th>Klíč</th>
+                    <th>Kategorie</th>
+                    <th>Smazat</th>
+                </tr>
+            </thead>
+            <tbody id="pravidla">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<div id="nahrat_csv_div">
+    <h2>Nahrát <code>.csv</code></h2>
+    <input type="file" id="csvFileInput" accept=".csv" class="form-control">
+</div>
+
+<div class="container" id="main_div" hidden>
+    <div class="row">
+        <div class="col-9">
+            <h2>Počet zbývajících výdajů: <span id="count"></span></h2>
+            <div class="border border-primary rounded vydaje-white-div table-responsive nevytrideny-div">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th id="datum_sort" class="sort-th">Datum <span id="datum_sort_span" class="sort-span">▼</span></th>
+                            <th id="castka_sort" class="sort-th">Částka <span id="castka_sort_span" class="sort-span">●</span></th>
+                            <th id="misto_sort" class="sort-th">Místo <span id="misto_sort_span" class="sort-span">●</span></th>
+                            <th>Číslo protiúčtu</th>
+                            <th>Zpráva</th>
+                        </tr>
+                    </thead>
+                    <tbody id="main_table">
+    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-3">
+            <h2>Nové pravidlo</h2>
+            <div class="d-flex align-items-center justify-content-center">
+                Všechny řádky, kde
+            </div>
+            <select class="form-select my-2" id="udaj_select">
+                <option value="zpráva" id="zprava_option">Zpráva</option>
+                <option value="číslo protiúčtu" id="cislo_protiuctu_option">Číslo protiúčtu</option>
+            </select>
+            <select class="form-select my-2" id="vyskyt_select">
+                <option value="obsahuje" id="obsahuje_option">obsahuje</option>
+                <option value="je" id="je_option">je shodná s</option>
+            </select>
+            <input class="form-control my-2" placeholder="řetězec" id="klic_input">
+            <div class="d-flex align-items-center justify-content-center">
+                patří do kategorie
+            </div>
+            <select class="form-select my-2" my-2 id="kategorie_select">
+                <option value="nova_kategorie">Nová kategorie</option>
+            </select>
+            <input class="form-control my-2" placeholder="nová kategorie" id="kategorie_input">
+            <button class="btn btn-outline-primary" type="button" id="nove_pravidlo">Přidat pravidlo a přetřídit</button>
+
+        </div>
+    </div>
+    <br>
+    <h2>Výsledky</h2>
+    <h3>Po měsících</h3>
+    <div class="vydaje-white-div border border-primary rounded p-2">
+        <div id="main_plot_div"></div>
+    </div>
+    <h3>Po kategoriích</h3>
+    <div id="result">
+
+    </div>
+</div>
+
+<script type="module" src="{{url_for('static', filename='js/one_page_apps/vydaje_helpers.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/one_page_apps/vydaje.js')}}"></script>
+
+
+{% endblock %}

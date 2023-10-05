@@ -1,4 +1,4 @@
-{% extends "admin_navbar.html" %}
+{% extends "admin/admin_navbar.html" %}
 
 {% block content %}
 <h2>Úprava uživatelů</h2>
@@ -37,6 +37,6 @@ Tady jsou data posbíraná z databáze. Zatím nejde mazat usery odtud, protože
     <input hidden name="result" id="result"/>
 </form>
 
-<script type="module" src="{{url_for('static', filename='js/admin_edit_users.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/admin/admin_edit_users.js')}}"></script>
 
 {% endblock %}
