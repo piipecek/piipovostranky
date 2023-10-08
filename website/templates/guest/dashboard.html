@@ -1,7 +1,152 @@
-{%extends "guest/navbar.html"%}
+{%extends "index.html"%}
+{% block nav%}
+    {% if "prihlasen" in roles %}
+        {% if "user" in roles%} 
+            <li class="nav-item"><a class="nav-link active" href="{{url_for('user_views.ucet')}}">Účet</a></li>
+        {% endif %}
+        {% if "admin" in roles %}
+            <li  class="nav-item"><a class="nav-link active" href="{{url_for('admin_views.admin_dashboard')}}">Admin sekce</a></li>
+        {% endif %}
+        <li class="nav-item"><a class="nav-link active" href="{{url_for('auth_views.logout')}}">Logout</a></li>
+    {% else %}
+        <li class="nav-item"><a class="nav-link active" href="{{url_for('auth_views.login')}}">Login</a></li>
+        <li class="nav-item"><a class="nav-link active" href="{{url_for('auth_views.register')}}">Register</a></li>
+    {% endif %}
+{% endblock %}
+
 {%block content%}
-    <h1>Pípovo stránky</h1>
-    <p>
-        Jsou projekt, kam dávam různý vymoženosti, co vytvářim. Se vzhledem mi pomáhá Richard a Gruny.
-    </p>
+    <div class="d-flex justify-content-center">
+        <h1 class="my-2">Pípovo stránky</h1>
+    </div>
+    <div class="row p-2">
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.rybicky')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Rybičky
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('slovnik_views.slovnik_home')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Slovník
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.popis_primky')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Způsoby popisu přímky
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.trig')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Mindset na goniometrické funkce
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.nacrty')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Náčrtky
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.frekvence')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Frekvence
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="https://piipecek.github.io/tomio.html" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Tomiem Ipsum
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.catan')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Mapa pro Osadníky z Katanu
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.hadej_slova')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Hádej slova
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.cernabila')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Černá bílá
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.semihra')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Semihra
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.matlab')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Líbivé Matlab ploty
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.tabulky')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Latex matlab tabulky
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.mutace')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Jazykové mutace
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.vydaje')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    ČSOB Výdaje
+                </div>
+            </a>
+        </div>
+    </div>
+      
 {%endblock%}
+
+{% block footer %}
+    <section class="container-sm border-orange border-2 rounded-3 p-2 footer-section">
+        <div class="row">
+            <div class="col-sm">
+                <a class="link" href="{{url_for('guest_views.known_bugs')}}">Známé připomínky</a>
+                <br>
+                <a class="link" href="{{url_for('guest_views.nahlasit_bug')}}">Nová připomínka, nápad, bug</a>
+                <br>
+                <a class="link" href="{{url_for('guest_views.planovane_featury')}}">Plánované featury</a>
+                <br>
+            </div>
+            <div class="col-sm text-end">
+                <a class="link" target="_blank" href="https://github.com/piipecek/piipovo_stranky">Zdroj</a>
+                <br>
+                <a class="link" target="_blank" href="https://t.me/piipecek">Kontakt</a>
+                <br>
+                <a class="link" href="{{url_for('guest_views.historie')}}">Historie verzí</a>
+                <br>
+            </div>
+        </div>
+    </section>
+{% endblock %}

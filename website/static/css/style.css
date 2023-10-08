@@ -35,3 +35,18 @@ canvas {
 .link{
     color:darkblue;
 }
+.panel-link{
+    min-height: 10rem;
+    background-color: #FFF1E2;
+    text-decoration: none;
+    color: black;
+    width: 100%;
+    font-weight: bold;
+}
+.panel-link:hover{
+    background-color: aliceblue;
+    color:orange;
+}
+.footer-section{
+    background-color: #FFFAF6;
+}
