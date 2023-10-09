@@ -40,10 +40,10 @@ def create_app() -> Flask:
 
     from .views.guest_views import guest_views
     from .views.auth_views import auth_views
-    from .views.slovnik_views import slovnik_views
     from .views.one_page_apps_views import one_page_apps_views
     from .views.admin_views import admin_views
     from .views.user_views import user_views
+    from .views.slovnik_views import slovnik_views
     from .api.admin_api import admin_api
     from .api.guest_api import guest_api
     from .api.user_api import user_api
