@@ -8,7 +8,6 @@ from flask_login import UserMixin, current_user, login_user
 from typing import List
 import jwt
 
-
 def get_roles(u: "User" = current_user) -> List[str]:
     result = []
     if u.is_authenticated:
