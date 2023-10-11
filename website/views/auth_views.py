@@ -51,6 +51,7 @@ def register():
 			new_user.roles.append(Role.get_by_system_name("user"))
 			new_user.update()
 			new_user.login()
+			mail_sender(mail_identifier = "potvrzeni_emailu", target = new_user.email, data=new_user.get_reset_token())
 			flash("Úspěšná registrace.", category="success")
 			return redirect(url_for("guest_views.dashboard"))
 

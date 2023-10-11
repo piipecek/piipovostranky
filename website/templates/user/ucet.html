@@ -35,6 +35,11 @@
         </div>
     </div>
 </div>
+{% if not confirmed %}
+    <form method="post">
+        <button type="submit" class="btn custom-button" name="confirmation_email" value="whatever">Odeslat ověřovací e-mail</button>
+    </form>
+{% endif %}
 
 <script type="module" src="{{url_for('static', filename='js/user/ucet.js')}}"></script>
 
