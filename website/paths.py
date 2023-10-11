@@ -21,3 +21,6 @@ def cernabila_getword_path() -> Path:
 
 def dotenv_path() -> Path:
     return Path.cwd() / ".env"
+
+def ikonky_folder_path() -> Path:
+    return Path.cwd() / "website" / "static" / "img" / "ikonky"

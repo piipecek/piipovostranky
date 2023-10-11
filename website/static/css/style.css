@@ -50,3 +50,12 @@ canvas {
 .footer-section{
     background-color: #FFFAF6;
 }
+.custom-button{
+    background-color: rgb(243,133,8) !important;
+    color: white !important;
+}
+.custom-button:hover{
+    background-color: rgb(243,234,224) !important;
+    color: rgb(243,133,8) !important;
+    border-color: rgb(243,133,8) !important;
+}
