@@ -4,6 +4,7 @@ from website.models.suggestion import Suggestion
 from website.models.user import User, get_roles
 from website.models.role import Role
 from website.logs import delete_app_logs
+from website.models.language import Language
 import json
 from website.helpers.require_role import require_role_system_name_on_current_user
 
@@ -138,3 +139,42 @@ def detail_usera(id):
             return redirect(url_for("admin_views.admin_dashboard"))
         else:
             return request.form.to_dict()
+
+@admin_views.route("/jazyky", methods=["GET", "POST"])
+@require_role_system_name_on_current_user("editing_languages")
+def jazyky():
+    if request.method == "GET":
+        return render_template("admin/admin_jazyky.html", roles=get_roles())
+    else:
+        if request.form.get("novy_jazyk"):
+            s = request.form.get("system_name")
+            d = request.form.get("display_name")
+            l = Language(system_name = s, display_name = d)
+            l.update()
+            flash(f"Přidán jazyk {d}", category="success")
+        elif id := request.form.get("detail"):
+            return redirect(url_for("admin_views.detail_jazyka", id=id))
+        return redirect(url_for("admin_views.languages"))
+    
+@admin_views.route("/detail_jazyka/<int:id>", methods=["GET", "POST"])
+@require_role_system_name_on_current_user("editing_languages")
+def detail_jazyka(id):
+    if request.method == "GET":
+        if id in [l.id for l in Language.get_all()]:
+            return render_template("admin/detail_jazyka.html", roles=get_roles(), id=id)
+        else:
+            flash("Jazyk s tímhle ID neexistuje.", category="error")
+            return redirect(url_for("admin_views.jazyky"))
+    else:
+        l = Language.get_by_id(id)
+        if request.form.get("ulozit"):
+            s = request.form.get("system_name")
+            d = request.form.get("display_name")
+            if l.system_name == s and l.display_name == d:
+                flash("Nedošlo k žádné změně", category="info")
+            else:
+                l.system_name = s
+                l.display_name = d
+                l.update()
+                flash("Jazyk upraven", category="success")
+        return redirect(url_for("admin_views.detail_jazyka", id=id))
