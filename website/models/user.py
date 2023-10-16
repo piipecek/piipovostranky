@@ -89,16 +89,41 @@ class User(Common_methods_db_model, UserMixin):
         self.update()
         
     def get_info_for_admin_detail_usera(self) -> dict:
-        return {
-            "id": self.id,
-            "email": self.email,
-            "last_login_datetime": pretty_datetime(self.last_login_datetime),
-            "registration_datetime": pretty_datetime(self.registration_datetime),
-            "confirmed": "Ano" if self.confirmed else "Ne",
-            "number_of_decks": len(self.decks),
-            "number_of_terms": len(self.terms),
-            "number_of_exams": len(self.exams)
-        }
+        return [
+            {
+                "display_name": "ID v systému",
+                "value": self.id
+            },
+            {
+                "display_name":"E-mail",
+                "value": self.email
+            },
+            {
+                "display_name":"Ověřený e-mail",
+                "value": "Ano" if self.confirmed else "Ne"
+            },
+            {
+                "display_name":"Registrace",
+                "value": pretty_datetime(self.registration_datetime)
+            },
+            {
+                "display_name": "Poslední přihlášení",
+                "value": pretty_datetime(self.last_login_datetime)
+            },
+            {
+                "display_name":"Slovíček",
+                "value": len(self.decks)
+            },
+            {
+                "display_name":"Balíčků",
+                "value": len(self.terms)
+            },
+            {
+                "display_name":"Zkoušení",
+                "value":len(self.exams)
+            }
+        ]
+
         
     def get_info_for_detail_usera(self) -> dict:
         return {
