@@ -23,6 +23,7 @@ python-dotenv = "*"
 pymysql = "*"
 jwt = "*"
 pyjwt = "*"
+xlrd = "*"
 
 [dev-packages]
 ipykernel = "*"

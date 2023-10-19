@@ -32,7 +32,7 @@ class TableCreator {
         this.table.appendChild(thead);
     }
 
-    make_row(rowData, th_indexes = []) {
+    make_row(rowData, th_indexes = [], colors = []) {
         if (!this.tbody) {
             this.make_tbody()
         }
@@ -44,17 +44,29 @@ class TableCreator {
             });
             th_indexes[0] = 1
         }
+        if (colors.length == 0) {
+            rowData.forEach(element => {
+                colors.push(null)
+            });
+        }
+
+
         const tr = document.createElement('tr');
 
         for (let i=0;i<th_indexes.length; i++) {
             let is_th = th_indexes[i]
             let data = rowData[i]
+            let color = colors[i]
             let col
 
             if (is_th == 1) {
                 col = document.createElement('th');
             } else {
                 col = document.createElement('td');
+            }
+
+            if (color) {
+                col.style.backgroundColor = color
             }
             
             if (typeof data == "string" || typeof data == "number") {
