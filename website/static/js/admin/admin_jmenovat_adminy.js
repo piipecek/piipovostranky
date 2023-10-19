@@ -1,35 +1,29 @@
 import httpGet from "../http_get.js"
-
+import TableCreator from "../table_creator.js"
 let uzivatele_pro_udeleni_roli = JSON.parse(httpGet("/admin_api/uzivatele_pro_udeleni_roli"))
 
-function generator_from_db(target, u) {
-    let tr = document.createElement("tr")
-    document.getElementById(target).append(tr)
+let tc1 = new TableCreator(document.getElementById("parent_div_1"))
+tc1.make_header(["#", "E-mail", "Vybrat"])
+let tc2 = new TableCreator(document.getElementById("parent_div_2"))
+tc2.make_header(["#", "E-mail", "Vybrat"])
 
-    let th = document.createElement("th")
-    th.scope = "row"
-    th.innerText = u.id
-    tr.appendChild(th)
-
-    let td1 = document.createElement("td")
-    td1.innerText = u.email
-    tr.appendChild(td1)
-
-    let td2 = document.createElement("td")
-    tr.appendChild(td2)
+uzivatele_pro_udeleni_roli.users.forEach(element => {
 
     let button = document.createElement("button")
     button.classList.add("btn", "btn-success")
-    button.type = "submit"
-    button.innerHTML = "vybrat..."
+    button.innerHTML = "Vybrat"
     button.name="result"
-    button.value = u.id
-    td2.appendChild(button)
-}
+    button.value = element["id"]
 
-for (let u of uzivatele_pro_udeleni_roli.users) {   
-    generator_from_db("users", u)   
-}
-for (let u of uzivatele_pro_udeleni_roli.admins) {   
-    generator_from_db("admins", u)   
-}
+    tc1.make_row([element["id"], element["email"], button])
+});
+
+uzivatele_pro_udeleni_roli.admins.forEach(element => {
+
+    let button = document.createElement("button")
+    button.classList.add("btn", "btn-success")
+    button.innerHTML = "Vybrat"
+    button.name="result"
+    button.value = element["id"]
+    tc2.make_row([element["id"], element["email"], button])
+});

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, send_file, request
+from flask import Blueprint, render_template, send_file, request, flash, redirect, url_for
 from website.paths import hadej_slova_db_path
 from tomiem_ipsum.generator import get_tomiem
 from catan.catan import generate_catan
@@ -6,6 +6,7 @@ from semihra.semihra import generate
 from cernabila.cernabila import get_word
 from website.models.user import get_roles
 from flask_login import current_user
+from acga.prumery import pocitani_prumeru
 import json
 
 one_page_apps_views = Blueprint("one_page_apps_views", __name__)
@@ -103,8 +104,18 @@ def mutace():
     return render_template("one_page_apps/jazykova_mutace.html", roles=get_roles(current_user))
 
 
-
 @one_page_apps_views.route("/vydaje")
 def vydaje():
     return render_template("one_page_apps/vydaje.html", roles=get_roles(current_user))
+
+
+@one_page_apps_views.route("/acga_vazeny_prumer", methods=["GET","POST"])
+def acga_vazeny_prumer():
+    if request.method == "GET":
+        return render_template("one_page_apps/acga_vazeny_prumer.html", roles=get_roles(current_user))
+    else:
+        file = request.files["file"]
+        data  = request.form.to_dict()
+        result = pocitani_prumeru(file=file, data=data)
+        return json.dumps(result, indent=3)
     

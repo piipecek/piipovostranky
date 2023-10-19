@@ -1,33 +1,11 @@
 {% extends "admin/admin_navbar.html" %}
 
 {% block content %}
-<h2>Úprava rolí stávajících adminů</h2>
 <form method="post">
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">email</th>
-                    <th scope="col">Vybrat...</th>
-                </tr>
-            </thead>
-            <tbody id="admins"></tbody>
-        </table>
-    </div>
+    <h2>Úprava rolí stávajících adminů</h2>
+    <div id="parent_div_1"></div>
     <h2>Jmenování nových adminů</h2>
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">email</th>
-                    <th scope="col">Vybrat...</th>
-                </tr>
-            </thead>
-            <tbody id="users"></tbody>
-        </table>
-    </div>
+    <div id="parent_div_2"></div>
 </form>
 
 <script type="module" src="{{url_for('static', filename='js/admin/admin_jmenovat_adminy.js')}}"></script>

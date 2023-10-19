@@ -4,46 +4,7 @@
 <h2>Detail uživatele </h2>
 <input hidden id="id_getter" value="{{id}}"/>
 <div class="row">
-    <div class="col-sm-5">
-        <div class="table-responsive">
-            <table class="table table-hover table-striped">
-                <tbody>
-                    <tr>
-                        <th>ID v systému</th>
-                        <td id="id"></td>
-                    </tr>
-                    <tr>
-                        <th>E-mail</th>
-                        <td id="email"></td>
-                    </tr>
-                    <tr>
-                        <th>Ověřený e-mail</th>
-                        <td id="confirmed"></td>
-                    </tr>
-                    <tr>
-                        <th>Registrace</th>
-                        <td id="registration_datetime"></td>
-                    </tr>
-                    <tr>
-                        <th>Poslední přihlášení</th>
-                        <td id="last_login_datetime"></td>
-                    </tr>
-                    <tr>
-                        <th>Slovíček</th>
-                        <td id="number_of_terms"></td>
-                    </tr>
-                    <tr>
-                        <th>Balíčků</th>
-                        <td id="number_of_decks"></td>
-                    </tr>
-                    <tr>
-                        <th>Zkoušení</th>
-                        <td id="number_of_exams"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <div class="col-sm-5" id="parent_div"></div>
 </div>
 <form method="post">
     <button type="submit" class="btn btn-danger" name="smazat" value="whatever">Smazat uživatele</button>

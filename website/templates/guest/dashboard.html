@@ -4,10 +4,12 @@
         {% if "user" in roles%} 
             <li class="nav-item"><a class="nav-link active" href="{{url_for('user_views.ucet')}}">Účet</a></li>
         {% endif %}
+        <li class="nav-item mx-2"><a class="nav-link active" href="{{url_for('auth_views.logout')}}">Logout</a></li>
         {% if "admin" in roles %}
-            <li  class="nav-item"><a class="nav-link active" href="{{url_for('admin_views.admin_dashboard')}}">Admin sekce</a></li>
+        <a class="navbar-brand" href="{{url_for('admin_views.admin_dashboard')}}">
+            <img src="{{url_for('static_sender.send_icon', filename='admin_dashboard.png')}}" alt="Admin Icon" width="30" height="30" class="d-inline-block align-top">
+        </a>
         {% endif %}
-        <li class="nav-item"><a class="nav-link active" href="{{url_for('auth_views.logout')}}">Logout</a></li>
     {% else %}
         <li class="nav-item"><a class="nav-link active" href="{{url_for('auth_views.login')}}">Login</a></li>
         <li class="nav-item"><a class="nav-link active" href="{{url_for('auth_views.register')}}">Register</a></li>
@@ -124,6 +126,13 @@
                 </div>
             </a>
         </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.acga_vazeny_prumer')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    ACGA vážený průměr
+                </div>
+            </a>
+        </div>
     </div>
       
 {%endblock%}
@@ -139,8 +148,8 @@
                 <a class="link" href="{{url_for('guest_views.planovane_featury')}}">Plánované featury</a>
                 <br>
             </div>
-            <div class="col-sm text-end">
-                <a class="link" target="_blank" href="https://github.com/piipecek/piipovo_stranky">Zdroj</a>
+            <div class="col-sm text-sm-end">
+                <a class="link" target="_blank" href="https://bitbucket.org/piipecek/piipovo_stranky/src/main/">Zdroj</a>
                 <br>
                 <a class="link" target="_blank" href="https://t.me/piipecek">Kontakt</a>
                 <br>

@@ -154,7 +154,7 @@ def jazyky():
             flash(f"Přidán jazyk {d}", category="success")
         elif id := request.form.get("detail"):
             return redirect(url_for("admin_views.detail_jazyka", id=id))
-        return redirect(url_for("admin_views.languages"))
+        return redirect(url_for("admin_views.jazyky"))
     
 @admin_views.route("/detail_jazyka/<int:id>", methods=["GET", "POST"])
 @require_role_system_name_on_current_user("editing_languages")
