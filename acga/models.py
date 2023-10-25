@@ -23,7 +23,10 @@ class Student:
             for znamka in zaznam["znamky"]:
                 citatel += znamka*zaznam["vaha"]
                 jmenovatel += zaznam["vaha"]
-        self.prumer_pct = citatel / jmenovatel
+        if jmenovatel == 0:
+            self.prumer_pct = 0
+        else:
+            self.prumer_pct = citatel / jmenovatel
     
     def vytvorit_znamku(self, hranice):
         

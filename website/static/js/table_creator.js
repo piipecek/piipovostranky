@@ -1,6 +1,7 @@
 class TableCreator {
     constructor(parentDiv) {
         this.parentDiv = parentDiv;
+        this.parentDiv.innerHTML = ""
         this.table = document.createElement('table')
 
         let table_responsive_div = document.createElement("div")
