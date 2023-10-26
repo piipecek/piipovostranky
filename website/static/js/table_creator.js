@@ -33,7 +33,7 @@ class TableCreator {
         this.table.appendChild(thead);
     }
 
-    make_row(rowData, th_indexes = [], colors = []) {
+    make_row(rowData, th_indexes = [], colors = [], tooltips = []) {
         if (!this.tbody) {
             this.make_tbody()
         }
@@ -50,6 +50,11 @@ class TableCreator {
                 colors.push(null)
             });
         }
+        if (tooltips.length == 0) {
+            rowData.forEach(element => {
+                tooltips.push(null)
+            });
+        }
 
 
         const tr = document.createElement('tr');
@@ -58,6 +63,7 @@ class TableCreator {
             let is_th = th_indexes[i]
             let data = rowData[i]
             let color = colors[i]
+            let tooltip = tooltips[i]
             let col
 
             if (is_th == 1) {
@@ -71,9 +77,21 @@ class TableCreator {
             }
             
             if (typeof data == "string" || typeof data == "number") {
-                col.textContent = data
+                col.innerText = data
             } else if (typeof data == "object") {
                 col.appendChild(data)
+            }
+            
+            if (tooltip) {
+                col.classList.add("tooltip1")
+                let span = document.createElement("span")
+                span.classList.add("tooltiptext1", "py-2")
+                span.innerHTML = tooltip
+                col.appendChild(span)
+                MathJax.typeset([span])
+
+                console.log(span)
+                console.log(col) // nefunguje ten span chjo
             }
             tr.appendChild(col)
 
