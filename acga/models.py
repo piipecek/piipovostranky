@@ -1,3 +1,6 @@
+def pretty_float(f) -> str:
+    return str(round(f, 2)).replace(".", ",")
+
 
 class Trida():
     def __init__(self) -> None:
@@ -15,18 +18,26 @@ class Student:
         self.prumer_pct = None
         self.znamka = None
         self.klasifikovan = True
+        self.vypocet = ""
     
     def spocist_prumer(self):
         citatel = 0
         jmenovatel = 0
+        citatel_strings = []
+        jmenovatel_strings = []
         for zaznam in self.znamky_dict:
             for znamka in zaznam["znamky"]:
                 citatel += znamka*zaznam["vaha"]
+                citatel_strings.append(f"{int(znamka)} \cdot {int(zaznam['vaha'])}")
                 jmenovatel += zaznam["vaha"]
+                jmenovatel_strings.append(str(int(zaznam["vaha"])))
         if jmenovatel == 0:
             self.prumer_pct = 0
         else:
             self.prumer_pct = citatel / jmenovatel
+        citatel_str = " + ".join(citatel_strings)
+        jmenovatel_str = " + ".join(jmenovatel_strings)
+        self.vypocet = "\( \\frac{" + citatel_str + " }{ " + jmenovatel_str + "} = " + pretty_float(self.prumer_pct) + "\)"
     
     def vytvorit_znamku(self, hranice):
         
@@ -47,7 +58,8 @@ class Student:
         return {
             "jmeno": self.jmeno,
             "znamky_dict": self.znamky_dict,
-            "prumer_pct": round(self.prumer_pct, 2),
+            "prumer_pct": pretty_float(self.prumer_pct),
             "klasifikovan": "Ano" if self.klasifikovan else "Ne",
-            "znamka": self.znamka
+            "znamka": self.znamka,
+            "vypocet": self.vypocet
         }

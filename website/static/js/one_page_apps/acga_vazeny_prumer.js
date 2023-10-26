@@ -83,20 +83,28 @@ function generate(data) {
     studenti.forEach(s => {
         let row = []
         let colors = [null]
+        let tooltips = [null]
         row.push(s["jmeno"])
         vahy.forEach(v => {
             row.push(s["znamky_dict"].find(x => x["vaha"] == v)["znamky"])
             colors.push(null)
+            tooltips.push(null)
         })
+
         row.push(s["prumer_pct"])
-        row.push(s["znamka"])
-        row.push(s["klasifikovan"])
-
         colors.push(null) // průměr
+        tooltips.push(s["vypocet"])
+        
+        row.push(s["znamka"])
         colors.push(barvy.find(x => x["znamka"] == s["znamka"])["barva"])
+        tooltips.push(null)
+        
+        row.push(s["klasifikovan"])
         colors.push(barvy.find(x => x["znamka"] == s["klasifikovan"])["barva"])
+        tooltips.push(null)
 
-        tc.make_row(row, [], colors)
+
+        tc.make_row(row, [], colors, tooltips)
     });
 
 
