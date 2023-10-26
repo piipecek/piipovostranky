@@ -2,6 +2,10 @@ import TableCreator from "../table_creator.js"
 
 let budiz_button = document.getElementById("budiz")
 let file_input = document.getElementById("file")
+let parametry_nacteni_button = document.getElementById("parametry_nacteni_button")
+parametry_nacteni_button.addEventListener("click", function() {
+    document.getElementById("parametry_nacteni").hidden = false
+})
 
 let barvy = [
     {
