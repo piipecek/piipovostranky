@@ -2,6 +2,10 @@ import TableCreator from "../table_creator.js"
 
 let budiz_button = document.getElementById("budiz")
 let file_input = document.getElementById("file")
+let parametry_nacteni_button = document.getElementById("parametry_nacteni_button")
+parametry_nacteni_button.addEventListener("click", function() {
+    document.getElementById("parametry_nacteni").hidden = false
+})
 
 let barvy = [
     {
@@ -31,6 +35,10 @@ let barvy = [
     {
         "znamka": "Ne",
         "barva": "#ff0000"
+    },
+    {
+        "znamka": "-",
+        "barva": "#ffffff"
     }
     
 ]
@@ -47,6 +55,7 @@ budiz_button.addEventListener("click", function() {
         form_data.append("hranice_34", document.getElementById("hranice_34").value)
         form_data.append("hranice_45", document.getElementById("hranice_45").value)
         form_data.append("file", file_input.files[0])
+        form_data.append("styl", document.getElementById("styl").value)
 
         $.ajax({
             type: "POST",
