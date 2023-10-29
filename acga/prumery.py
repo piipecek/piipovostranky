@@ -16,6 +16,8 @@ def pocitani_prumeru(file: FileStorage, data=None) -> dict:
     results_col = int(data["results_col"]) # index od 1
     name_row = int(data["name_row"]) # index od 1
     
+    styl = int(data["styl"])
+    
     rows_indexes = range(name_row-1, sheet.nrows) # index od 0
     names_index = names_col-1 # index od 0
     results_index = results_col-1 # index od 0
@@ -50,10 +52,10 @@ def pocitani_prumeru(file: FileStorage, data=None) -> dict:
                 if z == "" or z == "-":
                     pass
                 else:
-                    znamky.append(float(z))
+                    znamky.append(int(float(z)))
             
             znamky_dict.append({
-                "vaha": vaha,
+                "vaha": int(vaha),
                 "znamky": znamky
             })
         
@@ -63,7 +65,7 @@ def pocitani_prumeru(file: FileStorage, data=None) -> dict:
     #mam je nacteny, ted je budu pocitat
     
     for s in t.students:
-        s.spocist_prumer()
+        s.spocist_prumer(styl=styl)
         s.vytvorit_znamku(hranice=hranice)
         
         

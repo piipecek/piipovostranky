@@ -85,13 +85,10 @@ class TableCreator {
             if (tooltip) {
                 col.classList.add("tooltip1")
                 let span = document.createElement("span")
-                span.classList.add("tooltiptext1", "py-2")
+                span.classList.add("tooltiptext1", "px-2")
                 span.innerHTML = tooltip
                 col.appendChild(span)
                 MathJax.typeset([span])
-
-                console.log(span)
-                console.log(col) // nefunguje ten span chjo
             }
             tr.appendChild(col)
 
