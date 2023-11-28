@@ -83,6 +83,8 @@ function generate(data) {
         header.push("Váha " + String(element))
     });
     header.push("Průměr pct.")
+    header.push("Kolik chybí")
+    header.push("Rezerva")
     header.push("Známka")
     header.push("Klasifikace")
     
@@ -103,6 +105,14 @@ function generate(data) {
         row.push(s["prumer_pct"])
         colors.push(null) // průměr
         tooltips.push(s["vypocet"])
+
+        row.push(s["chybi"])
+        colors.push(null)
+        tooltips.push(null)
+
+        row.push(s["rezerva"])
+        colors.push(null)
+        tooltips.push(null)
         
         row.push(s["znamka"])
         colors.push(barvy.find(x => x["znamka"] == s["znamka"])["barva"])

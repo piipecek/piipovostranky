@@ -66,7 +66,7 @@ def pocitani_prumeru(file: FileStorage, data=None) -> dict:
     
     for s in t.students:
         s.spocist_prumer(styl=styl)
-        s.vytvorit_znamku(hranice=hranice)
+        s.vytvorit_znamku_a_spocitat_chybejici_a_rezervu(hranice=hranice)
         
         
     
