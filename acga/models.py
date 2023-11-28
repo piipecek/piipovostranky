@@ -19,6 +19,8 @@ class Student:
         self.znamka = None
         self.klasifikovan = True
         self.vypocet = ""
+        self.chybi = None
+        self.rezerva = None
     
     def spocist_prumer(self, styl):
         citatel = 0
@@ -47,19 +49,30 @@ class Student:
             jmenovatel_str = " + ".join(jmenovatel_strings)
             self.vypocet = "\( \\frac{" + citatel_str + " }{ " + jmenovatel_str + "} = " + pretty_float(self.prumer_pct) + "\)"
     
-    def vytvorit_znamku(self, hranice):
+    def vytvorit_znamku_a_spocitat_chybejici_a_rezervu(self, hranice):
         if self.prumer_pct is None:
             pass
         elif self.prumer_pct >= hranice["12"]:
             self.znamka = 1
+            self.chybi = 0
+            self.rezerva = self.prumer_pct - hranice["12"]
         elif self.prumer_pct >= hranice["23"]:
             self.znamka = 2
+            self.chybi = hranice["12"] - self.prumer_pct
+            self.rezerva = self.prumer_pct - hranice["23"]
         elif self.prumer_pct >= hranice["34"]:
             self.znamka = 3
+            self.chybi = hranice["23"] - self.prumer_pct
+            self.rezerva = self.prumer_pct - hranice["34"]
         elif self.prumer_pct >= hranice["45"]:
             self.znamka = 4
+            self.chybi = hranice["34"] - self.prumer_pct
+            self.rezerva = self.prumer_pct - hranice["45"]
         else:
             self.znamka = 5
+            self.chybi = hranice["45"] - self.prumer_pct
+            self.rezerva = 0
+
 
     def na_zobrazeni(self):
         for entry in self.znamky_dict:
@@ -68,6 +81,8 @@ class Student:
             "jmeno": self.jmeno,
             "znamky_dict": self.znamky_dict,
             "prumer_pct": pretty_float(self.prumer_pct) if self.prumer_pct else "-",
+            "chybi": pretty_float(self.chybi) if self.chybi else "-",
+            "rezerva": pretty_float(self.rezerva) if self.rezerva else "-",
             "klasifikovan": "Ano" if self.klasifikovan else "Ne",
             "znamka": self.znamka if self.znamka else "-",
             "vypocet": self.vypocet
