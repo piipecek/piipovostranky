@@ -1,6 +1,6 @@
 import xlrd
 from werkzeug.datastructures import FileStorage
-from acga.models import Student, Trida
+from acga.models import Student, Trida, pretty_float
 
 def pocitani_prumeru(file: FileStorage, data=None) -> dict:
     wb = xlrd.open_workbook(file_contents=file.read())
@@ -58,7 +58,6 @@ def pocitani_prumeru(file: FileStorage, data=None) -> dict:
                 "vaha": int(vaha),
                 "znamky": znamky
             })
-        
         s.znamky_dict = znamky_dict
         t.students.append(s)
         
@@ -70,9 +69,14 @@ def pocitani_prumeru(file: FileStorage, data=None) -> dict:
         
         
     
+        
     result = {
         "vahy": results_weights,
-        "studenti": t.na_zobrazeni()
+        "studenti": t.na_zobrazeni(),
+        "title": file.filename,
+        "prumer_prumeru": pretty_float(t.prumer_pct()),
+        "prumery_ve_vahach": t.prumery_ve_vahach(),
+        "prumer_znamka": pretty_float(t.prumerna_znamka())
     }
     return result
         

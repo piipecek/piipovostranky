@@ -75,6 +75,7 @@ budiz_button.addEventListener("click", function() {
 
 function generate(data) {
     data = JSON.parse(data)
+    document.getElementById("title").innerText = data.title + " | ACGA"
     let vahy = data["vahy"]
     let studenti = data["studenti"]
     
@@ -125,6 +126,16 @@ function generate(data) {
 
         tc.make_row(row, [], colors, tooltips)
     });
+    
+
+    let footer_array = ["Průměr"]
+    data.prumery_ve_vahach.forEach(element => {footer_array.push(element)})
+    footer_array.push(data.prumer_prumeru)
+    footer_array.push("-")
+    footer_array.push("-")
+    footer_array.push(data.prumer_znamka)
+    footer_array.push("-")
+    tc.make_header(footer_array)
 
 
 
