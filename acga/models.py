@@ -10,7 +10,7 @@ class Trida():
         return [s.na_zobrazeni() for s in self.students]
 
     def prumer_pct(self) -> float:
-        return sum([s.prumer_pct for s in self.students]) / len(self.students)
+        return sum([s.prumer_pct for s in self.students if s.prumer_pct]) / len(self.students)
     
     def prumery_ve_vahach(self) -> list[str]:
         result = []
@@ -28,7 +28,7 @@ class Trida():
         return result
 
     def prumerna_znamka(self) -> float:
-        return sum([s.znamka for s in self.students]) / len(self.students)
+        return sum([s.znamka for s in self.students if s.znamka]) / len(self.students)
         
 
 class Student:

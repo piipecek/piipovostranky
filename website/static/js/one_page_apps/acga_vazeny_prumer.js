@@ -3,9 +3,12 @@ import TableCreator from "../table_creator.js"
 let budiz_button = document.getElementById("budiz")
 let file_input = document.getElementById("file")
 let parametry_nacteni_button = document.getElementById("parametry_nacteni_button")
+let download_button = document.getElementById("download_button")
+
 parametry_nacteni_button.addEventListener("click", function() {
     document.getElementById("parametry_nacteni").hidden = false
 })
+
 
 let barvy = [
     {
@@ -65,6 +68,7 @@ budiz_button.addEventListener("click", function() {
             processData: false,
             success: function(data) {
                 generate(data)
+                download_button.hidden = false
             }
         })
     } else {
@@ -72,6 +76,7 @@ budiz_button.addEventListener("click", function() {
     }
 
 })
+
 
 function generate(data) {
     data = JSON.parse(data)
@@ -138,5 +143,11 @@ function generate(data) {
     tc.make_header(footer_array)
 
 
-
+    download_button.addEventListener("click", function() {
+        let a = document.createElement("a")
+        let file = new Blob([JSON.stringify(data, null, 4)], {type: "text/plain"})
+        a.href = URL.createObjectURL(file)
+        a.download = "trida.json"
+        a.click()
+    }) 
 }
