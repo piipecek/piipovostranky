@@ -8,8 +8,28 @@ class Trida():
     
     def na_zobrazeni(self):
         return [s.na_zobrazeni() for s in self.students]
-        
 
+    def prumer_pct(self) -> float:
+        return sum([s.prumer_pct for s in self.students if s.prumer_pct]) / len(self.students)
+    
+    def prumery_ve_vahach(self) -> list[str]:
+        result = []
+        for i, elem in enumerate(self.students[0].znamky_dict):
+            new_entry = {
+                "vaha": elem["vaha"],
+                "znamky": [],
+                "prumer": None
+            }
+            for s in self.students:
+                new_entry["znamky"].extend(s.znamky_dict[i]["znamky"])
+            new_entry["prumer"] = pretty_float(sum(new_entry["znamky"]) / len(new_entry["znamky"]))
+            
+            result.append(new_entry["prumer"])
+        return result
+
+    def prumerna_znamka(self) -> float:
+        return sum([s.znamka for s in self.students if s.znamka]) / len(self.students)
+        
 
 class Student:
     def __init__(self) -> None:
@@ -75,11 +95,17 @@ class Student:
 
 
     def na_zobrazeni(self):
+        znamky_dict_pretty = []
         for entry in self.znamky_dict:
-            entry["znamky"] = ", ".join([str(int(x)) for x in entry["znamky"]])
+            new_entry = {
+                "vaha": entry["vaha"],
+                "znamky":", ".join([str(int(x)) for x in entry["znamky"]])
+            }
+            znamky_dict_pretty.append(new_entry)
+            # entry["znamky"] = ", ".join([str(int(x)) for x in entry["znamky"]])
         return {
             "jmeno": self.jmeno,
-            "znamky_dict": self.znamky_dict,
+            "znamky_dict": znamky_dict_pretty,
             "prumer_pct": pretty_float(self.prumer_pct) if self.prumer_pct else "-",
             "chybi": pretty_float(self.chybi) if self.chybi else "-",
             "rezerva": pretty_float(self.rezerva) if self.rezerva else "-",

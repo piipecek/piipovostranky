@@ -45,17 +45,9 @@ function vyhodnot(origo_slovo, origo_navrh) {
     }
     // hledam bila pismenka
     for (let char of novy_navrh) {
-        let nove_slovo_novy_arr = []
-        let nove_slovo_arr = nove_slovo.split("")
-        for (let podezrely of nove_slovo_arr) {
-            if (char == podezrely) {
-                vysledek.push("bílá")
-                continue
-            } else {
-                nove_slovo_novy_arr.push(podezrely)
-            }
+        if (nove_slovo.includes(char)) {
+            vysledek.push("bílá")
         }
-        nove_slovo = nove_slovo_novy_arr.join("")
     }
 
     if (vysledek.length == 0) {
