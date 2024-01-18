@@ -1,0 +1,33 @@
+{% extends "slovnik/slovnik_navbar.html" %}
+{% block content %}
+<h2>Přidat nová slovíčka</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            Počet jazykových sloupečků pro nová slovíčka:
+        </div>
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col">
+                    <select class="form-select" id="pocet_sloupecku">
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn custom-button" id="dal">Dál</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row" id="jazyky" hidden></div>
+</div>
+
+
+<script type="module" src="{{url_for('static', filename='js/slovnik/nova_slovicka.js')}}"></script>
+
+{% endblock %}

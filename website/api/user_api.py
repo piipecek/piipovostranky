@@ -12,3 +12,9 @@ def detail_usera():
     return json.dumps(current_user.get_info_for_detail_usera())
 
 
+@user_api.route("/jazyky")
+@require_role_system_name_on_current_user("user")
+def jazyky():
+    return json.dumps(current_user.get_info_for_detail_usera())
+
+
