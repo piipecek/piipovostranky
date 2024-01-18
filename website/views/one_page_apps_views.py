@@ -122,4 +122,8 @@ def acga_vazeny_prumer():
 @one_page_apps_views.route("/acga_statistika_ctvrtletky")
 def acga_statistika_ctvrtletky():
     return render_template("one_page_apps/acga_statistika_ctvrtletky.html", roles=get_roles(current_user))
+
+@one_page_apps_views.route("/acga_evaluace")
+def acga_evaluace():
+    return render_template("one_page_apps/acga_evaluace.html", roles=get_roles(current_user))
     

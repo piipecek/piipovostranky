@@ -1,0 +1,10 @@
+{% extends "index.html" %}
+{% block content %}
+<h2>Výsledky evaluace</h2>
+<p>
+    Studenti mohou vyplňovat evaluační dotazník cílený na Vaše jméno. Tady jsou obdržené zpětné vazby.
+</p>
+
+<script type="module" src="{{url_for('static', filename='js/user/acga_cist_evaluace.js')}}"></script>
+
+{% endblock %}

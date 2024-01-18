@@ -18,7 +18,15 @@ def ucet():
         if request.form.get("confirmation_email"):
             mail_sender("potvrzeni_emailu", target=current_user.email, data=current_user.get_reset_token())
             flash("Ověřovací e-mail odeslán.", category="success")
-        return redirect(url_for("user_views.ucet"))
+            return redirect(url_for("user_views.ucet"))
+        elif request.form.get("acga_jmeno_button"):
+            jmeno = request.form.get("acga_jmeno")
+            current_user.acga_jmeno = jmeno
+            current_user.update()
+            flash("Změna ACGA Jména proběhla v pořádku.", category="success")
+            return redirect(url_for("user_views.ucet"))
+        else:
+            return request.form.to_dict()
              
              
 @user_views.route("/ucet/<token>", methods=["GET"])
@@ -33,3 +41,10 @@ def ucet_overeny(token):
         user.login()
         flash("E-mail máte nyní ověřený.", category="success")
         return redirect(url_for("user_views.ucet"))
+
+@user_views.route("/ucet/acga_cist_evaluace", methods=["GET", "POST"])
+def acga_cist_evaluace():
+    if request.method == "GET":
+        return render_template("user/acga_cist_evaluace.html")
+    else:
+        return request.form.to_dict()
