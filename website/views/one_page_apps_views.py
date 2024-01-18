@@ -119,3 +119,7 @@ def acga_vazeny_prumer():
         result = pocitani_prumeru(file=file, data=data)
         return json.dumps(result, indent=3)
     
+@one_page_apps_views.route("/acga_statistika_ctvrtletky")
+def acga_statistika_ctvrtletky():
+    return render_template("one_page_apps/acga_statistika_ctvrtletky.html", roles=get_roles(current_user))
+    
