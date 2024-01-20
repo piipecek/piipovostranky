@@ -19,12 +19,6 @@ def ucet():
             mail_sender("potvrzeni_emailu", target=current_user.email, data=current_user.get_reset_token())
             flash("Ověřovací e-mail odeslán.", category="success")
             return redirect(url_for("user_views.ucet"))
-        elif request.form.get("acga_jmeno_button"):
-            jmeno = request.form.get("acga_jmeno")
-            current_user.acga_jmeno = jmeno
-            current_user.update()
-            flash("Změna ACGA Jména proběhla v pořádku.", category="success")
-            return redirect(url_for("user_views.ucet"))
         else:
             return request.form.to_dict()
              
@@ -47,4 +41,10 @@ def acga_cist_evaluace():
     if request.method == "GET":
         return render_template("user/acga_cist_evaluace.html")
     else:
+        if request.form.get("acga_jmeno_button"):
+            jmeno = request.form.get("acga_jmeno")
+            current_user.acga_jmeno = jmeno
+            current_user.update()
+            flash("Změna ACGA Jména proběhla v pořádku.", category="success")
+            return redirect(url_for("user_views.acga_cist_evaluace"))
         return request.form.to_dict()

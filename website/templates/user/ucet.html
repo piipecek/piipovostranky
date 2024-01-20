@@ -33,18 +33,7 @@
                     {% if "acga_ucitel" in roles%}
                         <tr>
                             <th>ACGA Jméno učitele</th>
-                            <td>
-                                <form method="post">
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="text" class="form-control" name="acga_jmeno" id="acga_jmeno">
-                                        </div>
-                                        <div class="col-auto">
-                                            <button type="submit" name="acga_jmeno_button", value="whatever", class="btn custom-button">Uložit</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </td>
+                            <td id="acga_jmeno"></td>
                         </tr>
                     {% endif %} 
                 </tbody>

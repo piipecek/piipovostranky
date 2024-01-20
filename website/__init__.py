@@ -71,6 +71,7 @@ def create_app() -> Flask:
     from .models.suggestion import Suggestion
     from .models.term import Term
     from .models.translation import Translation
+    from .models.evaluace import Evaluace
     from .models.user import User, get_roles
  
     with app.app_context():

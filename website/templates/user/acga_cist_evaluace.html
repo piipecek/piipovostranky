@@ -1,9 +1,31 @@
 {% extends "index.html" %}
 {% block content %}
-<h2>Výsledky evaluace</h2>
+<h2>Evaluace na ACGA</h2>
 <p>
-    Studenti mohou vyplňovat evaluační dotazník cílený na Vaše jméno. Tady jsou obdržené zpětné vazby.
+    Tato stránka je přístupná pouze po přihlášení a po té, co Vás Josef Lát označí za učitele na ACGA. Evaluace probíhá následovně:
+    <ol>
+        <li>Učitel zde vygeneruje patřičný počet přístupových kódů</li>
+        <li>Ty vytiskne, rozstříhá a náhodně rozdá studentům</li>
+        <li>Studenti s kódem vyplní dotazník a až ho odevzdají, bude tu k nahléduntí</li>
+    </ol>
+    Se studenty můžete sdílet <a href="{{url_for('one_page_apps_views.acga_evaluace')}}">tento link</a>, na něm mohou evaluaci vyplnit.
 </p>
+<h2>Nastavení jména učitele</h2>
+<form method="post" class="my-2">
+    <div class="row">
+        <div class="col">
+            <input type="text" class="form-control" name="acga_jmeno" id="acga_jmeno" placeholder="např. Pavla Bajuzsová">
+        </div>
+        <div class="col-auto">
+            <button type="submit" name="acga_jmeno_button", value="whatever", class="btn custom-button">Uložit</button>
+        </div>
+    </div>
+</form>
+<h2>Vytvoření přístupových kódů</h2>
+<p>
+    Přeji si vygenerovat <input type="number" class="form-control evaluace_pocet" placeholder="kolik" id="pocet_kodu"> přístupových kódů pro studenty. <button id="generovat" class="btn custom-button" type="submit">Generovat</button>
+</p>
+<h2>Výsledky evaluace</h2>
 
 <script type="module" src="{{url_for('static', filename='js/user/acga_cist_evaluace.js')}}"></script>
 

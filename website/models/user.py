@@ -28,6 +28,7 @@ class User(Common_methods_db_model, UserMixin):
     terms = db.relationship("Term", backref="author")
     decks = db.relationship("Deck", backref="author")
     exams = db.relationship("Exam", backref="author")
+    evaluace = db.relationship("Evaluace", backref="ucitel")
     suggestions = db.relationship("Suggestion", backref="author")
     
     def __repr__(self) -> str:

@@ -1,8 +1,8 @@
 import json
 from flask import Blueprint
-from website.models.suggestion import Suggestion
 from website.helpers.require_role import require_role_system_name_on_current_user
 from flask_login import current_user
+from website.models.evaluace import Evaluace
 
 user_api = Blueprint("user_api", __name__)
 
@@ -18,3 +18,13 @@ def jazyky():
     return json.dumps(current_user.get_info_for_detail_usera())
 
 
+@user_api.route("/vytvorit_evaluace/<int:pocet>", methods=["GET","POST"])
+@require_role_system_name_on_current_user("user")
+def vytvorit_evlauace(pocet):
+    result = Evaluace.vytvorit_evaluace(pocet)
+    return result
+
+@user_api.route("/get_acga_jmeno")
+@require_role_system_name_on_current_user("user")
+def get_acga_jmeno():
+    return current_user.acga_jmeno

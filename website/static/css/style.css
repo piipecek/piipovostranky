@@ -85,3 +85,8 @@ canvas {
   .tooltip1:hover .tooltiptext1 {
     visibility: visible;
 }
+
+.evaluace_pocet{
+    width: auto !important;
+    display: inline !important;
+}
