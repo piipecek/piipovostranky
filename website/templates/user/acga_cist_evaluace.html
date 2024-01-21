@@ -1,6 +1,6 @@
 {% extends "index.html" %}
 {% block content %}
-<h2>Evaluace na ACGA</h2>
+<h2 class="my-3">Evaluace na ACGA</h2>
 <p>
     Tato stránka je přístupná pouze po přihlášení a po té, co Vás Josef Lát označí za učitele na ACGA. Evaluace probíhá následovně:
     <ol>
@@ -10,7 +10,7 @@
     </ol>
     Se studenty můžete sdílet <a href="{{url_for('one_page_apps_views.acga_evaluace')}}">tento link</a>, na něm mohou evaluaci vyplnit.
 </p>
-<h2>Nastavení jména učitele</h2>
+<h2 class="my-3">Nastavení jména učitele</h2>
 <form method="post" class="my-2">
     <div class="row">
         <div class="col">
@@ -21,11 +21,20 @@
         </div>
     </div>
 </form>
-<h2>Vytvoření přístupových kódů</h2>
+<h2 class="my-3">Vytvoření přístupových kódů</h2>
 <p>
     Přeji si vygenerovat <input type="number" class="form-control evaluace_pocet" placeholder="kolik" id="pocet_kodu"> přístupových kódů pro studenty. <button id="generovat" class="btn custom-button" type="submit">Generovat</button>
+    <div id="vysledek" hidden>
+        <button type="button" id="vysledek_button" class="btn custom-button my-2">Stáhnout jako .txt</button>
+        <textarea id="vysledek_textarea" rows="5" class="form-control"></textarea>
+    </div>
 </p>
-<h2>Výsledky evaluace</h2>
+<form method="post">
+    <h2 class="my-3">Výsledky evaluace</h2>
+    <div id="vyplnene"></div>
+    <h2 class="my-3">Nevyplněné formuláře</h2>
+    <div id="nevyplnene"></div>
+</form>
 
 <script type="module" src="{{url_for('static', filename='js/user/acga_cist_evaluace.js')}}"></script>
 

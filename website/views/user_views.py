@@ -4,6 +4,7 @@ from website.models.user import get_roles
 from website.helpers.require_role import require_role_system_name_on_current_user
 from website.mail_handler import mail_sender
 from website.models.user import User
+from website.models.evaluace import Evaluace
 
 
 user_views = Blueprint("user_views",__name__)
@@ -46,5 +47,10 @@ def acga_cist_evaluace():
             current_user.acga_jmeno = jmeno
             current_user.update()
             flash("Změna ACGA Jména proběhla v pořádku.", category="success")
+            return redirect(url_for("user_views.acga_cist_evaluace"))
+        elif id := request.form.get("smazat_evaluaci"):
+            e = Evaluace.get_by_id(id)
+            e.delete()
+            flash("Evaluace úspěšně smazána", category="success")
             return redirect(url_for("user_views.acga_cist_evaluace"))
         return request.form.to_dict()

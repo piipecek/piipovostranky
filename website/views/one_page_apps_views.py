@@ -7,6 +7,7 @@ from cernabila.cernabila import get_word
 from website.models.user import get_roles
 from flask_login import current_user
 from acga.prumery import pocitani_prumeru
+from website.models.evaluace import Evaluace
 import json
 
 one_page_apps_views = Blueprint("one_page_apps_views", __name__)
@@ -123,7 +124,18 @@ def acga_vazeny_prumer():
 def acga_statistika_ctvrtletky():
     return render_template("one_page_apps/acga_statistika_ctvrtletky.html", roles=get_roles(current_user))
 
-@one_page_apps_views.route("/acga_evaluace")
+@one_page_apps_views.route("/acga_evaluace", methods=["GET","POST"])
 def acga_evaluace():
-    return render_template("one_page_apps/acga_evaluace.html", roles=get_roles(current_user))
+    if request.method == "GET":
+        return render_template("one_page_apps/acga_evaluace.html", roles=get_roles(current_user))
+    else:
+        if request.form.get("zadany_kod"):
+            kod = request.form.get("kod")
+            if e := Evaluace.get_by_kod(kod):
+                return kod
+            else:
+                flash("Zadaný kód jsme nenašli. Pokud je to chyba na naší straně, dejte nám to vědět.", category="error")
+                return redirect(url_for("one_page_apps_views.acga_evaluace"))
+        else:
+            return request.form.to_dict()
     

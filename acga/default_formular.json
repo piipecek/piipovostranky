@@ -1,0 +1,19 @@
+[
+    {
+        "typ": "otevrena",
+        "otazka": "Popište, jakej největší trapas na hodinách proběl.",
+        "value": "učiteli došla fixa"
+    },
+    {
+        "typ": "ciselna",
+        "otazka": "Na škále od 1 do 5 určete, na kolik byla látka tohoto pololetí užitečná.",
+        "max": 5,
+        "value": 3
+    },
+    {
+        "typ": "zavrena",
+        "otazka": "Ptáte se, když něco v hodině není jasné?",
+        "values": ["ano", "někdy", "málokdy", "vůbec"],
+        "value": 2
+    }
+]

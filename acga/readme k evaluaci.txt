@@ -8,3 +8,6 @@ datum vytvoreni kodu
 datum odeslani
 kod
 je_odevzdana
+
+
+Možnosti forulářovej otázek jsou: otevrena, zavrena, ciselna

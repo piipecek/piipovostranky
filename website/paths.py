@@ -27,3 +27,6 @@ def ikonky_folder_path() -> Path:
 
 def acga_kody_slova() -> Path:
     return Path.cwd() / "acga" / "db.json"
+
+def acga_default_formular() -> Path:
+    return Path.cwd() / "acga" / "default_formular.json"

@@ -28,3 +28,8 @@ def vytvorit_evlauace(pocet):
 @require_role_system_name_on_current_user("user")
 def get_acga_jmeno():
     return current_user.acga_jmeno
+
+@user_api.route("/get_evaluace_pro_seznam")
+@require_role_system_name_on_current_user("user")
+def get_evaluace_pro_seznam():
+    return json.dumps([e.get_info_pro_seznam() for e in Evaluace.get_all() if e.ucitel == current_user])
