@@ -10,4 +10,23 @@ kod
 je_odevzdana
 
 
-Možnosti forulářovej otázek jsou: otevrena, zavrena, ciselna
+Možnosti forulářovej otázek jsou: 
+otevrena
+    otazka
+    id (int)
+    valaue
+ciselna
+    otazka
+    id (int)
+    max
+    value
+single
+    otazka
+    id (int)
+    choices
+    value
+multiple
+    otazka
+    id (int)
+    choices
+    values

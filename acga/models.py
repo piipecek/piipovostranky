@@ -22,7 +22,7 @@ class Trida():
             }
             for s in self.students:
                 new_entry["znamky"].extend(s.znamky_dict[i]["znamky"])
-            new_entry["prumer"] = pretty_float(sum(new_entry["znamky"]) / len(new_entry["znamky"]))
+            new_entry["prumer"] = pretty_float(sum(new_entry["znamky"]) / len(new_entry["znamky"])) if len(new_entry["znamky"]) else "-"
             
             result.append(new_entry["prumer"])
         return result

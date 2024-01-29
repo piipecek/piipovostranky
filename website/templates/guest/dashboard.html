@@ -147,15 +147,13 @@
                 </div>
             </a>
         </div>
-        {% if "acga_ucitel" in roles %}
-            <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
-                <a href="{{url_for('user_views.acga_cist_evaluace')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
-                    <div class="text-center">
-                        ACGA Zadání a výsledky evaluace
-                    </div>
-                </a>
-            </div>
-        {% endif %}
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('one_page_apps_views.acga_cist_evaluace')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    ACGA Zadání a výsledky evaluace
+                </div>
+            </a>
+        </div>
     </div>
       
 {%endblock%}

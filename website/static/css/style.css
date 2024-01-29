@@ -90,3 +90,7 @@ canvas {
     width: auto !important;
     display: inline !important;
 }
+
+.question_div {
+    background-color: #FFF1E2;
+}

@@ -1,19 +1,29 @@
 [
     {
         "typ": "otevrena",
+        "id": 0,
         "otazka": "Popište, jakej největší trapas na hodinách proběl.",
         "value": "učiteli došla fixa"
     },
     {
         "typ": "ciselna",
+        "id": 10,
         "otazka": "Na škále od 1 do 5 určete, na kolik byla látka tohoto pololetí užitečná.",
         "max": 5,
         "value": 3
     },
     {
-        "typ": "zavrena",
+        "typ": "single",
+        "id": 20,
         "otazka": "Ptáte se, když něco v hodině není jasné?",
-        "values": ["ano", "někdy", "málokdy", "vůbec"],
+        "choices": ["ano", "někdy", "málokdy", "vůbec"],
         "value": 2
+    },
+    {
+        "typ": "multiple",
+        "id": 30,
+        "otazka": "Příklad multiple choice otázky",
+        "choices": ["dostal jsem 1", "2", "3", "4", "5"],
+        "values": [0, 1, 2, 3]
     }
 ]

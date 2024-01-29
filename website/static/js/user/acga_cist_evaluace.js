@@ -46,28 +46,31 @@ generovat_button.addEventListener("click", function() {
 let vyplnene = []
 let nevyplnene = []
 for (let e of evaluace) {
-    if (e.je_vyplnena) {
+    if (e.je_odevzdana) {
         vyplnene.push(e)
     } else {
         nevyplnene.push(e)
     }
 }
 
-if (vyplnene.length == 0) {
-    vyplnene_div.innerText = "Nejsou tu žádné vyplněné evaluace."
-} else {
-    for (let e of vyplnene) {
-        console.log(e)
-    }
-}
 
-// tlacitko na mazani
+// tlacitka
 function create_delete_button(id) {
     let b = document.createElement("button")
     b.classList.add("btn", "btn-danger")
     b.innerText = "Smazat"
     b.type = "submit"
     b.name = "smazat_evaluaci"
+    b.value = id
+    return b
+}
+
+function create_detail_button(id) {
+    let b = document.createElement("button")
+    b.classList.add("btn", "custom-button")
+    b.innerText = "Detail"
+    b.type = "submit"
+    b.name = "detail"
     b.value = id
     return b
 }
@@ -80,5 +83,16 @@ if (nevyplnene.length == 0) {
     tc.make_header(["Datum vytvoření", "Kód", "Smazat"])
     for (let e of nevyplnene) {
         tc.make_row([e.datetime_vytvoreni, e.kod, create_delete_button(e.id)])
+    }
+}
+
+
+if (vyplnene.length == 0) {
+    vyplnene_div.innerText = "Nejsou tu žádné vyplněné evaluace."
+} else {
+    let tc = new TableCreator(vyplnene_div)
+    tc.make_header(["Datum vytvoření", "Datum odevzdání", "Detail", "Smazat"])
+    for (let e of vyplnene) {
+        tc.make_row([e.datetime_vytvoreni, e.datetime_odevzdani, create_detail_button(e.id), create_delete_button(e.id)], [0, 1, 0, 0])
     }
 }

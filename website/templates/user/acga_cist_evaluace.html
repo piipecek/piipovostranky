@@ -5,10 +5,10 @@
     Tato stránka je přístupná pouze po přihlášení a po té, co Vás Josef Lát označí za učitele na ACGA. Evaluace probíhá následovně:
     <ol>
         <li>Učitel zde vygeneruje patřičný počet přístupových kódů</li>
-        <li>Ty vytiskne, rozstříhá a náhodně rozdá studentům</li>
+        <li>Ty nechá stáhnout jako .txt, vytiskne, rozstříhá a náhodně rozdá studentům</li>
         <li>Studenti s kódem vyplní dotazník a až ho odevzdají, bude tu k nahléduntí</li>
     </ol>
-    Se studenty můžete sdílet <a href="{{url_for('one_page_apps_views.acga_evaluace')}}">tento link</a>, na něm mohou evaluaci vyplnit.
+    Se studenty můžete sdílet <a href="{{url_for('one_page_apps_views.acga_evaluace')}}">tento link</a>, na něm mohou evaluaci vyplnit. Jsou tam také dovysvětleny další detaily evaluace.
 </p>
 <h2 class="my-3">Nastavení jména učitele</h2>
 <form method="post" class="my-2">
@@ -30,7 +30,7 @@
     </div>
 </p>
 <form method="post">
-    <h2 class="my-3">Výsledky evaluace</h2>
+    <h2 class="my-3">Vyplněné a odevzdané formuláře</h2>
     <div id="vyplnene"></div>
     <h2 class="my-3">Nevyplněné formuláře</h2>
     <div id="nevyplnene"></div>
