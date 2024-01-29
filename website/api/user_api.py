@@ -27,7 +27,7 @@ def vytvorit_evlauace(pocet):
 @user_api.route("/get_acga_jmeno")
 @require_role_system_name_on_current_user("user")
 def get_acga_jmeno():
-    return current_user.acga_jmeno
+    return current_user.acga_jmeno if current_user.acga_jmeno else ""
 
 @user_api.route("/get_evaluace_pro_seznam")
 @require_role_system_name_on_current_user("user")
