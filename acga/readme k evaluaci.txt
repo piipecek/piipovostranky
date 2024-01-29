@@ -20,6 +20,8 @@ ciselna
     id (int)
     max
     value
+    text_min
+    text_max
 single
     otazka
     id (int)

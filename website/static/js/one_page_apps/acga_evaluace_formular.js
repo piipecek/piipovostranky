@@ -24,6 +24,10 @@ for (let q of data) {
         textarea.id = q.id
         question_div.appendChild(textarea)
     } else if (q.typ == "ciselna") {
+        let span_min = document.createElement("span")
+        span_min.classList.add("me-3", "italic_popisek")
+        span_min.innerText = q.text_min
+        question_div.appendChild(span_min)
         for (let i = 1; i <= q.max; i++) {
             let check_div = document.createElement("div")
             check_div.classList.add("form-check", "form-check-inline")
@@ -44,6 +48,10 @@ for (let q of data) {
             check_div.appendChild(inp)
             question_div.appendChild(check_div)
         }
+        let span_max = document.createElement("span")
+        span_max.classList.add("ms-3", "italic_popisek")
+        span_max.innerText = q.text_max
+        question_div.appendChild(span_max)
     } else if (q.typ == "single") {
         for (let i = 0; i < q.choices.length; i++) {
             let inp = document.createElement("input")

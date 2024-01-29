@@ -94,3 +94,7 @@ canvas {
 .question_div {
     background-color: #FFF1E2;
 }
+
+.italic_popisek {
+    font-style: italic;
+}

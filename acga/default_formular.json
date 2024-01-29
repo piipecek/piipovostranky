@@ -1,29 +1,155 @@
 [
     {
-        "typ": "otevrena",
-        "id": 0,
-        "otazka": "Popište, jakej největší trapas na hodinách proběl.",
-        "value": "učiteli došla fixa"
+        "typ": "ciselna",
+        "id": 1,
+        "otazka": "Uplynulé pololetí se mi zdálo obtížné.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 2,
+        "otazka": "Látku uplynulého pololetí se mi podařilo pochopit.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "single",
+        "id": 3,
+        "otazka": "Jaký mám vztah k látce po té, co byl ukončen její výklad?",
+        "choices": ["rozumím jí", "vím, o co šlo", "vyrovnám se s tím", "nevím, k čemu mi to je dobré", "nevím, o co šlo"],
+        "value": null
+    },
+    {
+        "typ": "ciselna",
+        "id": 4,
+        "otazka": "Látka uplynulého pololetí je dle mého názoru užitečná.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 5,
+        "otazka": "Látka uplynulého pololetí je dle mého názoru důležitá.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "single",
+        "id": 6,
+        "otazka": "Když látce nerozumím, zeptám se svého vyučujícího.",
+        "choices": ["vždy", "často", "občas", "výjimečně", "nikdy"],
+        "value": null
+    },
+    {
+        "typ": "ciselna",
+        "id": 7,
+        "otazka": "Hodnocení mých výkonů považuji za transparentní a férové.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 8,
+        "otazka": "V hodinách se cítím komfortně, nemám strach a nebojím se vystupovat.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 9,
+        "otazka": "Vyučující mě podporuje, i když se nejedná o téma výuky.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
     },
     {
         "typ": "ciselna",
         "id": 10,
-        "otazka": "Na škále od 1 do 5 určete, na kolik byla látka tohoto pololetí užitečná.",
+        "otazka": "Vyučující mě podporuje, i když na jeho otázku neumím odpovědět.",
         "max": 5,
-        "value": 3
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 11,
+        "otazka": "V hodinách mám dostatek klidu na chápání látky.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 12,
+        "otazka": "Vystupování vyučujícího je konsistentní, vyučující se nenechá ovládnout svou náladou.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 13,
+        "otazka": "Vyučující chodí do hodin dobře připraven.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 14,
+        "otazka": "Vyučující se vždy vyjadřuje jen k věcem, které souvisí s tématem výuky.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 15,
+        "otazka": "Výuka je inovativní a moderní.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 16,
+        "otazka": "Látka je předávána chaoticky, bez řádu, je složité dělat smysluplný zápis.",
+        "max": 5,
+        "value": null,
+        "text_min": "vůbec nesouhlasím",
+        "text_max": "zcela souhlasím"
     },
     {
         "typ": "single",
-        "id": 20,
-        "otazka": "Ptáte se, když něco v hodině není jasné?",
-        "choices": ["ano", "někdy", "málokdy", "vůbec"],
-        "value": 2
+        "id": 17,
+        "otazka": "Hodiny mě bavily.",
+        "choices": ["vždy", "šlo to", "jak kdy", "dalo se to přežít", "bylo to utrpení"],
+        "value": null
     },
     {
-        "typ": "multiple",
-        "id": 30,
-        "otazka": "Příklad multiple choice otázky",
-        "choices": ["dostal jsem 1", "2", "3", "4", "5"],
-        "values": [0, 1, 2, 3]
+        "typ": "otevrena",
+        "id": 18,
+        "otazka": "Máte-li něco dalšího na srdci, můžete se zde rozepsat. Dotazníky jsou anonymní, avšak podepsaný vzkaz je znakem toho, že Vám na Vašem názoru záleží. Učitelé si z takových vzkazů umějí vzít hlubší ponaučení.",
+        "value": null
     }
 ]
