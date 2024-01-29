@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+
+{% block content %}
+<script src="https://cdn.plot.ly/plotly-2.25.2.min.js" charset="utf-8"></script>
+
+
+<h2>Tvorba výstupu z čtvrtletní práce</h2>
+<div class="row">
+    <div class="col-sm-8">
+        <ul>
+            <li>Při čtvrtletkách se ptám, kolik procent studenti očekávají.</li>
+            <li>Tady na stránce se zapíšou očekávané a obdržené známky a vytvoří se graf podhodnocení.</li>
+            <li>Studenti, kteří nenapíšou oočekávání, nejsou započítáni. Jejich obdržená známka ale je započítána do průměrné.</li>
+            <li>Známky se zapisují jako <code>očekávaná, obdržená</code> a oddělují se enterem.</li>
+            <li>Absence známky se zapíše <code>-</code>.</li>
+            <li>Desetinné čárky nejsou podporovány páč boduju v procentech</li>
+        </ul>
+        <button class="btn custom-button" id="button">Budiž</button>
+    </div>
+    <div class="col-sm-4">
+        <textarea class="form-control" rows="10" id="textarea" placeholder="příklad, příklad"></textarea>
+    </div>
+</div>
+<hr>
+<div id="ocekavana_vs_obdrzena_plot"></div>
+<script type="module" src="{{url_for('static', filename='js/one_page_apps/acga_statistika_ctvrtletky.js')}}"></script>
+
+{% endblock %}

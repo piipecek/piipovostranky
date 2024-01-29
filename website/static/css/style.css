@@ -85,3 +85,16 @@ canvas {
   .tooltip1:hover .tooltiptext1 {
     visibility: visible;
 }
+
+.evaluace_pocet{
+    width: auto !important;
+    display: inline !important;
+}
+
+.question_div {
+    background-color: #FFF1E2;
+}
+
+.italic_popisek {
+    font-style: italic;
+}

@@ -1,0 +1,20 @@
+{% extends "index.html" %}
+
+{% block content %}
+<h2>Vyplnění evaluačního dotazníku - {{name}}</h2>
+<input hidden id="uuid" value="{{uuid}}">
+<div id="main" class="p-3"></div>
+<form method="post" id="form">
+    <p>
+        Pokud formulář uložíte, můžete se k němu ještě vrátit se stejným kódem a upravovat ho. Až formulář odevzdáte, už ho nebudete moct upravovat a Vašemu učiteli se zobrazí.
+    </p>
+    <input type="text" hidden id="result" name="result">
+    <button class="btn custom-button" type="button" id="ulozit">Uložit</button>
+    <button class="btn custom-button" type="button" id="odevzdat">Odevzdat</button>
+</form>
+
+
+<script type="module" src="{{url_for('static', filename='js/one_page_apps/acga_evaluace_formular.js')}}"></script>
+
+
+{% endblock %}

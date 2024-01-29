@@ -30,11 +30,19 @@
                         <th>Zkoušení</th>
                         <td id="number_of_exams"></td>
                     </tr>
+                    {% if "acga_ucitel" in roles%}
+                        <tr>
+                            <th>ACGA Jméno učitele</th>
+                            <td id="acga_jmeno"></td>
+                        </tr>
+                    {% endif %} 
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+{% if "acga_ucitel" in roles %}
+{% endif %}
 {% if not confirmed %}
     <form method="post">
         <button type="submit" class="btn custom-button" name="confirmation_email" value="whatever">Odeslat ověřovací e-mail</button>

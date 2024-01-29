@@ -18,3 +18,11 @@ def slovnik():
         return render_template("slovnik/slovnik.html")
     else:
         return request.form.to_dict()
+    
+@slovnik_views.route("/nova_slovicka")
+@require_role_system_name_on_current_user("user")
+def nova_slovicka():
+    if request.method == "GET":
+        return render_template("slovnik/nova_slovicka.html")
+    else:
+        return request.form.to_dict()

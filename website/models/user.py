@@ -23,10 +23,12 @@ class User(Common_methods_db_model, UserMixin):
     last_login_datetime = db.Column(db.DateTime)
     registration_datetime = db.Column(db.DateTime, default = datetime.utcnow)
     confirmed = db.Column(db.Boolean, default=False)
+    acga_jmeno = db.Column(db.String(200))
     roles = db.relationship("Role", secondary=user_role_jointable, backref="users")
     terms = db.relationship("Term", backref="author")
     decks = db.relationship("Deck", backref="author")
     exams = db.relationship("Exam", backref="author")
+    evaluace = db.relationship("Evaluace", backref="ucitel")
     suggestions = db.relationship("Suggestion", backref="author")
     
     def __repr__(self) -> str:
@@ -121,6 +123,10 @@ class User(Common_methods_db_model, UserMixin):
             {
                 "display_name":"Zkoušení",
                 "value":len(self.exams)
+            },
+            {
+                "display_name":"ACGA Jméno učitele",
+                "value": self.acga_jmeno if self.acga_jmeno else "-"
             }
         ]
 
@@ -132,5 +138,6 @@ class User(Common_methods_db_model, UserMixin):
             "confirmed": "Ano" if self.confirmed else "Ne",
             "number_of_decks": len(self.decks),
             "number_of_terms": len(self.terms),
-            "number_of_exams": len(self.exams)
+            "number_of_exams": len(self.exams),
+            "acga_jmeno": self.acga_jmeno
         }

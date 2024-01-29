@@ -4,6 +4,7 @@ from website.models.user import get_roles
 from website.helpers.require_role import require_role_system_name_on_current_user
 from website.mail_handler import mail_sender
 from website.models.user import User
+from website.models.evaluace import Evaluace
 
 
 user_views = Blueprint("user_views",__name__)
@@ -18,7 +19,9 @@ def ucet():
         if request.form.get("confirmation_email"):
             mail_sender("potvrzeni_emailu", target=current_user.email, data=current_user.get_reset_token())
             flash("Ověřovací e-mail odeslán.", category="success")
-        return redirect(url_for("user_views.ucet"))
+            return redirect(url_for("user_views.ucet"))
+        else:
+            return request.form.to_dict()
              
              
 @user_views.route("/ucet/<token>", methods=["GET"])
@@ -33,3 +36,25 @@ def ucet_overeny(token):
         user.login()
         flash("E-mail máte nyní ověřený.", category="success")
         return redirect(url_for("user_views.ucet"))
+
+@user_views.route("/acga_cist_evaluace_auth", methods=["GET", "POST"])
+@require_role_system_name_on_current_user("acga_ucitel")
+def acga_cist_evaluace_auth():
+    if request.method == "GET":
+        return render_template("user/acga_cist_evaluace.html")
+    else:
+        if request.form.get("acga_jmeno_button"):
+            jmeno = request.form.get("acga_jmeno")
+            current_user.acga_jmeno = jmeno
+            current_user.update()
+            flash("Změna ACGA Jména proběhla v pořádku.", category="success")
+            return redirect(url_for("user_views.acga_cist_evaluace_auth"))
+        elif id := request.form.get("smazat_evaluaci"):
+            e = Evaluace.get_by_id(id)
+            e.delete()
+            flash("Evaluace úspěšně smazána", category="success")
+            return redirect(url_for("user_views.acga_cist_evaluace_auth"))
+        elif id := request.form.get("detail"):
+            e = Evaluace.get_by_id(id)
+            return redirect(url_for("one_page_apps_views.acga_evaluace_locked", uuid=e.uuid))
+        return request.form.to_dict()

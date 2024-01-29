@@ -24,3 +24,9 @@ def dotenv_path() -> Path:
 
 def ikonky_folder_path() -> Path:
     return Path.cwd() / "website" / "static" / "img" / "ikonky"
+
+def acga_kody_slova() -> Path:
+    return Path.cwd() / "acga" / "db.json"
+
+def acga_default_formular() -> Path:
+    return Path.cwd() / "acga" / "default_formular.json"
