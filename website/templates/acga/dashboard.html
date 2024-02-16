@@ -1,0 +1,38 @@
+{% extends "index.html" %}
+{% block content %}
+<div class="d-flex justify-content-center">
+    <h1 class="my-2">Nástroje pro ACGA</h1>
+</div>
+
+<div class="row p-2">
+    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+        <a href="{{url_for('acga_views.vazeny_prumer')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <div class="text-center">
+                Výpočet váženého průměru
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+        <a href="{{url_for('acga_views.statistika_ctvrtletky')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <div class="text-center">
+                Statistika čtvrtletních prací
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+        <a href="{{url_for('acga_views.evaluace')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <div class="text-center">
+                Evaluace učitelů
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+        <a href="{{url_for('acga_views.cist_evaluace')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <div class="text-center">
+                Zadání a výsledky evaluace
+            </div>
+        </a>
+    </div>
+</div>
+</div>
+{% endblock %}

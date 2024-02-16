@@ -1,0 +1,11 @@
+{% extends "acga/navbar.html" %}
+{% block content %}
+<h2 class="">Souhrnné statistiky</h2>
+<form method="post" id="form">
+    Přeji si ukázat souhrn statistik od <input type="date" id="date"> do dnes.
+    <button class="btn custom-button" type="button" id="ukazat">Ukázat</button>
+</form>
+
+<script type="module" src="{{url_for('static', filename='js/acga/evaluace_statistiky.js')}}"></script>
+
+{% endblock %}

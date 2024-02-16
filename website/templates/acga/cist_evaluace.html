@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "acga/navbar.html" %}
 {% block content %}
 <h2 class="my-3">Evaluace na ACGA</h2>
 <p>
@@ -8,7 +8,7 @@
         <li>Ty nechá stáhnout jako .txt, vytiskne, rozstříhá a náhodně rozdá studentům</li>
         <li>Studenti s kódem vyplní dotazník a až ho odevzdají, bude tu k nahléduntí</li>
     </ol>
-    Se studenty můžete sdílet <a href="{{url_for('one_page_apps_views.acga_evaluace')}}">tento link</a>, na něm mohou evaluaci vyplnit. Jsou tam také dovysvětleny další detaily evaluace.
+    Se studenty můžete sdílet <a href="{{url_for('acga_views.evaluace')}}">tento link</a>, na něm mohou evaluaci vyplnit. Jsou tam také dovysvětleny další detaily evaluace.
 </p>
 <h2 class="my-3">Nastavení jména učitele</h2>
 <form method="post" class="my-2">
@@ -29,13 +29,20 @@
         <textarea id="vysledek_textarea" rows="5" class="form-control"></textarea>
     </div>
 </p>
-<form method="post">
-    <h2 class="my-3">Vyplněné a odevzdané formuláře</h2>
-    <div id="vyplnene"></div>
-    <h2 class="my-3">Nevyplněné formuláře</h2>
-    <div id="nevyplnene"></div>
-</form>
+<h2 class="my-3">Souhrnné statistiky</h2>
+<a href="{{url_for('acga_views.evaluace_statistiky')}}"><button class="btn custom-button" id="ukazat_statistiky">Ukázat</button></a>
 
-<script type="module" src="{{url_for('static', filename='js/user/acga_cist_evaluace.js')}}"></script>
+<h2 class="my-3" id="detaily_nadpis">Detaily jednotlivých formulářů</h2>
+<button class="btn custom-button" id="ukazat_detaily_button">Ukázat</button>
+<div id="detaily" hidden>
+    <form method="post">
+        <h2 class="my-3">Vyplněné a odevzdané formuláře</h2>
+        <div id="vyplnene"></div>
+        <h2 class="my-3">Nevyplněné formuláře</h2>
+        <div id="nevyplnene"></div>
+    </form>
+</div>
+
+<script type="module" src="{{url_for('static', filename='js/acga/cist_evaluace.js')}}"></script>
 
 {% endblock %}

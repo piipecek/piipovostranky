@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "acga/navbar.html" %}
 
 {% block content %}
 <h2>Výpočet závěrečné známky</h2>
@@ -90,6 +90,6 @@
 <div id="parent_div"></div>
 <button id="download_button" class="btn custom-button" type="button" hidden>Stáhnout data jako .json</button>
 
-<script type="module" src="{{url_for('static', filename='js/one_page_apps/acga_vazeny_prumer.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/acga/vazeny_prumer.js')}}"></script>
 
 {% endblock %}

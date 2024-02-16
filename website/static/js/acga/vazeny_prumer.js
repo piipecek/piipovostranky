@@ -62,7 +62,7 @@ budiz_button.addEventListener("click", function() {
 
         $.ajax({
             type: "POST",
-            url: "/acga_vazeny_prumer",
+            url: "/acga_api/vazeny_prumer",
             data : form_data,
             contentType: false,
             processData: false,
