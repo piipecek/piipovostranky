@@ -1,8 +1,8 @@
 import httpGet from "../http_get.js"
 import TableCreator from "../table_creator.js"
 
-let acga_jmeno = httpGet("/user_api/get_acga_jmeno")
-let evaluace = JSON.parse(httpGet("/user_api/get_evaluace_pro_seznam"))
+let acga_jmeno = httpGet("/acga_api/get_acga_jmeno")
+let evaluace = JSON.parse(httpGet("/acga_api/get_evaluace_pro_seznam"))
 
 let generovat_button = document.getElementById("generovat")
 let pocet_kodu_input = document.getElementById("pocet_kodu")
@@ -11,8 +11,15 @@ let nevyplnene_div = document.getElementById("nevyplnene")
 let vysledek_div = document.getElementById("vysledek")
 let vysledek_button = document.getElementById("vysledek_button")
 let vysledek_textarea = document.getElementById("vysledek_textarea")
+let ukazat_detaily_button = document.getElementById("ukazat_detaily_button")
 document.getElementById("acga_jmeno").value = acga_jmeno
 
+
+ukazat_detaily_button.addEventListener("click", function() {
+    document.getElementById("detaily").hidden = false
+    ukazat_detaily_button.hidden = true
+    document.getElementById("detaily_nadpis").hidden = true
+})
 
 generovat_button.addEventListener("click", function() {
     let value = pocet_kodu_input.value
@@ -23,7 +30,7 @@ generovat_button.addEventListener("click", function() {
     } else {
         $.ajax({
         type: "POST",
-        url: "/user_api/vytvorit_evaluace/" + String(value),
+        url: "/acga_api/vytvorit_evaluace/" + String(value),
         contentType: false,
         processData: false,
         success: function(data) {

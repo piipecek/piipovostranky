@@ -7,7 +7,7 @@ slovnik_views = Blueprint("slovnik_views",__name__)
 @require_role_system_name_on_current_user("user")
 def slovnik_home():
     if request.method == "GET":
-        return render_template("slovnik/slovnik_dashboard.html")
+        return render_template("slovnik/dashboard.html")
     else:
         return request.form.to_dict()
     

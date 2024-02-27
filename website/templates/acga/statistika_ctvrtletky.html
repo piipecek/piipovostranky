@@ -1,10 +1,11 @@
-{% extends "index.html" %}
+{% extends "acga/navbar.html" %}
 
 {% block content %}
 <script src="https://cdn.plot.ly/plotly-2.25.2.min.js" charset="utf-8"></script>
 
 
 <h2>Tvorba výstupu z čtvrtletní práce</h2>
+<h3><i>Tato stránka ještě není hotová</i></h3>
 <div class="row">
     <div class="col-sm-8">
         <ul>
@@ -23,6 +24,6 @@
 </div>
 <hr>
 <div id="ocekavana_vs_obdrzena_plot"></div>
-<script type="module" src="{{url_for('static', filename='js/one_page_apps/acga_statistika_ctvrtletky.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/acga/statistika_ctvrtletky.js')}}"></script>
 
 {% endblock %}

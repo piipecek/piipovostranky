@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "acga/navbar.html" %}
 
 {% block content %}
 <h2>Evaluace učitelů na ACGA</h2>
@@ -15,13 +15,13 @@
             Zadejte přístupový kód:
         </div>
         <div class="col">
-            <input class="form-control" name="kod" placeholder="tři slova oddělená dvěma mezerami">
+            <input class="form-control" name="kod" placeholder="tři slova oddělená mezerami">
         </div>
         <div class="col-auto">
             <button type="submit" class="btn custom-button" name="zadany_kod" value="whatever">Vyplnit evaluaci</button>
         </div>
     </div>
 </form>
-<script type="module" src="{{url_for('static', filename='js/one_page_apps/acga_evaluace.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/acga/evaluace.js')}}"></script>
 
 {% endblock %}

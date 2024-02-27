@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "acga/navbar.html" %}
 
 {% block content %}
 <h2>Odevzdaný evaluační dotazník - <span id="name"></span></h2>
@@ -9,7 +9,7 @@
 <input hidden id="uuid" value="{{uuid}}">
 
 
-<script type="module" src="{{url_for('static', filename='js/one_page_apps/acga_evaluace_locked.js')}}"></script>
+<script type="module" src="{{url_for('static', filename='js/acga/evaluace_locked.js')}}"></script>
 
 
 {% endblock %}

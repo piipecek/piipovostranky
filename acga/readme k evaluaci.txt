@@ -32,3 +32,10 @@ multiple
     id (int)
     choices
     values
+
+
+TODO:
+
+sjednotit otázky, aby "dobrý" bylo vždy na jedné straně.
+agregovaný výsledky
+mít možnost upravit si formulář přes tím, než ho zveřejním.
