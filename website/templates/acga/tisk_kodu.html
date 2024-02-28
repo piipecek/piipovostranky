@@ -1,0 +1,47 @@
+<!DOCTYPE HTML">
+<html>
+
+<head>
+	<title>Kódy na evaluaci</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tisk_kodu.css')}}">
+</head>
+<body>
+	<div class="info">
+		<script>
+			function update_font(sliderId, value) {
+				document.getElementById(sliderId).value = value;
+			
+				let lines = document.querySelectorAll('.line');
+				lines.forEach(function(line) {
+				line.style.fontSize = value + 'px';
+				});
+			}
+			function update_space(sliderId, value) {
+				document.getElementById(sliderId).value = value;
+			
+				let lines = document.querySelectorAll('.line');
+				lines.forEach(function(line) {
+				line.style.marginBottom = value + 'px';
+				});
+			}
+		  </script>
+		<p>
+			Tento informační box se v tisku neobjeví. Zvažte tisknutí dvou stránek na jeden list papíru.
+		</p>
+		<div>
+			<label for="font">Velikost fontu</label>
+			<input type="range" id="font" min="1" max="50" step="1" value="19" oninput="update_font('font_output', this.value)">
+			<output id="font_output">19</output>
+		</div>
+		<div>
+			<label for="mezera">Velikost mezery mezi řádky</label>
+			<input type="range" id="mezera" min="1" max="50" step="1" value="30" oninput="update_space('mezera_output', this.value)">
+			<output id="mezera_output">30</output>
+		</div>
+	</div>
+    {% for zaznam in kody %}
+        <div class="line">{{ zaznam }}</div>
+    {% endfor %}
+</body>

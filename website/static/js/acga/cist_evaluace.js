@@ -12,6 +12,9 @@ let vysledek_div = document.getElementById("vysledek")
 let vysledek_button = document.getElementById("vysledek_button")
 let vysledek_textarea = document.getElementById("vysledek_textarea")
 let ukazat_detaily_button = document.getElementById("ukazat_detaily_button")
+let vytvorit_form = document.getElementById("vytvorit_form")
+let detaily_form = document.getElementById("detaily_form")
+let smazat_stare_button = document.getElementById("smazat_stare")
 document.getElementById("acga_jmeno").value = acga_jmeno
 
 
@@ -28,24 +31,19 @@ generovat_button.addEventListener("click", function() {
     } else if (!acga_jmeno) {
         alert("Nemáte vyplněné jméno učitele.")
     } else {
-        $.ajax({
-        type: "POST",
-        url: "/acga_api/vytvorit_evaluace/" + String(value),
-        contentType: false,
-        processData: false,
-        success: function(data) {
-            console.log(data)
-            vysledek_div.hidden = false
-            vysledek_textarea.value = data
-            vysledek_button.addEventListener("click", function() {
-                let a = document.createElement("a")
-                let file = new Blob([data], {type: "text/plain"})
-                a.href = URL.createObjectURL(file)
-                a.download = "kody.txt"
-                a.click()
-            })
-            }
-        })
+        vytvorit_form.submit()
+    }
+})
+
+let today = new Date()
+let ago = new Date()
+ago.setMonth(today.getMonth() - 2)
+let formattedDate = ago.toISOString().split('T')[0];
+document.getElementById("date").value = formattedDate
+
+smazat_stare_button.addEventListener("click", function() {
+    if (confirm("Budou smazány i formuláře, které mohly být rozpracované, ale neodevzdané. Pokračovat?")) {
+        detaily_form.submit()
     }
 })
 
@@ -59,7 +57,6 @@ for (let e of evaluace) {
         nevyplnene.push(e)
     }
 }
-
 
 // tlacitka
 function create_delete_button(id) {

@@ -1,0 +1,29 @@
+
+
+body {
+    font-family: ubuntu, arial, helvetica;   
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.line{
+    font-size: 19px;
+    margin-bottom: 1.6rem;
+}
+
+.info {
+    background-color: rgba(136, 200, 85, 0.4);
+    border: 2px solid;
+    border-radius: .3rem;
+    border-color: rgba(136, 200, 85, 1);
+    padding: 20px;
+    margin: 20px;
+    text-align: center;
+}
+
+@media print {
+    .info{
+        display: none;
+    }
+}

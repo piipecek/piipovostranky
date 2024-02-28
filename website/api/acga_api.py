@@ -37,13 +37,6 @@ def evaluace_locked(uuid):
     else:
         return None
 
- 
-@acga_api.route("/vytvorit_evaluace/<int:pocet>", methods=["GET","POST"])
-@require_role_system_name_on_current_user("user")
-def vytvorit_evlauace(pocet):
-    result = Evaluace.vytvorit_evaluace(pocet)
-    return result
-
 
 @acga_api.route("/vazeny_prumer", methods=["POST"])
 def vazeny_prumer():

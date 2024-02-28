@@ -71,6 +71,31 @@ def cist_evaluace_auth():
         elif id := request.form.get("detail"):
             e = Evaluace.get_by_id(id)
             return redirect(url_for("acga_views.evaluace_locked", uuid=e.uuid))
+        elif date := request.form.get("smazat_starsi_nez"):
+            date = datetime.fromisoformat(date)
+            for e in current_user.evaluace:
+                e: Evaluace
+                if e.datetime_vytvoreni < date:
+                    e.delete()
+            flash("Starší formuláře promazány.", category="success")
+            return redirect(url_for("acga_views.cist_evaluace_auth"))
+        elif request.form.get("tisk_neodevzdane"):
+            result = []
+            for e in current_user.evaluace:
+                e: Evaluace
+                if not e.je_odevzdana:
+                    result.append(e)
+            if len(result) == 0:
+                flash("Nejsou žádné neodevzdané evaluace k tisku.", category="error")
+                return redirect(url_for("acga_views.cist_evaluace_auth"))
+            else:
+                result = Evaluace.vytvorit_kody_k_tisku(result)
+                return render_template("acga/tisk_kodu.html", kody = result)
+        elif request.form.get("generovat"):
+            pocet = int(request.form.get("pocet_kodu"))
+            result = Evaluace.vytvorit_evaluace(pocet)
+            result = Evaluace.vytvorit_kody_k_tisku(result)
+            return render_template("acga/tisk_kodu.html", kody = result)
         return request.form.to_dict()
 
 
