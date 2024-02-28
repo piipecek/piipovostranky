@@ -22,24 +22,40 @@
     </div>
 </form>
 <h2 class="my-3">Vytvoření přístupových kódů</h2>
-<p>
-    Přeji si vygenerovat <input type="number" class="form-control evaluace_pocet" placeholder="kolik" id="pocet_kodu"> přístupových kódů pro studenty. <button id="generovat" class="btn custom-button" type="submit">Generovat</button>
-    <div id="vysledek" hidden>
-        <button type="button" id="vysledek_button" class="btn custom-button my-2">Stáhnout jako .txt</button>
-        <textarea id="vysledek_textarea" rows="5" class="form-control"></textarea>
-    </div>
-</p>
+<form method="post" id="vytvorit_form">
+    Přeji si vygenerovat <input type="number" class="form-control evaluace_pocet" placeholder="kolik" id="pocet_kodu" name="pocet_kodu"> přístupových kódů pro studenty. <button id="generovat" name="generovat" value="whatever" class="btn custom-button" type="submit">Generovat</button>
+</form>
 <h2 class="my-3">Souhrnné statistiky</h2>
 <a href="{{url_for('acga_views.evaluace_statistiky')}}"><button class="btn custom-button" id="ukazat_statistiky">Ukázat</button></a>
 
 <h2 class="my-3" id="detaily_nadpis">Detaily jednotlivých formulářů</h2>
 <button class="btn custom-button" id="ukazat_detaily_button">Ukázat</button>
 <div id="detaily" hidden>
-    <form method="post">
+    <form method="post" id="detaily_form">
         <h2 class="my-3">Vyplněné a odevzdané formuláře</h2>
         <div id="vyplnene"></div>
-        <h2 class="my-3">Nevyplněné formuláře</h2>
+        <h2 class="my-3">Neodevzdané formuláře</h2>
+        <div class="row my-2">
+            <div class="col">
+                Smazat neodevzdané formuláře starší než <input type="date" name="smazat_starsi_nez" id="date">
+            </div>
+            <div class="col-3">
+                <button class="btn btn-danger" type="button" id="smazat_stare">Smazat</button>
+            </div>
+        </div>
+    </form>
+    <form method="post">
+        <div class="row my-2">
+            <div class="col">
+                Vytisknout kódy k neodevzdaným formulářům
+            </div>
+            <div class="col-3">
+                <button class="btn custom-button" name="tisk_neodevzdane" value="whatever" type="submit">Tisk</button>
+            </div>
+        </div>
+    <form method="post">
         <div id="nevyplnene"></div>
+    </form>
     </form>
 </div>
 

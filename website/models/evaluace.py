@@ -31,21 +31,27 @@ class Evaluace(Common_methods_db_model):
     def vytvorit_evaluace(pocet) -> list[str]:
         with open(acga_kody_slova()) as file:
             slova = json.load(file)
-        result_list = []
+        result = []
         for _ in range(pocet):
             kod_list = []
             for _ in range(3):
                 kod_list.append(choice(slova))
             kod = " ".join(kod_list)
-            result_list.append(f"Evaluace | {current_user.acga_jmeno} | {kod}")
             e = Evaluace()
             e.ucitel = current_user
             e.kod = kod
             e.update()
-        
-        result = "\n".join(result_list)
+            result.append(e)
         return result
-            
+    
+    
+    @staticmethod
+    def vytvorit_kody_k_tisku(evaluace: list["Evaluace"]) -> list[str]:
+        result = []
+        for e in evaluace:
+            result.append(f"Evaluace | {current_user.acga_jmeno} | {e.kod}")
+        return result
+
     
     def get_info_pro_seznam(self):
         return {
