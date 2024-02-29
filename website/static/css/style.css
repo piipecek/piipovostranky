@@ -135,3 +135,11 @@ canvas {
     border-radius: .3rem;
     border-color: rgb(243,133,8);
 }
+
+.totpal_hra_div{
+    text-align: center;
+}
+
+.totpal_topic{
+    font-size: 10vw;
+}

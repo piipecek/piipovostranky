@@ -1,0 +1,40 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+    <h2>Pomůcka pro Two Of These People Are Lying</h2>
+    <p>
+        Je to hra od Technical Difficulties.
+        <ul>
+            <li>Jednotliví hráči tu postupně zadají své články, vždy jen jeden na jedno kolo.</li>
+            <li>Když dokončí zadávání poslední, může se vygenerovat slovo pro tuto hru.</li>
+        </ul>
+    </p>
+    <hr>
+    <div id="input_div">
+        <div class="row my-2">
+            <div class="col-sm-auto">
+                <label for="input">Zadejte další téma:</label>
+            </div>
+            <div class="col">
+                <input class="form-control" id="input">
+            </div>
+            <div class="col-auto">
+                <div class="btn custom-button" id="input_button">Přidat</div>
+            </div>
+        </div>
+        <p class="my-2">
+            Počet zadaných témat: <span id="count">0</span>
+        </p>
+        <button class="btn custom-button" id="start_button">Začít hru</button>
+
+    </div>
+    <div id="hra_div" class="totpal_hra_div" hidden>
+        Tématem tohoto kola je<br>
+        <span id="topic" class="totpal_topic">placeholder</span><br>
+        <button class="btn custom-button" id="nova_hra_button">Nová hra</button>
+
+    </div>
+
+    <script type="module" src="{{url_for('static', filename='js/one_page_apps/two_of_these_people_are_lying.js')}}"></script>
+{% endblock %}
