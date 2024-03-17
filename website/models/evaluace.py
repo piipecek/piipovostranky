@@ -49,7 +49,7 @@ class Evaluace(Common_methods_db_model):
     def vytvorit_kody_k_tisku(evaluace: list["Evaluace"]) -> list[str]:
         result = []
         for e in evaluace:
-            result.append(f"Evaluace | {current_user.acga_jmeno} | {e.kod}")
+            result.append(f"Evaluace | {current_user.acga_jmeno} | {e.kod} | www.piipovostranky.cz/acga/evaluace")
         return result
 
     

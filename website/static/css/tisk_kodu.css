@@ -27,3 +27,12 @@ body {
         display: none;
     }
 }
+
+.tisk_button{
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: rgb(122, 178, 77);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
