@@ -143,3 +143,17 @@ canvas {
 .totpal_topic{
     font-size: 10vw;
 }
+
+.ctvrtletka-canvas-wrapper{
+    display: flex;
+    justify-content: center;
+    
+}
+
+.ctvrtletka-canvas{
+    width: 80%
+}
+
+.ctvrtletka-prumery{
+    text-align: center;
+}

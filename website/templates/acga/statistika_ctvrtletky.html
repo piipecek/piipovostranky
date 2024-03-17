@@ -1,29 +1,39 @@
 {% extends "acga/navbar.html" %}
 
 {% block content %}
-<script src="https://cdn.plot.ly/plotly-2.25.2.min.js" charset="utf-8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
 <h2>Tvorba výstupu z čtvrtletní práce</h2>
-<h3><i>Tato stránka ještě není hotová</i></h3>
 <div class="row">
     <div class="col-sm-8">
         <ul>
             <li>Při čtvrtletkách se ptám, kolik procent studenti očekávají.</li>
             <li>Tady na stránce se zapíšou očekávané a obdržené známky a vytvoří se graf podhodnocení.</li>
-            <li>Studenti, kteří nenapíšou oočekávání, nejsou započítáni. Jejich obdržená známka ale je započítána do průměrné.</li>
-            <li>Známky se zapisují jako <code>očekávaná, obdržená</code> a oddělují se enterem.</li>
-            <li>Absence známky se zapíše <code>-</code>.</li>
+            <li>Studenti, kteří nenapíšou očekávání, nejsou započítáni. Jejich obdržená známka ale je započítána do průměrné.</li>
+            <li>Známky se zapisují jako <code>očekávaná, obdržená</code> a oddělují se enterem. Mezera mezi čísly není nutná.</li>
+            <li>Absence obdržené známky se zapíše pomocí <code>-</code>.</li>
             <li>Desetinné čárky nejsou podporovány páč boduju v procentech</li>
         </ul>
         <button class="btn custom-button" id="button">Budiž</button>
+        <button class="btn custom-button" id="download" hidden>Stáhnout obrázek grafu</button>
     </div>
     <div class="col-sm-4">
         <textarea class="form-control" rows="10" id="textarea" placeholder="příklad, příklad"></textarea>
     </div>
 </div>
-<hr>
-<div id="ocekavana_vs_obdrzena_plot"></div>
+<div id="wrapper" hidden>
+    <hr>
+    <div class="ctvrtletka-prumery">
+        Průměrná očekávaná známka: <span id="avg_exp"></span><br>
+        Průměrná obdržená známka: <span id="avg"></span><br>
+    </div>
+    <hr>
+   <div class="ctvrtletka-canvas-wrapper">
+       <div class="ctvrtletka-canvas" id="ctverec">
+       </div>
+   </div>
+</div>
 <script type="module" src="{{url_for('static', filename='js/acga/statistika_ctvrtletky.js')}}"></script>
 
 {% endblock %}
