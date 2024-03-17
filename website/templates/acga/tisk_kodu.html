@@ -28,15 +28,16 @@
 			}
 		  </script>
 		<p>
-			Tento informační box se v tisku neobjeví. Zvažte tisknutí dvou stránek na jeden list papíru.
+			Tento informační box se v tisku neobjeví
 		</p>
+		<button class="tisk_button" onclick="window.print()">Tisk</button>
 		<div>
-			<label for="font">Velikost fontu</label>
+			<label for="font">Velikost fontu / px</label>
 			<input type="range" id="font" min="1" max="50" step="1" value="19" oninput="update_font('font_output', this.value)">
 			<output id="font_output">19</output>
 		</div>
 		<div>
-			<label for="mezera">Velikost mezery mezi řádky</label>
+			<label for="mezera">Velikost mezery mezi řádky / px</label>
 			<input type="range" id="mezera" min="1" max="50" step="1" value="30" oninput="update_space('mezera_output', this.value)">
 			<output id="mezera_output">30</output>
 		</div>
