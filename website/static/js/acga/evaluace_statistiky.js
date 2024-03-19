@@ -49,7 +49,7 @@ function handle_response(response) {
             var ctx = canvas.getContext('2d');
         
             var myChart = new Chart(ctx, {
-                type: 'bar', // Change to horizontalBar
+                type: 'bar',
                 data: {
                     labels: zaznam.x,
                     datasets: [{
