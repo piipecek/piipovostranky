@@ -1,12 +1,17 @@
 let textarea = document.getElementById("textarea")
 let button = document.getElementById("button")
-let download_button = document.getElementById("download")
-let canvas_div = document.getElementById('ctverec')
+let download_plot_button = document.getElementById("download_plot")
+let download_histogram_button = document.getElementById("download_histogram")
+let plot_div = document.getElementById('plot_div')
+let histogram_div = document.getElementById('histogram_div')
+let result_div = document.getElementById("result")
 
 button.addEventListener("click", main)
-download_button.addEventListener("click", download)
+download_plot_button.addEventListener("click", download_plot)
+download_histogram_button.addEventListener("click", download_histogram)
 
-let chart = null
+let plot = null
+let histogram = null
 
 function parse() {
     let text = textarea.value
@@ -37,11 +42,13 @@ function parse() {
 
 
 function main() {
-    document.getElementById("wrapper").hidden = false
-    download_button.hidden = false
+    result_div.hidden = false
+    download_histogram_button.hidden = false
+    download_plot_button.hidden = false
     let parsed_input = parse()
     if (parsed_input) {
         ocekavana_vs_obdrzena_plot(parsed_input)
+        histogram_plot(parsed_input)
         prumerne_hodnoty(parsed_input)
     } else {
         alert("V zadaných známkách je chyba někde, zkuste jí najít a opravit.")
@@ -62,22 +69,22 @@ function ocekavana_vs_obdrzena_plot(parsed_input) {
     }
 
     // vytvoreni canvasu
-    canvas_div.innerHTML = null
+    plot_div.innerHTML = null
     let canvas = document.createElement("canvas")
-    canvas_div.appendChild(canvas)
+    plot_div.appendChild(canvas)
 
     // vyska a sirka canvasu
     let vyska = window.outerHeight
     let sirka = window.outerWidth
     if (vyska > sirka) {
-        canvas_div.style.width = sirka*0.9
+        plot_div.style.width = sirka*0.9
     } else {
-        canvas_div.style.height = vyska*0.9
+        plot_div.style.height = vyska*0.9
     }
 
     let  ctx = canvas.getContext('2d');
 
-    chart = new Chart(ctx, {
+    plot = new Chart(ctx, {
         data: {
             datasets: [{
                 type: 'scatter',
@@ -135,6 +142,89 @@ function ocekavana_vs_obdrzena_plot(parsed_input) {
     });
 }
 
+function histogram_plot(parsed_input) {
+    let data = [0, 0, 0, 0, 0]
+    for (let line of parsed_input){
+        if (line[1] >= 80) {
+            data[0] ++
+    
+        } else if (line[1] >= 65) {
+            data[1] ++
+        } else if (line[1] >= 50) {
+            data[2] ++
+        } else if (line[1] >= 35) {
+            data[3] ++
+        } else {
+            data[4] ++
+        }
+    }
+
+    // vytvoreni canvasu
+    histogram_div.innerHTML = null
+    let canvas = document.createElement("canvas")
+    histogram_div.appendChild(canvas)
+
+    // vyska a sirka canvasu
+    let vyska = window.outerHeight
+    let sirka = window.outerWidth
+    if (vyska > sirka) {
+        histogram_div.style.width = sirka*0.9
+    } else {
+        histogram_div.style.height = vyska*0.9
+    }
+
+    let  ctx = canvas.getContext('2d');
+
+    histogram = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["1", "2", "3", "4", "5"],
+            datasets: [{
+                data: data,
+                backgroundColor: 'rgba(136, 200, 85, 0.4)',
+                borderColor: 'rgba(136, 200, 85, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: "Četnost",
+                        font: {
+                            size: 20
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: "Známky",
+                        font: {
+                            size: 20
+                        }
+                    }
+                }
+            },
+            animation: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Četnost přepočtených známek",
+                    font: {
+                        size: 25
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
 function prumerne_hodnoty(parsed_input) {
     let ocekavane_znamky = []
     let obdrzene_znamky = []
@@ -157,11 +247,16 @@ function prumerne_hodnoty(parsed_input) {
     document.getElementById("avg").innerText = String(Math.round(avg_total/obdrzene_znamky.length*100)/100).replace(".",",")
 }
 
-function download() {
+function download_plot() {
     let a = document.createElement('a');
-    a.href = chart.toBase64Image("image/png", 1);
+    a.href = plot.toBase64Image("image/png", 1);
     a.download = 'plot.png';
-    
-    // Trigger the download
     a.click();
+}
+
+function download_histogram() {
+    let b = document.createElement('a');
+    b.href = histogram.toBase64Image("image/png", 1);
+    b.download = 'histogram.png';
+    b.click();
 }

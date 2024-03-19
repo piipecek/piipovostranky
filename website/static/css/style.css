@@ -146,11 +146,10 @@ canvas {
 
 .ctvrtletka-canvas-wrapper{
     display: flex;
-    justify-content: center;
-    
+    justify-content: center
 }
 
-.ctvrtletka-canvas{
+.ctvrtletka-canvas-div{
     width: 80%
 }
 

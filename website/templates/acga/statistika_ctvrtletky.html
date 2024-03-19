@@ -16,23 +16,31 @@
             <li>Desetinné čárky nejsou podporovány páč boduju v procentech</li>
         </ul>
         <button class="btn custom-button" id="button">Budiž</button>
-        <button class="btn custom-button" id="download" hidden>Stáhnout obrázek grafu</button>
+        <button class="btn custom-button" id="download_plot" hidden>Stáhnout obrázek plotu</button>
+        <button class="btn custom-button" id="download_histogram" hidden>Stáhnout obrázek histogramu</button>
     </div>
     <div class="col-sm-4">
         <textarea class="form-control" rows="10" id="textarea" placeholder="příklad, příklad"></textarea>
     </div>
 </div>
-<div id="wrapper" hidden>
+<div id="result" hidden>
     <hr>
     <div class="ctvrtletka-prumery">
         Průměrná očekávaná známka: <span id="avg_exp"></span><br>
         Průměrná obdržená známka: <span id="avg"></span><br>
     </div>
     <hr>
-   <div class="ctvrtletka-canvas-wrapper">
-       <div class="ctvrtletka-canvas" id="ctverec">
+    <div class="ctvrtletka-canvas-wrapper">
+       <div class="ctvrtletka-canvas-div" id="plot_div">
        </div>
-   </div>
+    </div>
+    <br>
+    <div class="ctvrtletka-canvas-wrapper">
+        <div class="ctvrtletka-canvas-div" id="histogram_div">
+        </div>
+     </div>
+</div>
+   
 </div>
 <script type="module" src="{{url_for('static', filename='js/acga/statistika_ctvrtletky.js')}}"></script>
 
