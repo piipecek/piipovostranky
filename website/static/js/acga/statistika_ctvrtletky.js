@@ -93,9 +93,9 @@ function ocekavana_vs_obdrzena_plot(parsed_input) {
                 borderColor: "rgb(0,151,10)",
                 backgroundColor: "rgb(148,256,148)",
                 pointStyle: "cross",
-                pointRadius: 5,
+                pointRadius: 8,
                 pointHoverRadius: 10,
-                borderWidth: 2
+                borderWidth: 3
               }, {
                 type: 'line',
                 label: 'y=x',
@@ -107,14 +107,19 @@ function ocekavana_vs_obdrzena_plot(parsed_input) {
             }],
         },
         options: {
-            aspectRatio: 1.3,
+            aspectRatio: 1.7,
             scales: {
                 y: {
                     title: {
                         display: true,
                         text: "Obdržená známka",
                         font: {
-                            size: 20
+                            size: 25
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size:20
                         }
                     }
                 },
@@ -123,7 +128,12 @@ function ocekavana_vs_obdrzena_plot(parsed_input) {
                         display: true,
                         text: "Očekávaná známka",
                         font: {
-                            size: 20
+                            size: 25
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size:20
                         }
                     }
                 }
@@ -194,7 +204,12 @@ function histogram_plot(parsed_input) {
                         display: true,
                         text: "Četnost",
                         font: {
-                            size: 20
+                            size: 25
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size:20
                         }
                     }
                 },
@@ -203,7 +218,12 @@ function histogram_plot(parsed_input) {
                         display: true,
                         text: "Známky",
                         font: {
-                            size: 20
+                            size: 25
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size:20
                         }
                     }
                 }
