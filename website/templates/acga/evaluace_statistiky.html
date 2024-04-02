@@ -2,7 +2,7 @@
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<h2 class="">Souhrnné statistiky</h2>
+<h2 class="">Souhrnné výsledky</h2>
 <p>
     Zde můžete zobrazit souhrn všech odevzdaných dotazníků za poslední období.
 </p>
@@ -12,6 +12,7 @@
 </form>
 
 <div id="result" hidden>
+    <span id="count"></span>
 </div>
 <script type="module" src="{{url_for('static', filename='js/acga/evaluace_statistiky.js')}}"></script>
 
