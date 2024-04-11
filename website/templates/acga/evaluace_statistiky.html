@@ -7,7 +7,12 @@
     Zde můžete zobrazit souhrn všech odevzdaných dotazníků za poslední období.
 </p>
 <form method="post" id="form">
-    Přeji si ukázat souhrn statistik od <input type="date" id="date"> do dnes.
+    Přeji si ukázat souhrn statistik 
+    <select id="select">
+        <option value="odevzdane">odevzdaných</option>
+        <option value="vytvorene">vytvořených</option>
+    </select>
+     od <input type="date" id="date"> do dnes.
     <button class="btn custom-button" type="button" id="ukazat">Ukázat</button>
 </form>
 

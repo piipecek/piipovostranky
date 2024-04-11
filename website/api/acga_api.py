@@ -52,7 +52,12 @@ def evaluace_statistiky_data():
     date = datetime.fromisoformat(request.form.get("date"))
     otazky = []
     # pripustna evaluace do shrnuti je 1) od spravnyho ucitele 2) odevzdana 3) novejsi nez dane datum
-    pripustne_evaluace = [e for e in current_user.evaluace if e.datetime_vytvoreni > date and e.je_odevzdana]
+    pripustne_evaluace = [e for e in current_user.evaluace if e.je_odevzdana]
+    if request.form.get("type") == "odevzdane":
+        pripustne_evaluace = [e for e in pripustne_evaluace if e.datetime_odevzdani > date]
+    else:
+        pripustne_evaluace = [e for e in pripustne_evaluace if e.datetime_vytvoreni > date]
+        
     for e in pripustne_evaluace:
         e: Evaluace
         data_evaluace = json.loads(e.data_json)

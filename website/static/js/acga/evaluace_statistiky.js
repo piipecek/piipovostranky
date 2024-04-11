@@ -1,11 +1,15 @@
 let ukazat_button = document.getElementById("ukazat")
 let result_div = document.getElementById("result")
 let count_span = document.getElementById("count")
+let date = document.getElementById("date")
+let select = document.getElementById("select")
 
 ukazat_button.addEventListener("click", function() {
     document.getElementById("form").hidden = true
     let form_data = new FormData()
-    form_data.append("date", document.getElementById("date").value)
+    form_data.append("date", date.value)
+    form_data.append("type", select.value)
+    console.log(select.value)
     $.ajax({
         type: "POST",
         url: "/acga_api/evaluace_statistiky_data",
