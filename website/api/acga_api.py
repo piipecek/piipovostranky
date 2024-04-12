@@ -50,14 +50,19 @@ def vazeny_prumer():
 @require_role_system_name_on_current_user("acga_ucitel")
 def evaluace_statistiky_data():
     date = datetime.fromisoformat(request.form.get("date"))
-    result = []
+    otazky = []
     # pripustna evaluace do shrnuti je 1) od spravnyho ucitele 2) odevzdana 3) novejsi nez dane datum
-    pripustne_evaluace = [e for e in current_user.evaluace if e.datetime_vytvoreni > date and e.je_odevzdana]
+    pripustne_evaluace = [e for e in current_user.evaluace if e.je_odevzdana]
+    if request.form.get("type") == "odevzdane":
+        pripustne_evaluace = [e for e in pripustne_evaluace if e.datetime_odevzdani > date]
+    else:
+        pripustne_evaluace = [e for e in pripustne_evaluace if e.datetime_vytvoreni > date]
+        
     for e in pripustne_evaluace:
         e: Evaluace
         data_evaluace = json.loads(e.data_json)
         for otazka in data_evaluace:
-            if otazka["id"] not in [entry["id"] for entry in result]: # pokud tohle ID ještě nemá histogramovou kategorii, zalozim ji
+            if otazka["id"] not in [entry["id"] for entry in otazky]: # pokud tohle ID ještě nemá histogramovou kategorii, zalozim ji
                 # budu mit dva typy: histogram a otevrena. Do histogramu patri single, multiple i ciselna.
                 if otazka["typ"] == "ciselna":
                     popisky = [str(i) for i in range(1, otazka["max"]+1)]
@@ -85,11 +90,11 @@ def evaluace_statistiky_data():
                 else:
                     novy_zaznam["odpovedi"] = []
                 
-                result.append(novy_zaznam)
+                otazky.append(novy_zaznam)
             # teď už záznam buď existoval předtim, nebo byl nově vytvořenej
             #najdu ten existujici zaaznam 
             zaznam = None
-            for z in result:
+            for z in otazky:
                 if z["id"] == otazka["id"]:
                     zaznam = z
                     break
@@ -104,4 +109,8 @@ def evaluace_statistiky_data():
                     zaznam["y"][value] += 1
             elif otazka["typ"] == "otevrena":
                 zaznam["odpovedi"].append(otazka["value"])
+    result = {
+        "otazky": otazky,
+        "count": len(pripustne_evaluace)
+    }
     return json.dumps(result, indent=4)

@@ -33,7 +33,7 @@ def evaluace():
         return render_template("acga/evaluace.html", roles=get_roles(current_user))
     else:
         if request.form.get("zadany_kod"):
-            kod = request.form.get("kod")
+            kod = request.form.get("kod").strip()
             if e := Evaluace.get_by_kod(kod):
                 return redirect(url_for("acga_views.evaluace_formular", uuid=e.uuid))
             else:
@@ -91,7 +91,7 @@ def cist_evaluace_auth():
             else:
                 result = Evaluace.vytvorit_kody_k_tisku(result)
                 return render_template("acga/tisk_kodu.html", kody = result)
-        elif request.form.get("generovat"):
+        elif request.form.get("pocet_kodu"):
             pocet = int(request.form.get("pocet_kodu"))
             result = Evaluace.vytvorit_evaluace(pocet)
             result = Evaluace.vytvorit_kody_k_tisku(result)

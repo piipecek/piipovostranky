@@ -23,7 +23,7 @@
 </form>
 <h2 class="my-3">Vytvoření přístupových kódů</h2>
 <form method="post" id="vytvorit_form">
-    Přeji si vygenerovat <input type="number" class="form-control evaluace_pocet" placeholder="kolik" id="pocet_kodu" name="pocet_kodu"> přístupových kódů pro studenty. <button id="generovat" name="generovat" value="whatever" class="btn custom-button" type="submit">Generovat</button>
+    Přeji si vygenerovat <input type="number" class="form-control evaluace_pocet" placeholder="kolik" id="pocet_kodu" name="pocet_kodu" required> přístupových kódů pro studenty. <button id="generovat" class="btn custom-button" type="button">Generovat</button>
 </form>
 <h2 class="my-3">Souhrnné statistiky</h2>
 <a href="{{url_for('acga_views.evaluace_statistiky')}}"><button class="btn custom-button" id="ukazat_statistiky">Ukázat</button></a>
