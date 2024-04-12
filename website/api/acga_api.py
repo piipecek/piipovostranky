@@ -1,8 +1,9 @@
 import json
 from flask import Blueprint, request
 from website.helpers.require_role import require_role_system_name_on_current_user
+from website.helpers.pretty_date import pretty_datetime
 from flask_login import current_user
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from website.models.evaluace import Evaluace
 from acga.prumery import pocitani_prumeru
 
@@ -49,14 +50,14 @@ def vazeny_prumer():
 @acga_api.route("/evaluace_statistiky_data", methods=["POST"])
 @require_role_system_name_on_current_user("acga_ucitel")
 def evaluace_statistiky_data():
-    date = datetime.fromisoformat(request.form.get("date"))
+    form_date = datetime.fromisoformat(request.form.get("date"))
     otazky = []
     # pripustna evaluace do shrnuti je 1) od spravnyho ucitele 2) odevzdana 3) novejsi nez dane datum
     pripustne_evaluace = [e for e in current_user.evaluace if e.je_odevzdana]
     if request.form.get("type") == "odevzdane":
-        pripustne_evaluace = [e for e in pripustne_evaluace if e.datetime_odevzdani > date]
+        pripustne_evaluace = [e for e in pripustne_evaluace if e.datetime_odevzdani > form_date]
     else:
-        pripustne_evaluace = [e for e in pripustne_evaluace if e.datetime_vytvoreni > date]
+        pripustne_evaluace = [e for e in pripustne_evaluace if e.datetime_vytvoreni > form_date]
         
     for e in pripustne_evaluace:
         e: Evaluace
@@ -109,8 +110,20 @@ def evaluace_statistiky_data():
                     zaznam["y"][value] += 1
             elif otazka["typ"] == "otevrena":
                 zaznam["odpovedi"].append(otazka["value"])
+                
+    datetimes = []
+    for e in pripustne_evaluace:
+        datetimes.append(e.datetime_odevzdani.date())
+        
+    diff: timedelta = max(datetimes) - min(datetimes)
+    diff_days = diff.days
+    start_date = min(datetimes)
+    datetimes_full = [{"date": start_date + timedelta(days=i), "count": datetimes.count(start_date + timedelta(days=i))} for i in range(diff_days+1)] # chci prvni i posledni
+        
     result = {
         "otazky": otazky,
-        "count": len(pripustne_evaluace)
+        "count": len(pripustne_evaluace),
+        "dny": [pretty_datetime(d["date"]) for d in datetimes_full],
+        "pocty_ve_dnech": [str(d["count"]) for d in datetimes_full]
     }
     return json.dumps(result, indent=4)

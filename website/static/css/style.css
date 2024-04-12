@@ -101,7 +101,7 @@ canvas {
 
 .plot-div {
     background-color: #FFF1E2;
-    width: 80%;
+    /* width: 80%; */
     border: 1px solid;
     border-radius: .3rem;
     border-color: rgb(243,133,8);
@@ -109,18 +109,15 @@ canvas {
     margin-bottom: 1rem;
 }
 
-.plot-div-wrapper{
-    display: flex;
-    justify-content: center;
-}
-
 .canvas-div-wrapper{
     display: flex;
     justify-content: center;
+    max-width: 800px;
+    margin: auto;
 }
 
 .canvas-div{
-    width: 70%;
+    width: 90%;
 }
 .otazka{
     font-weight: bold;
@@ -155,4 +152,11 @@ canvas {
 
 .ctvrtletka-prumery{
     text-align: center;
+}
+
+.dny_histogram_div{
+    display: flex;
+    justify-content: center;
+    max-width: 800px;
+    margin: auto;
 }

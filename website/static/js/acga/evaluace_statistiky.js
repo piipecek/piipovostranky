@@ -3,6 +3,7 @@ let result_div = document.getElementById("result")
 let count_span = document.getElementById("count")
 let date = document.getElementById("date")
 let select = document.getElementById("select")
+let dny_histogram_canvas = document.getElementById("dny_histogram")
 
 ukazat_button.addEventListener("click", function() {
     document.getElementById("form").hidden = true
@@ -32,7 +33,11 @@ function handle_response(response) {
     response = JSON.parse(response)
     let otazky = response.otazky
     let count = response.count
+    let dny = response.dny
+    let pocty_ve_dnech = response.pocty_ve_dnech
     result_div.hidden = false
+
+    // počet odpovědí
     if (count == 0) {
         count_span.innerText = "Tomuto zadání neodpovídají žádné formuláře."
     } else if (count == 1) {
@@ -40,23 +45,61 @@ function handle_response(response) {
     } else {
         count_span.innerText = "Jsou tu ukázány souhrnné výsledky " + String(count) + " formulářů."
     }
+
+    // histogram odevzdávání
+    if (count == 0) {
+        document.getElementById("dny_histogram_wrapper").hidden = true
+    } else {
+        let dny_histogram_ctx = dny_histogram_canvas.getContext("2d")
+        var dny_histogram = new Chart(dny_histogram_ctx, {
+            type: 'bar',
+            data: {
+                labels: dny,
+                datasets: [{
+                    label: 'počet odevzdaných formulářů',
+                    data: pocty_ve_dnech,
+                    backgroundColor: 'rgba(136, 200, 85, 0.4)',
+                    borderColor: 'rgba(136, 200, 85, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+    }
+
+
+
+    // samotné otázky
     for (let zaznam of otazky) {
-        let wrapper = document.createElement("div")
-        let inner_div = document.createElement("div")
-        inner_div.classList.add("plot-div")
-        wrapper.classList.add("plot-div-wrapper")
-        result_div.appendChild(wrapper)
-        wrapper.appendChild(inner_div)
+        let div = document.createElement("div")
+        div.classList.add("plot-div")
+        result_div.appendChild(div)
         let p = document.createElement("p")
         p.classList.add("otazka")
         p.innerText = zaznam.otazka
-        inner_div.appendChild(p)
+        div.appendChild(p)
         if (zaznam.typ == "histogram") {
             let canvas_div_wrapper = document.createElement("div")
             canvas_div_wrapper.classList.add("canvas-div-wrapper")
             let canvas_div = document.createElement("div")
             canvas_div.classList.add("canvas-div")
-            inner_div.appendChild(canvas_div_wrapper)
+            div.appendChild(canvas_div_wrapper)
             canvas_div_wrapper.appendChild(canvas_div)
             let canvas = document.createElement("canvas")
             canvas_div.appendChild(canvas)
@@ -87,7 +130,9 @@ function handle_response(response) {
                         legend: {
                             display: false
                         }
-                    }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: true
                 }
             });
         } else if (zaznam.typ == "otevrena") {
@@ -96,7 +141,7 @@ function handle_response(response) {
                 odpoved_div.classList.add("odpoved-div")
                 if (odpoved.trim() != "") {
                     odpoved_div.innerText = odpoved
-                    inner_div.appendChild(odpoved_div)
+                    div.appendChild(odpoved_div)
                 }
             }
         }
