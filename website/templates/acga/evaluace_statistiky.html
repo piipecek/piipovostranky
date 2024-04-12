@@ -18,6 +18,14 @@
 
 <div id="result" hidden>
     <span id="count"></span>
+    <div id="dny_histogram_wrapper">
+        <p>
+            Počet odevzdaných formulářů v jednotlivých dnech:
+        </p>
+        <div class="dny_histogram_div">
+            <canvas id="dny_histogram"></canvas>
+        </div>
+    </div>
 </div>
 <script type="module" src="{{url_for('static', filename='js/acga/evaluace_statistiky.js')}}"></script>
 
