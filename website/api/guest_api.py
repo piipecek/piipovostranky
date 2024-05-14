@@ -34,6 +34,7 @@ def novy_ucastnik_gangu():
             "jmeno": request.form["jmeno"],
             "email": request.form["email"],
             "gang": request.form["gang"],
+            "gang_2": request.form["gang_2"],
         }
     )
     with open(gangy_path(), "w") as f:
