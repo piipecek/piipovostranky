@@ -20,6 +20,7 @@ Co všechno přibylo kvůli gangům:
 - gangy_path
 - gangy.json
 - endpoint co vrací csv se sloupečky "cas", "jmeno", "email", "gang"
+- endpoint co vrací počty lidí v gangu
 
 """
 
@@ -60,3 +61,12 @@ def gangy_csv():
     response.headers["Content-type"] = "text/csv"
 
     return response
+
+@guest_api.route("/pocet_lidi_v_gangu/<string:gang>", methods=["GET"])
+def pocet_lidi_v_gangu(gang):
+    with open(gangy_path()) as f:
+        gangy_data = json.load(f)
+    
+    pocet_lidi = len([entry for entry in gangy_data if entry["gang"] == gang])
+
+    return json.dumps({"count": pocet_lidi})
