@@ -47,9 +47,9 @@ def gangy_csv():
         gangy_data = json.load(f)
 
     
-    csv_data = [["cas", "jmeno", "email", "gang"]]
+    csv_data = [["cas", "jmeno", "email", "gang", "gang_2"]]
     for entry in gangy_data:
-        csv_data.append([entry["cas"], entry["jmeno"], entry["email"], entry["gang"]])
+        csv_data.append([entry["cas"], entry["jmeno"], entry["email"], entry["gang"], entry["gang_2"]])
 
     # Create a CSV string
     csv_string = io.StringIO()
