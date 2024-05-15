@@ -151,3 +151,8 @@ def evaluace_locked(uuid):
 @require_role_system_name_on_current_user("acga_ucitel")
 def evaluace_statistiky():
     return render_template("acga/evaluace_statistiky.html")
+
+
+@acga_views.route("/astrofyzika")
+def astrofyzika():
+    return render_template("acga/astrofyzika.html")
