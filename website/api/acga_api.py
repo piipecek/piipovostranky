@@ -6,6 +6,7 @@ from flask_login import current_user
 from datetime import datetime, date, timedelta
 from website.models.evaluace import Evaluace
 from acga.prumery import pocitani_prumeru
+from astrofyzika.generator import generator
 
 
 acga_api = Blueprint("acga_api", __name__)
@@ -127,3 +128,8 @@ def evaluace_statistiky_data():
         "pocty_ve_dnech": [str(d["count"]) for d in datetimes_full]
     }
     return json.dumps(result, indent=4)
+
+@acga_api.route("/astrofyzika/<string:prijmeni>", methods=["GET"])
+def astrofyzika(prijmeni):
+    cisla = generator(prijmeni)
+    return json.dumps(cisla, indent=4)
