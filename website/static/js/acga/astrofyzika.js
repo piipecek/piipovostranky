@@ -78,7 +78,7 @@ function createTable(data) {
     table.make_row(["\\(x_2\\)", "\\(" + String(data[2]) + "\\)"])
     table.make_row(["\\(y_2\\)", "\\(" + String(data[3]) + "\\)"])
     table.make_row(["\\(v_{1x}\\)", "\\(" + String(data[4]) + "\\)"])
-    table.make_row(["\\(v_{2x}\\)", "\\(" + String(data[5]) + "\\)"])
+    table.make_row(["\\(v_{1y}\\)", "\\(" + String(data[5]) + "\\)"])
     table.make_row(["\\(m\\)", "\\(" + String(data[6]) + "\\)"])
     table.make_header(["výsledek", calculate_result(data)])
     MathJax.typeset()
