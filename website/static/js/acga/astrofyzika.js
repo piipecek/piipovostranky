@@ -11,7 +11,7 @@ generovat_button.addEventListener('click', function() {
     createTable(response)
 })
 
-// Tady byla funkce pro výpočet výsledku. První tento fakt exploitnula Eliška Rokosová (JU3C) za pomoci jejích známých 29. 5. 2024. Od té dobby probíhá výpočet na serveru a výsledek se pouze zobrazuje v tabulce.
+// Tady byla funkce pro výpočet výsledku. První tento fakt exploitnula Eliška Rokosová (JU3A) za pomoci jejích známých 29. 5. 2024. Od té doby probíhá výpočet na serveru a výsledek se pouze zobrazuje v tabulce.
 
 function createTable(data) {
 
