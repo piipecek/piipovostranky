@@ -12,10 +12,11 @@ def generate_catan(data) -> dict:
     allow_same_adjacent_values = data["adjacent_values"]
     force_unique_six_eight = data["unique_68"]
     allow_adjacent_six_eight = data["adjacent_68"]
+    inland_68_count = int(data["inland_68"])
 
     b = Board()
     b.obsadit_typama(force_middle_desert, allow_same_neighbours)
     b.pridat_okraje(allow_ports_next_to_source)
-    b.pridat_hodnoty(allow_same_adjacent_values, force_unique_six_eight, allow_adjacent_six_eight)
+    b.pridat_hodnoty(allow_same_adjacent_values, force_unique_six_eight, allow_adjacent_six_eight, inland_68_count)
 
     return b.to_json()

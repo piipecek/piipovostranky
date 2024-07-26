@@ -10,17 +10,17 @@ class Board:
         self.tiles.append(Tile(1,None,None,[0,2,4,5]))
         self.tiles.append(Tile(2,None,None,[1,5,6]))
         self.tiles.append(Tile(3,None,None,[0,4,7,8]))
-        self.tiles.append(Tile(4,None,None,[0,1,3,5,8,9]))
-        self.tiles.append(Tile(5,None,None,[1,2,4,6,9,10]))
+        self.tiles.append(Tile(4,None,None,[0,1,3,5,8,9], is_inland=True))
+        self.tiles.append(Tile(5,None,None,[1,2,4,6,9,10], is_inland=True))
         self.tiles.append(Tile(6,None,None,[2,5,10,11]))
         self.tiles.append(Tile(7,None,None,[3,8,12]))
-        self.tiles.append(Tile(8,None,None,[3,4,7,9,12,13]))
-        self.tiles.append(Tile(9,None,None,[4,5,8,10,13,14]))
-        self.tiles.append(Tile(10,None,None,[5,6,9,11,14,15]))
+        self.tiles.append(Tile(8,None,None,[3,4,7,9,12,13], is_inland=True))
+        self.tiles.append(Tile(9,None,None,[4,5,8,10,13,14], is_inland=True))
+        self.tiles.append(Tile(10,None,None,[5,6,9,11,14,15], is_inland=True))
         self.tiles.append(Tile(11,None,None,[6,10,15]))
         self.tiles.append(Tile(12,None,None,[7,8,13,16]))
-        self.tiles.append(Tile(13,None,None,[8,9,12,14,16,17]))
-        self.tiles.append(Tile(14,None,None,[9,10,13,15,17,18]))
+        self.tiles.append(Tile(13,None,None,[8,9,12,14,16,17], is_inland=True))
+        self.tiles.append(Tile(14,None,None,[9,10,13,15,17,18], is_inland=True))
         self.tiles.append(Tile(15,None,None,[10,11,14,18]))
         self.tiles.append(Tile(16,None,None,[12,13,17]))
         self.tiles.append(Tile(17,None,None,[13,14,16,18]))
@@ -170,8 +170,7 @@ class Board:
             else:
                 self.okraje = choice(vyhovujici_okraje)
 
-    def pridat_hodnoty(self, allow_same_adjacent_values, force_unique_six_eight, allow_adjacent_six_eight):
-        
+    def pridat_hodnoty(self, allow_same_adjacent_values, force_unique_six_eight, allow_adjacent_six_eight, inland_68_count):
         #tyhle checking fce returnujou true, kdyz rozhozeni vyhovuje
         def check_adjacent_values() -> bool:
             vyhovuje = True
@@ -199,30 +198,40 @@ class Board:
             if 8 in hodnoty_tech_sousedu:
                 return False
             return True
-
-
+    
+        def check_inland_68_count() -> bool:
+            inland_six_eight_tiles = [x for x in list(filter(lambda y: y.value in [6,8], self.tiles )) if x.is_inland]
+            if len(inland_six_eight_tiles) >= inland_68_count:
+                return True
+            else:
+                return False
+            
         list(filter(lambda x: x.type == "zlodej", self.tiles))[0].value = 0
-        complete = False # na konci while loopu se dycky updatne. potrebuju ale mit defaultne true, aby to zkoncilo i pri nulovejch kontrolach
-        while not complete:
-            complete =  True
+    
+
+        while True:
             dostupne_hodnoty = [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12]
             for tile in self.tiles:
                 if tile.value != 0:
                     tile.value = choice(dostupne_hodnoty)
                     dostupne_hodnoty.remove(tile.value)
+                    
             if not allow_same_adjacent_values:
-                ajd_check = check_adjacent_values()
-            else:
-                ajd_check = True
-            if not allow_adjacent_six_eight:
-                adj_s_e = check_adjacent_six_eight()
-            else:
-                adj_s_e = True
+                adjacent_values = check_adjacent_values()
+                if not adjacent_values:
+                    continue
             if force_unique_six_eight:
                 force_unique = check_unique_six_eight()
-            else:
-                force_unique = True
-            complete = all([adj_s_e, ajd_check, force_unique])
+                if not force_unique:
+                    continue
+            if not allow_adjacent_six_eight:
+                adj_s_e = check_adjacent_six_eight()
+                if not adj_s_e:
+                    continue
+            if not check_inland_68_count():
+                continue
+            
+            return None
     
     def to_json(self) -> dict:
         result = {
