@@ -5,69 +5,88 @@
 <h1>Generátor mapy pro Osadníky z Katanu</h1>
 <div class="container" id="buttons">
     <div class="row my-2">
-        <div class="col float-middle">
+        <div class="col-6">
             Vynutit poušť uprostřed
         </div>
-        <div class="col-auto">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-outline-success" type="button" id="force_desert_yes">Ano</button>
         </div>
-        <div class="col">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-success" type="button" id="force_desert_no">Ne</button>
         </div>
     </div>
     <div class="row my-2">
-        <div class="col">
+        <div class="col-6">
             Sousední dílky krajiny můžou být stejná surovina
         </div>
-        <div class="col-auto">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-outline-success" type="button" id="adjacent_land_yes">Povolit</button>
         </div>
-        <div class="col">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-success" type="button" id="adjacent_land_no">Zakázat</button>
         </div>
     </div>
     <div class="row my-2">
-        <div class="col">
+        <div class="col-6">
             2:1 Port může být vedle kartičky se zdrojem jeho suroviny
         </div>
-        <div class="col-auto">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-outline-success" type="button" id="ports_yes">Povolit</button>
         </div>
-        <div class="col">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-success" type="button" id="ports_no">Zakázat</button>
         </div>
     </div>
     <div class="row my-2">
-        <div class="col">
+        <div class="col-6">
             Sousední políčka můžou mít stejnou hodnotu čísla
         </div>
-        <div class="col-auto">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-outline-success" type="button" id="adjacent_values_yes">Povolit</button>
         </div>
-        <div class="col">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-success" type="button" id="adjacent_values_no">Zakázat</button>
         </div>
     </div>
     <div class="row my-2">
-        <div class="col">
+        <div class="col-6">
             Vynutit, aby hodnoty 6 a 8 byly na unikátních surovinách
         </div>
-        <div class="col-auto">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-success" type="button" id="unique_68_yes">Ano</button>
         </div>
-        <div class="col">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-outline-success" type="button" id="unique_68_no">Ne</button>
         </div>
     </div>
     <div class="row my-2">
-        <div class="col">
+        <div class="col-6">
             Hodnoty 6 a 8 můžou sousedit
         </div>
-        <div class="col-auto">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-outline-success" type="button" id="adjacent_68_yes">Povolit</button>
         </div>
-        <div class="col">
+        <div class="col-1 d-flex justify-content-center">
             <button class="cudlitka btn btn-success" type="button" id="adjacent_68_no">Zakázat</button>
+        </div>
+    </div>
+    <div class="row my-2">
+        <div class="col-6">
+            Minimální počet hodnot 6 a 8 ve vnitrozemí
+        </div>
+        <div class="col-2 d-flex justify-content-center">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inland_68" id="inlineRadio0" value="0">
+                <label class="form-check-label" for="inlineRadio0">0</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inland_68" id="inlineRadio1" value="1">
+                <label class="form-check-label" for="inlineRadio1">1</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inland_68" id="inlineRadio2" value="2" checked>
+                <label class="form-check-label" for="inlineRadio2">2</label>
+            </div>
         </div>
     </div>
 </div>

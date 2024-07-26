@@ -1,6 +1,11 @@
 import {Cartesian_graph} from "./cartesian_graph.js"
 
 let buttons = document.getElementsByClassName("cudlitka")
+let radios_ids = ["inlineRadio0", "inlineRadio1", "inlineRadio2", "inlineRadio3"]
+let radios = []
+for (let i=0;i<radios_ids.length;i++) {
+    radios.push(document.getElementById(radios_ids[i]))
+}
 let generate_button = document.getElementById("generate")
 let zmena_button = document.getElementById("zmena")
 let buttons_div = document.getElementById("buttons")
@@ -17,7 +22,8 @@ let result = {
     "ports": false,
     "adjacent_values": false,
     "unique_68": true,
-    "adjacent_68": false
+    "adjacent_68": false,
+    "inland_68": 2
 }
 
 function display_parameters() {
@@ -47,6 +53,13 @@ function button_pressed(id_name) {
     document.getElementById(id_name_druheho).classList.add("btn-outline-success")
     document.getElementById(id_name_druheho).classList.remove("btn-success")
 }
+
+for (let radio of radios) {
+    radio.addEventListener("click", function() {
+        result["inland_68"] = radio.value
+    })
+}
+
 
 function send() {
     document.getElementById("preloader").hidden = false
