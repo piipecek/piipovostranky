@@ -1,0 +1,138 @@
+{% extends "index.html" %}
+
+{% block empty_on_about_page %}
+{% endblock %}
+
+{% block content %}
+    <a href="https://www.piipovostranky.cz" class="about-a">
+        <div class="about-showcase-div about-head-div">
+            <h3 class="mb-5 mt-3">Pípovo stránky</h3>
+            <p class="about-head-p mb-5">
+                Jsem Josef Lát a toto je můj volnočasový projekt. Studuji fakultu strojní na ČVUT, vyučuji fyziku a hru na klavír a píši web. Níže jsou ukázky některých dalších projektů, na kterých jsem pracoval.
+            </p>
+            <p class="about-head-p">
+                V této dlaždici naleznete několik mých více či méně úspěšných projektíků, které většinou fungují jako single-page application.
+            </p>
+        </div>
+    </a>
+
+    <a href="https://additive.benesalat.cz" class="about-a">
+        <div class="about-showcase-div">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Portál aditivních technologií pro Beneš a Lát</h3>
+                    <p class="showcase-description">
+                        Jde o internetový portál, který slouží jako spojka mezi uživateli a 3D tiskárnou na práškové kovy, kterou firma vlastní. Díky portálu můžou tiskárnu využívat i lidé, kteří nemají zkušenosti s 3D tiskem nebo potřebují pouze kusovou výrobu. Backend je napsán v jazyce Python za použití frameworku Flask, frontend navrhla 1Pozitivní. Hlavní funkcí portálu je kalkulace ceny tisku, která probíhá díky komunikaci s výpočetní API, kterou vytvořil Pavel Gruber. 
+                    </p>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <img class="showcase-img" src="{{ url_for('static', filename='img/about/additive.png')}}"/>
+                </div>
+            </div>
+        </div>
+    </a>
+    <a href="https://www.expedice-mars.eu" class="about-a">
+        <div class="about-showcase-div">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Intranet Expedice Mars</h3>
+                    <p class="showcase-description">
+                        Expedice Mars je projekt pro středoškoláky, jehož cílem je networking nadané mládeže a neformální vzdělávání v oblastech jako teamwork a soft skills. V několika kolech jsou účastníci vystaveni různým zadáním, kde kombinují své odborné znalosti v týmech složených ze studentů s různými specializacemi tak, jak tomu bude celý jejich život. Účastníci jsou do následujících kol vybíráni na základě jejich schopností tvořit dobrou posádku vesmírné mise, protože posledním kolem každého ročníku je stohodinová simulace letu na Mars, která se odehrává v prostorách Vyškovské hvězdárny. Mnou vytvořený intranet provází účastníky od registrace celou expedicí a zpřehledňuje nám, organizátorům, průběh každého ročníku.
+                    </p>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <img class="showcase-img" src="{{ url_for('static', filename='img/about/expedice.png')}}"/>
+                </div>
+            </div>
+        </div>
+    </a>
+    <a href="https://www.early-music.cz" class="about-a">
+        <div class="about-showcase-div">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Přihláškový systém pro valtickou mezinárodní letní školu staré hudby</h3>
+                    <p class="showcase-description">
+                        Mezinárodní letní škola staré hudby ve Valticích shromážďuje každý rok mnoho hudebníků a lektorů a vytváří prostředí, kde se všichni účastníci po dobu jednoho týdne vzdělávají v interpretaci staré hudby, historických tanců apod. Mnou vytvořený přihláškový systém zjednodušuje organizaci celé akce díky tomu, že jsem sám mnoho let aktivním účastníkem a znám potřeby obou stran.
+                    </p>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <img class="showcase-img" src="{{ url_for('static', filename='img/about/valtice.png')}}"/>
+                </div>
+            </div>
+        </div>
+    </a>
+    <a href="https://mafie.podsveti.cz" class="about-a">
+        <div class="about-showcase-div">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Informační systém městské hry Mafie</h3>
+                    <p class="showcase-description">
+                        /září 2024: work in progress/ <br> Mafie je městská hra, která tě chytne! Každý rok se účastníci - mafiáni - snaží získat co nejvíce mordů tak, že najdou ostatní spoluhráče, nasadí si na pravou ruku bílou rukavici a dotekem je vyřadí ze hry. Stránky přes rok vystřídají několik fází a po dobu trvání hry slouží jako informační systém, kde mafiáni například sledují průběh hry.
+                    </p>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <img class="showcase-img" src="{{ url_for('static', filename='img/about/mafis.png')}}"/>
+                </div>
+            </div>
+        </div>
+    </a>
+    <a href="https://joezhole.piipovostranky.cz" class="about-a">
+        <div class="about-showcase-div">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Prezentační stránky vozového parku mého táty</h3>
+                    <p class="showcase-description">
+                        Můj otec má celý svůj život velmi blízko k automobilům, motorkám, traktorům a obecně ke všemu, co má spalovací motor. Vždy, když najde trochu času, pustí se do opravy dalšího stroje, který na něj jistě už dlouho čeká. Na těchto stránkách se můžete podívat na některé jeho projekty a přečíst si jejich příběh. Stránky podporují dvojjazyčný obsah pomocí cookies.
+                    </p>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <img class="showcase-img" src="{{ url_for('static', filename='img/about/joezhole.png')}}"/>
+                </div>
+            </div>
+        </div>
+    </a>
+    <a href="https://www.piipovostranky.cz/acga/home" class="about-a">
+        <div class="about-showcase-div">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Nástroje pro učitele na ACGA</h3>
+                    <p class="showcase-description">
+                        Anglicko-české gymnázium AMAZON je soukromé gymnázium, kde od září 2023 vyučuji fyziku. Postupně se ukazovalo, že nějaké často opakované kroky by bylo dobré automatizovat, a tak jsem vytvořil několik nástrojů, které mi pomáhají v každodenní práci. Některé z nich jsou dostupné i pro moje kolegy, některé i pro studenty.
+                    </p>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <img class="showcase-img" src="{{ url_for('static', filename='img/about/acga.png')}}"/>
+                </div>
+            </div>
+        </div>
+    </a>   
+
+
+
+{% endblock %}
+
+
+<!-- natvdo zkopírovanej z dashboardu -->
+{% block footer %}
+    <section class="container-sm border-orange border-2 rounded-3 p-2 footer-section my-3">
+        <div class="row">
+            <div class="col-sm">
+                <a class="link" href="{{url_for('guest_views.known_bugs')}}">Známé připomínky</a>
+                <br>
+                <a class="link" href="{{url_for('guest_views.nahlasit_bug')}}">Nová připomínka, nápad, bug</a>
+                <br>
+                <a class="link" href="{{url_for('guest_views.planovane_featury')}}">Plánované featury</a>
+                <br>
+            </div>
+            <div class="col-sm text-sm-end">
+                <a class="link" target="_blank" href="https://bitbucket.org/piipecek/piipovo_stranky/src/main/">Zdroj</a>
+                <br>
+                <a class="link" target="_blank" href="https://t.me/piipecek">Kontakt</a>
+                <br>
+                <a class="link" href="{{url_for('guest_views.historie')}}">Historie verzí</a>
+                <br>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
