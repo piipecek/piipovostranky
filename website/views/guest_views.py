@@ -10,6 +10,9 @@ guest_views = Blueprint("guest_views",__name__)
 
 
 @guest_views.route("/")
+def about():
+    return render_template("guest/about.html", roles=get_roles(current_user))
+
 @guest_views.route("/dashboard")
 def dashboard():
     return render_template("guest/dashboard.html", roles=get_roles(current_user))
