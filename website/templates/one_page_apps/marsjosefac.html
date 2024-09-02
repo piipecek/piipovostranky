@@ -1,0 +1,88 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<h1>Systém nápověd pro šifrovačku na Marsu v Josefáči</h1>
+<div class="row">
+    <div class="col-md my-2">
+        <input class="form-control" id="input" placeholder="Zadejte kód stanoviště">
+    </div>
+    <div class="col-auto my-2">
+        <button class="btn custom-button" type="button" id="input_button">Zobrazit</button>
+    </div>
+</div>
+
+<div id="okurka" hidden>
+    <h2>Nápověda k šifře Asociační</h2>
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="okurka_1">Princip (penalizace 10 minut)</button>
+    <div id="okurka_1_div" hidden>
+        <p>Každá trojice obrázků asociuje jedno slovo. Na papíře jsou dále tři trojice trojic a jedna trojice trojic trojic.</p>
+    </div>
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="okurka_2">Konkrétní znění (penalizace 10 minut)</button>
+    <div id="okurka_2_div" hidden>
+        <p>Horní trojice: vosk, provaz, oheň</p>
+        <p>Levá trojice: rakev, nůž, pistole </p>
+        <p>Pravá trojice: plot, květiny, tráva</p>
+    </div>
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="okurka_3">Řešení (penalizace 10 minut)</button>
+    <div id="okurka_3_div" hidden>
+        <p>Horní trojice: svíčka</p>
+        <p>Levá trojice: smrt</p>
+        <p>Pravá trojice: zahrada</p>
+        <p>Celkem tato slova dohromady vedou na hřbitov.</p>
+    </div>
+
+</div>
+<div id="mrkev" hidden>
+    <h2>Nápověda k šifře Kolečko</h2>
+    <!-- budou tu jen dvě sekce, princip a řešení -->
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="mrkev_1">Princip (penalizace 10 minut)</button>
+    <div id="mrkev_1_div" hidden>
+        <p>Každý popisek vede na jedno dvojslabyčné slovo, slova na sebe navazují slabikami.</p>
+    </div>
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="mrkev_2">Řešení (penalizace 10 minut)</button>
+    <div id="mrkev_2_div" hidden>
+        <p>Vrchní dvě slova jsou "prsa" a "vojna", slovo mezi nimi vzniklé je tedy "savoj", Savoy je restaurace v Josefově Dole.</p>
+    </div>
+</div>
+<div id="pravidla" hidden>
+    <h2>Nápověda k pravidlům</h2>
+    <p>Pravidla žádnou nápovědu nemají. Stačí si je pozorně přečíst :)</p>
+</div>
+<div id="cuketa" hidden>
+    <h2>Nápověda k šifře Seřadiště</h2>
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="cuketa_1">Princip (penalizace 10 minut)</button>
+    <div id="cuketa_1_div" hidden>
+        <p>Rozházený příběh o pejskovi a kočičce je potřeba seřadit. Tučná písmena na začátcích úseků pak začnou dávat smysl.</p>
+    </div>
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="cuketa_2">Mezitajenka (penalizace 10 minut)</button>
+    <div id="cuketa_2_div" hidden>
+        <p>
+            Po seřazení příběhu se vám zjeví mezitajenka INTERPUNKCEJEMORSE, je tedy nutné využít čárky a tečky ve větách každého úseku.
+        </p>
+    </div>
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="cuketa_3">Řešení (penalizace 10 minut)</button>
+    <div id="cuketa_3_div" hidden>
+        <p>
+            Každý úsek kóduje morseovkou jedno písmeno, po přečtení všech písmen v pořadí seřazené pohádky dostanete heslo HORSKACHATAOLYMPIA.
+        </p>
+    </div>
+</div>
+<div id="jahoda" hidden>
+    <h2>Nápověda k šifře vyhledávač spojů</h2>
+    <!-- 2 sekce, princip a řešení -->
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="jahoda_1">Princip (penalizace 10 minut)</button>
+    <div id="jahoda_1_div" hidden>
+        <p>Každá tečka má číslo, jde o spojovačku. Postupným spojováním čísel vznikají klikyháky, které vypadají jako písmena.</p>
+    </div>
+    <button class="btn custom-button my-2 napoveda_button" type="button" id="jahoda_2">Řešení (penalizace 10 minut)</button>
+    <div id="jahoda_2_div" hidden>
+        <p>Pospojováním všech písmen čteme řešení KARLOVJOSEFACKAMENICEMOST, jde tedy o silniční most přes Kamenici, který leží na cestě mezi Karlovem a Josefovým dolem.</p>
+    </div>
+
+</div>
+
+
+<script src="{{url_for('static', filename='js/one_page_apps/marsjosefac.js')}}"></script>
+
+{% endblock %}

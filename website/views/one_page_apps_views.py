@@ -110,3 +110,7 @@ def vydaje():
 @one_page_apps_views.route("/two_of_these_people_are_lying")
 def two_of_these_people_are_lying():
     return render_template("one_page_apps/two_of_these_people_are_lying.html", roles=get_roles(current_user))
+
+@one_page_apps_views.route("/marsjosefac")
+def marsjosefac():
+    return render_template("one_page_apps/marsjosefac.html", roles=get_roles(current_user))
