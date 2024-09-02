@@ -46,7 +46,9 @@ let misto_sort_span = document.getElementById("misto_sort_span")
 
 
 // arrays
+let pairser_output = null
 let vsechny_platby = []
+let popisky = []
 let roztrizene_platby = []
 let celkova_suma = 0
 
@@ -64,23 +66,23 @@ function display_zbyle_vydaje(objects) {
         let td3 = document.createElement("td")
         let td4 = document.createElement("td")
         let td5 = document.createElement("td")
-        td1.innerText = obj["datum zaúčtování"]
+        td1.innerText = obj["datum"]
         td2.innerText = obj["castka"].toFixed(2).replace(".", ",") + "\u00A0Kč"
         td3.innerText = obj["misto"]
-        td4.innerText = obj["číslo protiúčtu"]
-        td5.innerText = obj["zpráva"]
+        td4.innerText = obj["cislo_protiuctu"]
+        td5.innerText = obj["zprava"]
         td4.classList.add("hover-blue")
         td5.classList.add("hover-blue")
         td4.addEventListener("click", function() {
             cislo_protiuctu_option.selected = "selected"
             je_option.selected = "selected"
-            klic_input.value = obj["číslo protiúčtu"]
+            klic_input.value = obj["cislo_protiuctu"]
             prepsat_shodnost()
         })
         td5.addEventListener("click", function() {
             zprava_option.selected = "selected"
             je_option.selected = "selected"
-            klic_input.value = obj["zpráva"]
+            klic_input.value = obj["zprava"]
             prepsat_shodnost()
         })
         tr.appendChild(td1)
@@ -120,9 +122,9 @@ function display_pravidlo(udaj, vyskyt, klic, kategorie) {
 }
 
 function prepsat_shodnost() {
-    if (udaj_select.value == "zpráva") {
+    if (udaj_select.value == "zprava") {
         je_option.innerText = "je shodná s"
-    } else if (udaj_select.value == "číslo protiúčtu") {
+    } else if (udaj_select.value == "cislo_protiuctu") {
         je_option.innerText = "je shodné s"
     }
 }
@@ -217,6 +219,7 @@ function prepocitat() {
         }
     }
     zbyle["platby"] = temp_nove_zbyle
+
     // zobrazeni vysledku pretrideni
     display_zbyle_vydaje(zbyle["platby"])
     result_div.innerHTML = ""
@@ -248,7 +251,7 @@ function novy_div_roztrizenych(kategorie, platby) {
     col2.classList.add("col-7")
     let plot_div = document.createElement("div")
     col2.appendChild(plot_div)
-    plot_platby(plot_div, platby)
+    plot_platby(plot_div, platby, popisky)
 
     let details_table = document.createElement("table")
     col1.appendChild(details_table)
@@ -326,10 +329,10 @@ function novy_div_roztrizenych(kategorie, platby) {
         let td2 = document.createElement("td")
         let td3 = document.createElement("td")
         let td4 = document.createElement("td")
-        td1.innerText = p["datum zaúčtování"]
+        td1.innerText = p["datum"]
         td2.innerText = p["castka"]
-        td3.innerText = p["číslo protiúčtu"]
-        td4.innerText = p["zpráva"]
+        td3.innerText = p["cislo_protiuctu"]
+        td4.innerText = p["zprava"]
         tr.appendChild(td1)
         tr.appendChild(td2)
         tr.appendChild(td3)
@@ -338,31 +341,27 @@ function novy_div_roztrizenych(kategorie, platby) {
     }
 }
 
-function plot_platby(div, platby) {
-    let mesice = ["leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"]
-    let penize = [0,0,0,0,0,0,0,0,0,0,0,0]
-    let min_month = 13
-    let max_month = 0
-    for (let p of platby) {
-        let month = parseInt(p["datum zaúčtování"].split(".")[1])
-        if (month < min_month) {
-            min_month = month
-        } 
-        if (month > max_month) {
-            max_month = month
-        }
-        penize[month-1] += p["castka"]
+function plot_platby(div, platby, popisky) {
+    // list vsech vydaju per mesic
+    let penize = []
+    for (let _ of popisky) {
+        penize.push(0)
     }
 
-    let plot_div = div
+    // pro kazdy mesic sectu vydaje
+    for (let p of platby) {
+        penize[p.poradi] += p.castka
+    }
 
-    let data = [{
-        x: mesice.slice(min_month-1, max_month),
-        y: penize.slice(min_month-1, max_month),
-        marker: {
-            color: "blue"
-        }
-    }]
+    // vytvarim databody
+    let trace = {
+        x: popisky.map(p=>p.label),
+        y: penize,
+        type: "scatter",
+        mode: 'lines+markers'
+    }
+
+    let data = [trace]
 
     let layout = {
         yaxis: {
@@ -375,32 +374,30 @@ function plot_platby(div, platby) {
     let config = {
         responsive: true
     }
-    Plotly.newPlot(plot_div, data, layout, config)
+    Plotly.newPlot(div, data, layout, config)
 }
 
-function nakreslit_main_plot(platby) {
-    let mesice = ["leden", "únor", "březen", "duben", "květen", "červen", "červenec", "srpen", "září", "říjen", "listopad", "prosinec"]
-    let penize = [0,0,0,0,0,0,0,0,0,0,0,0]
-    let min_month = 13
-    let max_month = 0
-    for (let p of platby) {
-        let month = parseInt(p["datum zaúčtování"].split(".")[1])
-        if (month < min_month) {
-            min_month = month
-        } 
-        if (month > max_month) {
-            max_month = month
-        }
-        penize[month-1] += p["castka"]
+function nakreslit_main_plot(platby, popisky) {
+    // list vsech vydaju per mesic
+    let penize = []
+    for (let _ of popisky) {
+        penize.push(0)
     }
-    
-    let data = [{
-        x: mesice.slice(min_month-1, max_month),
-        y: penize.slice(min_month-1, max_month),
-        marker: {
-            color: "blue"
-        }
-    }]
+
+    // pro kazdy mesic sectu vydaje
+    for (let p of platby) {
+        penize[p.poradi] += p.castka
+    }
+
+    // vytvarim databody
+    let trace = {
+        x: popisky.map(p=>p.label),
+        y: penize,
+        type: "scatter",
+        mode: 'lines+markers'
+    }
+
+    let data = [trace]
 
     let layout = {
         yaxis: {
@@ -428,14 +425,16 @@ csv_file_input.addEventListener('change', function (e) {
 
     reader.onload = function (event) {
         const csvData = event.target.result;
-        vsechny_platby = csvToObjectArray(csvData);
+        pairser_output = csvToObjectArray(csvData);
+        vsechny_platby = pairser_output["platby"]
+        popisky = pairser_output["popisky"]
         roztrizene_platby.push({
             "kategorie": "zbyle",
             "platby": vsechny_platby
         })
         celkova_suma = vypocist_total(vsechny_platby)
         display_zbyle_vydaje(vsechny_platby);
-        nakreslit_main_plot(vsechny_platby)
+        nakreslit_main_plot(vsechny_platby, popisky)
         prepocitat()
     };
 
@@ -506,13 +505,18 @@ nove_pravidlo_button.addEventListener("click", function() {
     let vyskyt = vyskyt_select.value
     let klic = klic_input.value
     let kategorie = ""
+
     if (kategorie_select.value == "nova_kategorie") {
+        if (kategorie_input.value == "") {
+            alert("Zadejte název nové kategorie")
+            return
+        }
         kategorie = kategorie_input.value
         let opt = document.createElement("option")
         opt.value = kategorie
         opt.innerText = kategorie
         kategorie_select.appendChild(opt)
-        kategorie_input.value = null
+        kategorie_input.value = ""
     } else {
         kategorie = kategorie_select.value
     }
@@ -536,11 +540,11 @@ datum_sort.addEventListener("click", function() {
     }
     if (datum_sort_span.innerText == "▼") {
         datum_sort_span.innerText = "▲"
-        display_zbyle_vydaje(zbyle_platby.sort(function(a, b) {return datum_creator(a["datum zaúčtování"]) - datum_creator(b["datum zaúčtování"])}))
+        display_zbyle_vydaje(zbyle_platby.sort(function(a, b) {return datum_creator(a["datum"]) - datum_creator(b["datum"])}))
 
     } else {
         datum_sort_span.innerText = "▼"
-        display_zbyle_vydaje(zbyle_platby.sort(function(a, b) {return datum_creator(b["datum zaúčtování"]) - datum_creator(a["datum zaúčtování"])}))
+        display_zbyle_vydaje(zbyle_platby.sort(function(a, b) {return datum_creator(b["datum"]) - datum_creator(a["datum"])}))
 
     }
 })
@@ -554,7 +558,7 @@ misto_sort.addEventListener("click", function() {
         display_zbyle_vydaje(zbyle_platby.sort(function(a, b) {return a["misto"].localeCompare(b["misto"])}))
     } else {
         misto_sort_span.innerText = "▼"
-        zbyle_platby.sort(function(a, b) {return b["misto"].localeCompare(a["misto"])})
+        zbyle_platby.sort(function(a, b) {return b.misto.localeCompare(a.misto)})
         display_zbyle_vydaje(zbyle_platby)
     }
 })
