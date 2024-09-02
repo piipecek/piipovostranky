@@ -190,6 +190,7 @@ function prepocitat() {
         opt.value = k
         kategorie_select.appendChild(opt)
     }
+    sort_kategorie_options()
     let e = new Event("change")
     kategorie_select.dispatchEvent(e)
 
@@ -413,6 +414,15 @@ function nakreslit_main_plot(platby, popisky) {
     Plotly.newPlot(main_plot_div, data, layout, config)
 }
 
+function sort_kategorie_options() {
+     let options = Array.from(kategorie_select.options)
+     options.sort((a, b) => a.innerText.localeCompare(b.innerText));
+     kategorie_select.innerHTML = ""
+     for (let o of options) {
+         kategorie_select.appendChild(o)
+     }
+}
+
 
 csv_file_input.addEventListener('change', function (e) {
     const file = e.target.files[0];
@@ -507,19 +517,25 @@ nove_pravidlo_button.addEventListener("click", function() {
     let kategorie = ""
 
     if (kategorie_select.value == "nova_kategorie") {
+        // test prazdne nove
         if (kategorie_input.value == "") {
             alert("Zadejte název nové kategorie")
             return
         }
+
+        // vytvoreni nove
         kategorie = kategorie_input.value
         let opt = document.createElement("option")
         opt.value = kategorie
         opt.innerText = kategorie
         kategorie_select.appendChild(opt)
         kategorie_input.value = ""
+
+        sort_kategorie_options()
     } else {
         kategorie = kategorie_select.value
     }
+    klic_input.value = ""
     display_pravidlo(udaj, vyskyt, klic, kategorie)
     prepocitat()
 })
