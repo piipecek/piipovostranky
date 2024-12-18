@@ -6,7 +6,7 @@ let rozcestnik_div = document.getElementById("rozcestnik");
 let game_div = document.getElementById("game");
 let categories_tr = document.getElementById("categories_tr")
 let tbody = document.getElementById("game_table")
-let recent_score = document.getElementById("posledni_hodnota")
+let recent_field = document.getElementById("posledni_pole")
 let teams_row = document.getElementById("teams_row")
 let click_space_hint = document.getElementById("click_space_hint")
 
@@ -20,6 +20,7 @@ let modal_visible = false;
 let modal_state = 1;
 let recent_id = null;
 let recent_difficulty = 0;
+let recent_category = "";
 
 start_game_button_2.addEventListener("click", () => {
     let teams_value = teams_input.value
@@ -148,8 +149,10 @@ function hide_answered_modal() {
     let td = document.getElementById("question_" + recent_id)
     td.classList.remove("clickable")
     td.classList.add("answered")
-    recent_difficulty = parseInt(questions.find((question) => question.id === recent_id).difficulty)
-    recent_score.innerText = recent_difficulty
+    let qustion = questions.find((question) => question.id === recent_id)
+    recent_difficulty = qustion.difficulty
+    recent_category = qustion.category
+    recent_field.innerText = recent_category + " - " + recent_difficulty
     hide_modal()
 
 }

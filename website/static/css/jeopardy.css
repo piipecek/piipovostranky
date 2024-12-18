@@ -31,6 +31,8 @@
     text-align: center;
     background-color: rgb(243, 133, 8);
     border-radius: 3px;
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 
 th {
@@ -52,7 +54,7 @@ td:hover{
 
 .answered{
     background-color: rgb(210, 220, 243);
-    color: gray;
+    color: rgb(129, 129, 129);
     cursor: default;
 }
 
