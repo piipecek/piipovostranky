@@ -1,0 +1,152 @@
+{% extends "index.html" %} {% block content %}
+
+<div class="custom_flex_center_column" id="rozcestnik">
+    <h2>Riskuj! | Jeopardy!</h2>
+    <button
+        id="create_game_button_1"
+        type="button"
+        class="btn custom-button my-2"
+    >
+        Vytvořit hru
+    </button>
+    <button
+        id="start_game_button_1"
+        type="button"
+        class="btn custom-button my-2"
+    >
+        Nahrát JSON a hrát hru
+    </button>
+    <button
+        id="edid_game_button_1"
+        type="button"
+        class="btn custom-button my-2"
+    >
+        Upravit otázky v existující hře
+    </button>
+    <button id="rules_button" type="button" class="btn custom-button my-2">
+        Jak na to
+    </button>
+    <div class="hr"></div>
+    <div class="custom_flex_center_column wider" id="start_game" hidden>
+        <input
+            class="form-control my-2"
+            type="file"
+            id="file_start"
+            accept=".json"
+        />
+        <input
+            class="form-control my-2"
+            type="text"
+            id="teams_input"
+            placeholder="Napište jména týmů oddělená čárkou"
+        />
+        <button
+            id="start_game_button_2"
+            type="button"
+            class="btn custom-button"
+        >
+            Začít
+        </button>
+    </div>
+    <div class="custom_flex_center_column wider" id="create_game" hidden>
+        <div class="custom_flex_center_column">
+            <label for="categories">Kategorie:</label>
+        </div>
+        <input
+            class="form-control"
+            type="text"
+            id="categories"
+            placeholder="Napište kategorie oddělené čárkou"
+        />
+        <div class="custom_flex_center_column">
+            <label for="difficulties">Obtížnosti:</label>
+        </div>
+        <input
+            class="form-control"
+            type="text"
+            id="difficulties"
+            placeholder="Napište bodová hodnocení obtížností oddělená čárkou"
+        />
+
+        <button
+            id="create_game_button_2"
+            type="button"
+            class="btn custom-button my-2"
+        >
+            Vytvořit
+        </button>
+    </div>
+    <div id="edit_game" class="custom_flex_center_column wider" hidden>
+        <input
+            class="form-control my-2"
+            type="file"
+            id="file_edit"
+            accept=".json"
+        />
+        <button id="edit_game_button_2" type="button" class="btn custom-button">
+            Upravit
+        </button>
+    </div>
+    <div class="custom_flex_center_column wider" id="rules" hidden>
+        <h3>Pravidla</h3>
+        <h3>Jak vytvořit hru</h3>
+        <h3>Jak hrát</h3>
+    </div>
+</div>
+<div id="game_creator" hidden>
+    <div id="questions"></div>
+    <button id="save_game_button" type="button" class="btn custom-button my-2">
+        Stáhnout hru jako .json
+    </button>
+    <button id="back_home_button" type="button" class="btn custom-button my-2">
+        Zpět domů
+    </button>
+</div>
+<div id="game" hidden>
+    <table class="mytable">
+        <thead>
+            <tr id="categories_tr"></tr>
+        </thead>
+        <tbody id="game_table"></tbody>
+    </table>
+    <div class="posledni">
+        <div>Poslední hodnota: <span class="posledni_hodnota" id="posledni_hodnota">zatím žádná</span></div>
+    </div>
+    <div class="row my-2" id="teams_row"></div>
+</div>
+
+<div class="mymodal" id="mymodal" hidden>
+    <div class="mymodal_content" id="mymodal_content">
+        <div>
+            <p class="cat_dif"><span id="modal_cat"></span> - <span id="modal_diff"></span></p>
+            <p class="otazka_j" id="otazka">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+            <p class="odpoved_j" id="odpoved" hidden>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+        </div>
+        <div>
+            <p class="click_space_hint" id="click_space_hint">
+                odpověď zobrazte mezerníkem nebo kliknutím
+            </p>
+        </div>
+    </div>
+</div>
+
+<script
+    type="module"
+    src="{{url_for('static', filename='js/one_page_apps/jeopardy_index.js')}}"
+></script>
+<script
+    type="module"
+    src="{{url_for('static', filename='js/one_page_apps/jeopardy_creator.js')}}"
+></script>
+<script
+    type="module"
+    src="{{url_for('static', filename='js/one_page_apps/jeopardy_game.js')}}"
+></script>
+
+{% endblock %}

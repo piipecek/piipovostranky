@@ -114,3 +114,7 @@ def two_of_these_people_are_lying():
 @one_page_apps_views.route("/marsjosefac")
 def marsjosefac():
     return render_template("one_page_apps/marsjosefac.html", roles=get_roles(current_user))
+
+@one_page_apps_views.route("/jeopardy")
+def jeopardy():
+    return render_template("one_page_apps/jeopardy.html", roles=get_roles(current_user))

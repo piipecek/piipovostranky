@@ -1,0 +1,124 @@
+.custom_flex_center_column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wider {
+    min-width: 70%;
+}
+
+.question {
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: rgb(255, 241, 226);
+    padding: 10px;
+    margin: 10px;
+}
+
+.hr{
+    width: 95%;
+    border: 1px solid gray;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+.mytable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 5px;
+    height: 75vh;
+    text-align: center;
+    background-color: rgb(243, 133, 8);
+    border-radius: 3px;
+}
+
+th {
+    border-radius: 2px;
+    font-size: 1.5rem;
+    background-color: rgb(210, 220, 243);
+}
+
+td {
+    border-radius: 2px;
+    background-color: rgb(255, 241, 226);
+    font-size: 2rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+td:hover{
+    background-color: rgb(210, 220, 243);
+}
+
+.answered{
+    background-color: rgb(210, 220, 243);
+    color: gray;
+    cursor: default;
+}
+
+.posledni{
+    display: flex;
+    justify-content: center;
+    font-size: 1.8rem;
+}
+
+.mymodal{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.mymodal_content{
+    background-color: white;
+    width: 80%;
+    height: 80%;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    border: 2px solid rgb(243, 133, 8);
+    background-color: rgb(255, 241, 226);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.click_space_hint{
+    margin: 0;
+    font-style: italic;
+}
+
+.cat_dif{
+    font-size: 2rem;
+}
+.otazka_j{
+    font-size: 3rem;
+    font-weight: bold;
+}
+.odpoved_j{
+    font-size: 3rem;
+    font-weight: bold;
+}
+.team{
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+.score{
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+}
+.plus-button{
+    background-color: green !important;
+}
+.minus-button{
+    background-color: red !important;
+}
