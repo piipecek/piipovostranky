@@ -529,12 +529,13 @@ nove_pravidlo_button.addEventListener("click", function() {
         opt.value = kategorie
         opt.innerText = kategorie
         kategorie_select.appendChild(opt)
-        kategorie_input.value = ""
-
+        
         sort_kategorie_options()
     } else {
         kategorie = kategorie_select.value
     }
+    vyskyt_select.value = "obsahuje"
+    kategorie_input.value = ""
     klic_input.value = ""
     display_pravidlo(udaj, vyskyt, klic, kategorie)
     prepocitat()
