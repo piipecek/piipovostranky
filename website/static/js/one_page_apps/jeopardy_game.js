@@ -150,7 +150,7 @@ function hide_answered_modal() {
     td.classList.remove("clickable")
     td.classList.add("answered")
     let qustion = questions.find((question) => question.id === recent_id)
-    recent_difficulty = qustion.difficulty
+    recent_difficulty = parseInt(qustion.difficulty)
     recent_category = qustion.category
     recent_field.innerText = recent_category + " - " + recent_difficulty
     hide_modal()
