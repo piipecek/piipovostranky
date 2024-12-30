@@ -95,17 +95,9 @@ class Student:
 
 
     def na_zobrazeni(self):
-        znamky_dict_pretty = []
-        for entry in self.znamky_dict:
-            new_entry = {
-                "vaha": entry["vaha"],
-                "znamky":", ".join([str(int(x)) for x in entry["znamky"]])
-            }
-            znamky_dict_pretty.append(new_entry)
-            # entry["znamky"] = ", ".join([str(int(x)) for x in entry["znamky"]])
         return {
             "jmeno": self.jmeno,
-            "znamky_dict": znamky_dict_pretty,
+            "znamky_dict": self.znamky_dict,
             "prumer_pct": pretty_float(self.prumer_pct) if self.prumer_pct else "-",
             "chybi": pretty_float(self.chybi) if self.chybi else "-",
             "rezerva": pretty_float(self.rezerva) if self.rezerva else "-",

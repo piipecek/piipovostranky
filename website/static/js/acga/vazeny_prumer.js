@@ -9,6 +9,15 @@ parametry_nacteni_button.addEventListener("click", function() {
     document.getElementById("parametry_nacteni").hidden = false
 })
 
+let edit_znamky_active = false
+let recent_znamka = null
+let vahy = null
+let hranice_12_input = document.getElementById("hranice_12")
+let hranice_23_input = document.getElementById("hranice_23")
+let hranice_34_input = document.getElementById("hranice_34")
+let hranice_45_input = document.getElementById("hranice_45")
+
+
 
 let barvy = [
     {
@@ -53,10 +62,10 @@ budiz_button.addEventListener("click", function() {
         form_data.append("names_col", document.getElementById("names_col").value)
         form_data.append("results_col", document.getElementById("results_col").value)
         form_data.append("name_row", document.getElementById("name_row").value)
-        form_data.append("hranice_12", document.getElementById("hranice_12").value)
-        form_data.append("hranice_23", document.getElementById("hranice_23").value)
-        form_data.append("hranice_34", document.getElementById("hranice_34").value)
-        form_data.append("hranice_45", document.getElementById("hranice_45").value)
+        form_data.append("hranice_12", hranice_12_input.value)
+        form_data.append("hranice_23", hranice_23_input.value)
+        form_data.append("hranice_34", hranice_34_input.value)
+        form_data.append("hranice_45", hranice_45_input.value)
         form_data.append("file", file_input.files[0])
         form_data.append("styl", document.getElementById("styl").value)
 
@@ -67,7 +76,9 @@ budiz_button.addEventListener("click", function() {
             contentType: false,
             processData: false,
             success: function(data) {
+                data = JSON.parse(data)
                 generate(data)
+                vahy = data["vahy"]
                 download_button.hidden = false
             }
         })
@@ -79,7 +90,6 @@ budiz_button.addEventListener("click", function() {
 
 
 function generate(data) {
-    data = JSON.parse(data)
     document.getElementById("title").innerText = data.title + " | ACGA"
     let vahy = data["vahy"]
     let studenti = data["studenti"]
@@ -94,7 +104,7 @@ function generate(data) {
     header.push("Známka")
     header.push("Klasifikace")
     
-    let tc = new TableCreator(document.getElementById("parent_div"))
+    let tc = new TableCreator(document.getElementById("parent_div"), "znamky")
     tc.make_header(header)
 
     studenti.forEach(s => {
@@ -103,7 +113,15 @@ function generate(data) {
         let tooltips = [null]
         row.push(s["jmeno"])
         vahy.forEach(v => {
-            row.push(s["znamky_dict"].find(x => x["vaha"] == v)["znamky"])
+            let znamky = s["znamky_dict"].find(x => x["vaha"] == v)["znamky"]
+            let znamky_string = znamky.join(", ")
+            let znamky_span = document.createElement("span") // proto, abych mu mohl dat event listener
+            znamky_span.innerText = znamky_string
+            if (znamky_string == "") {
+                znamky_span.innerText = "-"
+            }
+            znamky_span.addEventListener("click", inputize)
+            row.push(znamky_span)
             colors.push(null)
             tooltips.push(null)
         })
@@ -150,4 +168,130 @@ function generate(data) {
         a.download = "trida.json"
         a.click()
     }) 
+}
+
+function inputize() {
+    let value = this.innerText
+    let width = this.offsetWidth + 5
+    edit_znamky_active = true
+    recent_znamka = value
+    let input = document.createElement("input")
+    input.type = "text"
+    input.value = value
+    input.classList.add("znamka-input")
+    input.style.width = width + "px"
+    this.replaceWith(input)
+    input.focus()
+    input.addEventListener("blur", () => {
+        save_input_edit(input)
+    })
+    input.addEventListener("keydown", function(event) {
+        if (edit_znamky_active) {
+            if (event.key == "Enter") {
+                save_input_edit(this)
+            }
+        }
+    })
+}
+
+function save_input_edit(input_element) {
+    let value = input_element.value
+    if (value == "") {
+        value = "-"
+    }
+    edit_znamky_active = false
+    let span = document.createElement("span")
+    span.innerText = value
+    if (value != recent_znamka) {
+        span.classList.add("znamka-edited")
+    }
+    recent_znamka = null
+    input_element.replaceWith(span)
+    span.addEventListener("click", inputize)
+    prepocitat_radek(span)
+}
+
+function prepocitat_radek(edited_span_element) {
+    let row = edited_span_element.parentElement.parentElement
+    console.log(row)
+    let znamky = []
+    let citatel = 0
+    let jmenovatel = 0
+    let citatel_tooltip_list = []
+    let jmenovatel_tooltip_list = []
+    for (let i = 0; i < vahy.length; i++) { // priprava znamek jako [[1, 2], [3], [4, 5]]
+        let znamky_str = row.children[i + 1].innerText
+        if (znamky_str == "-") {
+            znamky.push([])
+        } else {
+            znamky.push(znamky_str.split(", "))
+        }
+    }
+    for (let i = 0; i < vahy.length; i++) { // vytvorit prumer a jeho vypocet
+        for (let znamka of znamky[i]) {
+            citatel += parseInt(znamka) * vahy[i]
+            citatel_tooltip_list.push(znamka + " \\cdot " + vahy[i])
+            jmenovatel += vahy[i]
+            jmenovatel_tooltip_list.push(vahy[i])
+        }
+    }
+
+    // prumer
+    let prumer = citatel / jmenovatel
+    let prumer_str = prumer.toFixed(2).replace(".", ",")
+    row.children[1 + vahy.length].innerText = prumer_str
+
+    // tooltip
+    let citatel_tooltip = citatel_tooltip_list.join(" + ")
+    let jmenovatel_tooltip = jmenovatel_tooltip_list.join(" + ") 
+    let tooltip = "\\( \\frac{" + citatel_tooltip + "}{" + jmenovatel_tooltip + "} = " + prumer_str + "\\)"
+    let tooltip_span = document.createElement("span")
+    tooltip_span.classList.add("tooltiptext1", "px-2")
+    tooltip_span.innerHTML = tooltip
+    row.children[1 + vahy.length].appendChild(tooltip_span)
+    MathJax.typeset([tooltip_span])
+
+    // chybi, rezerva a znamka
+    let chybi = null
+    let rezerva = null
+    let znamka = null
+    if (prumer > hranice_12_input.value) {
+        chybi = 0
+        rezerva = prumer - hranice_12_input.value
+        znamka = 1
+    } else if (prumer > hranice_23_input.value) {
+        chybi = hranice_12_input.value - prumer
+        rezerva = prumer - hranice_23_input.value
+        znamka = 2
+    } else if (prumer > hranice_34_input.value) {
+        chybi = hranice_23_input.value - prumer
+        rezerva = prumer - hranice_34_input.value
+        znamka = 3
+    } else if (prumer > hranice_45_input.value) {
+        chybi = hranice_34_input.value - prumer
+        rezerva = prumer - hranice_45_input.value
+        znamka = 4
+    } else {
+        chybi = hranice_45_input.value - prumer
+        rezerva = 0
+        znamka = 5
+    }
+    if (chybi == 0) {
+        chybi = "-"
+    } else {
+        chybi = chybi.toFixed(2).replace(".", ",")
+    }
+    if (rezerva == 0) {
+        rezerva = "-"
+    } else {
+        rezerva = rezerva.toFixed(2).replace(".", ",")
+    }
+    row.children[1 + vahy.length + 1].innerText = chybi
+    row.children[1 + vahy.length + 2].innerText = rezerva
+    row.children[1 + vahy.length + 3].innerText = znamka
+    row.children[1 + vahy.length + 3].style.backgroundColor = barvy.find(x => x["znamka"] == znamka)["barva"]
+    row.children[1 + vahy.length + 4].innerText = "ručně upraveno" // klasifikace
+    row.children[1 + vahy.length + 4].style.backgroundColor = "white"
+
+    
 }
