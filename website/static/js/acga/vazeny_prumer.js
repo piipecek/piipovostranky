@@ -213,7 +213,6 @@ function save_input_edit(input_element) {
 
 function prepocitat_radek(edited_span_element) {
     let row = edited_span_element.parentElement.parentElement
-    console.log(row)
     let znamky = []
     let citatel = 0
     let jmenovatel = 0
@@ -224,7 +223,7 @@ function prepocitat_radek(edited_span_element) {
         if (znamky_str == "-") {
             znamky.push([])
         } else {
-            znamky.push(znamky_str.split(", "))
+            znamky.push(znamky_str.replace(" ", "").split(","))
         }
     }
     for (let i = 0; i < vahy.length; i++) { // vytvorit prumer a jeho vypocet
@@ -255,19 +254,19 @@ function prepocitat_radek(edited_span_element) {
     let chybi = null
     let rezerva = null
     let znamka = null
-    if (prumer > hranice_12_input.value) {
+    if (prumer >= hranice_12_input.value) {
         chybi = 0
         rezerva = prumer - hranice_12_input.value
         znamka = 1
-    } else if (prumer > hranice_23_input.value) {
+    } else if (prumer >= hranice_23_input.value) {
         chybi = hranice_12_input.value - prumer
         rezerva = prumer - hranice_23_input.value
         znamka = 2
-    } else if (prumer > hranice_34_input.value) {
+    } else if (prumer >= hranice_34_input.value) {
         chybi = hranice_23_input.value - prumer
         rezerva = prumer - hranice_34_input.value
         znamka = 3
-    } else if (prumer > hranice_45_input.value) {
+    } else if (prumer >= hranice_45_input.value) {
         chybi = hranice_34_input.value - prumer
         rezerva = prumer - hranice_45_input.value
         znamka = 4
