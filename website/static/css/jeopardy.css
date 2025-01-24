@@ -53,7 +53,7 @@ td:hover{
 }
 
 .answered{
-    background-color: rgb(210, 220, 243);
+    background-color: rgb(160, 178, 221);
     color: rgb(129, 129, 129);
     cursor: default;
 }
