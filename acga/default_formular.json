@@ -97,7 +97,16 @@
     {
         "typ": "ciselna",
         "id": 14,
-        "otazka": "Vyučující se vždy vyjadřuje jen k věcem, které souvisí s tématem výuky.",
+        "otazka": "Vyučující se často pouští do řeči o věcech, kterým nerozumí.",
+        "max": 5,
+        "value": null,
+        "text_min": "zcela souhlasím",
+        "text_max": "vůbec nesouhlasím"
+    },
+    {
+        "typ": "ciselna",
+        "id": 15,
+        "otazka": "Vyučující se často pouští do řeči o věcech, které nesouvisí s výukou.",
         "max": 5,
         "value": null,
         "text_min": "zcela souhlasím",
@@ -123,14 +132,14 @@
     },
     {
         "typ": "otevrena",
-        "id": 18,
+        "id": 19,
         "otazka": "Máte k vyučujícímu nějakou kritiku? Kritika je nejvíce přínosná, když ji formulujete konstruktivně. Nebojte se zmínit témata jako připravenost vyučujícího, jeho vyjadřování, nejasná a neférová rozhodnutí, nepřiznané chyby.",
         "value": null
     },
     {
         "typ": "otevrena",
-        "id": 19,
-        "otazka": "Máte-li něco dalšího na srdci, můžete se zde rozepsat. Dotazníky jsou anonymní, avšak podepsaný vzkaz je znakem toho, že si za Vašim názorem stojíte. Učitelé si z takových vzkazů umějí vzít hlubší ponaučení.",
+        "id": 20,
+        "otazka": "Máte-li něco dalšího na srdci, můžete se zde rozepsat. Co se o učiteli říká? Dotazníky jsou anonymní, avšak podepsaný vzkaz je znakem toho, že si za Vašim názorem stojíte. Učitelé si z takových vzkazů umějí vzít hlubší ponaučení.",
         "value": null
     }
 ]

@@ -17,7 +17,7 @@ def get_default_formular() -> str:
 class Evaluace(Common_methods_db_model):
     id = db.Column(db.Integer, primary_key=True)
     ucitel_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    data_json = db.Column(db.Text, default = get_default_formular())
+    data_json = db.Column(db.Text, default = get_default_formular)
     datetime_vytvoreni = db.Column(db.DateTime, default = datetime.now)
     datetime_odevzdani = db.Column(db.DateTime)
     kod = db.Column(db.Text)
