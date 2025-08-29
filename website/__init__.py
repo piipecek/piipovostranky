@@ -34,6 +34,7 @@ def create_app() -> Flask:
     app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
     app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+    app.config["GOOGLE_CLIENT_ID"] = os.environ.get("GOOGLE_CLIENT_ID")
 
     db.init_app(app)
     cors.init_app(app)

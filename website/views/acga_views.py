@@ -1,11 +1,14 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import current_user
 from website.models.user import get_roles
 from website.helpers.require_role import require_role_system_name_on_current_user
 from website.models.evaluace import Evaluace
-from acga.prumery import pocitani_prumeru
 import json
 from datetime import datetime
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from website.models.user import User
+
 
 acga_views = Blueprint("acga_views",__name__)
 
@@ -13,7 +16,7 @@ acga_views = Blueprint("acga_views",__name__)
 @acga_views.route("/")
 @acga_views.route("/home")
 def home():
-    return render_template("acga/dashboard.html")
+    return render_template("acga/dashboard.html", roles=get_roles())
 
 
 @acga_views.route("/vazeny_prumer", methods=["GET"])
@@ -48,14 +51,14 @@ def cist_evaluace():
     if "acga_ucitel" in get_roles():
         return redirect(url_for("acga_views.cist_evaluace_auth"))
     else:
-        return render_template("acga/cist_evaluace_bez_opravneni.html")
+        return render_template("acga/cist_evaluace_bez_opravneni.html", roles=get_roles())
      
 
 @acga_views.route("/cist_evaluace_auth", methods=["GET", "POST"])
 @require_role_system_name_on_current_user("acga_ucitel")
 def cist_evaluace_auth():
     if request.method == "GET":
-        return render_template("acga/cist_evaluace.html")
+        return render_template("acga/cist_evaluace.html", roles=get_roles())
     else:
         if request.form.get("acga_jmeno_button"):
             jmeno = request.form.get("acga_jmeno")
@@ -150,9 +153,29 @@ def evaluace_locked(uuid):
 @acga_views.route("/evaluace_statistiky")
 @require_role_system_name_on_current_user("acga_ucitel")
 def evaluace_statistiky():
-    return render_template("acga/evaluace_statistiky.html")
+    return render_template("acga/evaluace_statistiky.html", roles=get_roles())
 
 
 @acga_views.route("/astrofyzika")
 def astrofyzika():
-    return render_template("acga/astrofyzika.html")
+    return render_template("acga/astrofyzika.html", roles=get_roles())
+
+
+@acga_views.route("/google_auth_receiver_acga", methods=["POST"])
+def google_auth_receiver_acga():
+    token = request.form.get("credential")
+    idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config["GOOGLE_CLIENT_ID"], clock_skew_in_seconds=2)
+    User.manage_google_login(idinfo)
+    return redirect(url_for("acga_views.krouzky"))
+
+
+@acga_views.route("/krouzky")
+def krouzky():
+    if request.method == "GET":
+        if current_user.is_authenticated:
+            if current_user.organizace == "acga.cz":
+                return render_template("acga/krouzky.html", roles=get_roles(current_user))
+            else:
+                return render_template("acga/krouzky_mimo_acga.html", roles=get_roles(current_user))
+        else:
+            return render_template("acga/krouzky_login.html", roles=get_roles())

@@ -1,10 +1,7 @@
-{% extends "index.html" %}
-
-{% block empty_on_about_page %}
-{% endblock %}
+{% extends "context.html" %}
 
 {% block content %}
-    <a href="https://www.piipovostranky.cz/dashboard" class="about-a">
+    <a href="{{url_for('guest_views.dashboard')}}" class="about-a">
         <div class="about-showcase-div about-head-div">
             <h3 class="mb-5 mt-3">Pípovo stránky</h3>
             <p class="about-head-p mb-5">
@@ -120,17 +117,11 @@
                 <a class="link" href="{{url_for('guest_views.known_bugs')}}">Známé připomínky</a>
                 <br>
                 <a class="link" href="{{url_for('guest_views.nahlasit_bug')}}">Nová připomínka, nápad, bug</a>
-                <br>
-                <a class="link" href="{{url_for('guest_views.planovane_featury')}}">Plánované featury</a>
-                <br>
             </div>
             <div class="col-sm text-sm-end">
                 <a class="link" target="_blank" href="https://bitbucket.org/piipecek/piipovo_stranky/src/main/">Zdroj</a>
                 <br>
                 <a class="link" target="_blank" href="https://t.me/piipecek">Kontakt</a>
-                <br>
-                <a class="link" href="{{url_for('guest_views.historie')}}">Historie verzí</a>
-                <br>
             </div>
         </div>
     </section>

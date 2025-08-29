@@ -13,7 +13,7 @@ user_views = Blueprint("user_views",__name__)
 @require_role_system_name_on_current_user("user")
 def ucet():
     if request.method == "GET":
-        return render_template("user/ucet.html", roles=get_roles(current_user), confirmed = current_user.confirmed)
+        return render_template("user/ucet.html", roles=get_roles(current_user), confirmed = current_user.confirmed, organizace=current_user.organizace)
     else:
         if request.form.get("confirmation_email"):
             mail_sender("potvrzeni_emailu", target=current_user.email, data=current_user.get_reset_token())

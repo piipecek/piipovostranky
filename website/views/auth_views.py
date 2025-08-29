@@ -1,12 +1,15 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from website.models.user import User
 from website.models.role import Role
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_required, login_user, logout_user, current_user
-from website import db
+from flask_login import login_required, logout_user, current_user
 from website.mail_handler import mail_sender
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 
 auth_views = Blueprint("auth_views",__name__, template_folder="auth")
+
 
 @auth_views.route("/login", methods=["GET","POST"])
 def login():
@@ -32,6 +35,7 @@ def login():
 			flash("E-mail nebo heslo byly špatně", category="error")
 			return redirect(url_for("auth_views.login"))
 
+
 @auth_views.route("/register", methods=["GET","POST"])
 def register():
 	if current_user.is_authenticated:
@@ -47,7 +51,7 @@ def register():
 			flash("Tento email je už zaregistrovaný. Použij prosím jiný", category="error")
 			return redirect(url_for("auth_views.register"))
 		else:
-			new_user = User(email=email, password=generate_password_hash(password, method="sha256"))
+			new_user = User(email=email, password=generate_password_hash(password, method="scrypt"))
 			new_user.roles.append(Role.get_by_system_name("user"))
 			new_user.update()
 			new_user.login()
@@ -92,10 +96,17 @@ def reset_password(token):
 	if request.method == "GET":
 		return render_template("auth/auth_reset_password.html")
 	else:
-		user.password = generate_password_hash(request.form.get("password"), method="sha256")
+		user.password = generate_password_hash(request.form.get("password"), method="scrypt")
 		user.update()
 		flash("Heslo změněno, můžete se nyní přihlásit:", category="info")
 		return redirect(url_for("auth_views.login"))
 
+
+@auth_views.route("/google_auth_receiver", methods=["POST"])
+def google_auth_receiver():
+    token = request.form.get("credential")
+    idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config["GOOGLE_CLIENT_ID"], clock_skew_in_seconds=2)
+    User.manage_google_login(idinfo)
+    return redirect(url_for("guest_views.dashboard"))
 
 
