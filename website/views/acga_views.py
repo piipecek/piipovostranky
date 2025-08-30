@@ -14,18 +14,35 @@ acga_views = Blueprint("acga_views",__name__)
 
 
 @acga_views.route("/")
-@acga_views.route("/home")
-def home():
-    return render_template("acga/dashboard.html", roles=get_roles())
+@acga_views.route("/student_dashboard")
+def student_dashboard():
+    return render_template("acga/student_dashboard.html", roles=get_roles())
+
+
+@acga_views.route("/teacher_dashboard")
+def teacher_dashboard():
+    if current_user.is_authenticated:
+        if current_user.organizace == "acga.cz":
+            if "acga_ucitel" in get_roles(current_user):
+                return render_template("acga/teacher_dashboard.html", roles=get_roles(current_user))
+            else:
+                flash("Pokud máte mít učitelský přístup, obraťe se na Josef Láta.", category="info")
+        else:
+            flash("Váš účet není spojen s organizací acga.cz. Přihlaste se pomocí školního účtu.", category="error")
+    else:
+        flash("Musíte být přihlášeni školním účtem, abyste mohli zobrazit tuto stránku.", category="error")
+    return redirect(url_for("guest_views.dashboard"))
 
 
 @acga_views.route("/vazeny_prumer", methods=["GET"])
+@require_role_system_name_on_current_user("acga_ucitel")
 def vazeny_prumer():
     if request.method == "GET":
         return render_template("acga/vazeny_prumer.html", roles=get_roles())
     
     
 @acga_views.route("/statistika_ctvrtletky")
+@require_role_system_name_on_current_user("acga_ucitel")
 def statistika_ctvrtletky():
     return render_template("acga/statistika_ctvrtletky.html", roles=get_roles(current_user))
 
@@ -46,17 +63,9 @@ def evaluace():
             return request.form.to_dict()
         
 
-@acga_views.route("cist_evaluace")
-def cist_evaluace():
-    if "acga_ucitel" in get_roles():
-        return redirect(url_for("acga_views.cist_evaluace_auth"))
-    else:
-        return render_template("acga/cist_evaluace_bez_opravneni.html", roles=get_roles())
-     
-
-@acga_views.route("/cist_evaluace_auth", methods=["GET", "POST"])
+@acga_views.route("/cist_evaluace", methods=["GET", "POST"])
 @require_role_system_name_on_current_user("acga_ucitel")
-def cist_evaluace_auth():
+def cist_evaluace():
     if request.method == "GET":
         return render_template("acga/cist_evaluace.html", roles=get_roles())
     else:
@@ -179,3 +188,9 @@ def krouzky():
                 return render_template("acga/krouzky_mimo_acga.html", roles=get_roles(current_user))
         else:
             return render_template("acga/krouzky_login.html", roles=get_roles())
+        
+        
+@acga_views.route("/sprava_krouzku")
+@require_role_system_name_on_current_user("acga_ucitel")
+def sprava_krouzku():
+    return render_template("acga/sprava_krouzku.html", roles=get_roles(current_user))

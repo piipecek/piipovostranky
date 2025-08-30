@@ -1,0 +1,31 @@
+{% extends "acga/student_navbar.html" %}
+{% block content %}
+<div class="d-flex justify-content-center">
+    <h1 class="my-2">Nástroje pro studenty ACGA</h1>
+</div>
+
+<div class="row p-2">
+    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+        <a href="{{url_for('acga_views.evaluace')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <div class="text-center">
+                Evaluace učitelů
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+        <a href="{{url_for('acga_views.astrofyzika')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <div class="text-center">
+                Zadání DDÚ z astrofyziky pro JU3
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+        <a href="{{url_for('acga_views.krouzky')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <div class="text-center">
+                Zápis do kroužků
+            </div>
+        </a>
+    </div>
+</div>
+</div>
+{% endblock %}

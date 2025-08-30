@@ -3,9 +3,16 @@
 {%block content%}
     <div class="row p-2">
         <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
-            <a href="{{url_for('acga_views.home')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <a href="{{url_for('acga_views.student_dashboard')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
                 <div class="text-center">
-                    Nástroje pro ACGA
+                    Nástroje pro studenty ACGA
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+            <a href="{{url_for('acga_views.teacher_dashboard')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+                <div class="text-center">
+                    Nástroje pro učitele ACGA
                 </div>
             </a>
         </div>

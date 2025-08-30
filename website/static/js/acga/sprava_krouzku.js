@@ -1,0 +1,1 @@
+console.log("Správa zápisů do volnočasových aktivit");

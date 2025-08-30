@@ -127,7 +127,7 @@ class User(Common_methods_db_model, UserMixin):
                 "value":len(self.exams)
             },
             {
-                "display_name":"ACGA Jméno učitele",
+                "display_name":"ACGA Jméno",
                 "value": self.acga_jmeno if self.acga_jmeno else "-"
             }
         ]
