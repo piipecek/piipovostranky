@@ -25,6 +25,7 @@ pyjwt = "*"
 xlrd = "*"
 google-auth = "*"
 requests = "*"
+openpyxl = "*"
 
 [dev-packages]
 ipykernel = "*"

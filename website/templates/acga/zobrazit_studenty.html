@@ -1,0 +1,54 @@
+{% extends "acga/teacher_navbar.html" %}
+
+{% block content %}
+<a class="link" href="{{ url_for('acga_views.sprava_krouzku') }}">Zpět na správu kroužků</a>
+<h2>Seznam studentů v systému</h2>
+
+<p>Pro vygenrování seznamu postupujte takto:
+    <ul>
+        <li>Výstupy -> tisk seznamů -> seznam žáků / studentů</li>
+        <li>Vytvořit sestavu</li>
+        <li>Vybrat příjmení, jméno, e-mail školní, třída</li>
+        <li>pokračovat na řazení sloupců -> ponechat pořadí a pokračovat na výběr žáků pro tisk</li>
+        <li>Vybrat všechny -> přidat do seznamu -> pokračovat</li>
+        <li>všechna nastavení ponechat a vygenerovat XLSX</li>
+    </ul>
+</p>
+
+<form method="post" id="import_form" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col">
+            <input type="file" name="import_file_input" accept=".xlsx,.xls" class="form-control">
+        </div>
+        <div class="col-auto">
+            <button class="btn custom-button" name="submit_students" value="whatever">Načíst data ze souboru</button>
+        </div>
+    </div>
+</form>
+<hr>
+{% if students_uploaded %}
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Číslo</th>
+                <th>Jméno</th>
+                <th>Třída</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+                <tr>
+                    <td>{{ student.cislo }}</td>
+                    <td>{{ student.full_name }}</td>
+                    <td>{{ student.class }}</td>
+                    <td>{{ student.email }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Nebyl nahrán seznam studentů.</p>
+{% endif %}
+{% endblock %}

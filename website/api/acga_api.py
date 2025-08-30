@@ -7,6 +7,7 @@ from datetime import datetime, date, timedelta
 from website.models.evaluace import Evaluace
 from acga.prumery import pocitani_prumeru
 from astrofyzika.generator import generator
+from website.models.krouzek import Krouzek
 
 
 acga_api = Blueprint("acga_api", __name__)
@@ -133,3 +134,15 @@ def evaluace_statistiky_data():
 def astrofyzika(prijmeni):
     cisla = generator(prijmeni)
     return json.dumps(cisla, indent=4)
+
+
+@acga_api.route("/seznam_krouzku")
+@require_role_system_name_on_current_user("acga_ucitel")
+def seznam_krouzku():
+    return json.dumps(Krouzek.get_data_for_list()), 200
+
+
+@acga_api.route("/detail_krouzku/<int:id>")
+@require_role_system_name_on_current_user("acga_ucitel")
+def detail_krouzku(id):
+    return json.dumps(Krouzek.get_by_id(id).get_data_for_detail()), 200

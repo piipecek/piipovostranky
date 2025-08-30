@@ -8,6 +8,11 @@ from datetime import datetime
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from website.models.user import User
+from website.paths import acga_students_xlsx_path
+from website.helpers.krouzky_helpers import get_students_from_xlsx
+from website.paths import acga_students_xlsx_path
+from website.models.krouzek import Krouzek
+from website.models.role import Role
 
 
 acga_views = Blueprint("acga_views",__name__)
@@ -21,28 +26,16 @@ def student_dashboard():
 
 @acga_views.route("/teacher_dashboard")
 def teacher_dashboard():
-    if current_user.is_authenticated:
-        if current_user.organizace == "acga.cz":
-            if "acga_ucitel" in get_roles(current_user):
-                return render_template("acga/teacher_dashboard.html", roles=get_roles(current_user))
-            else:
-                flash("Pokud máte mít učitelský přístup, obraťe se na Josef Láta.", category="info")
-        else:
-            flash("Váš účet není spojen s organizací acga.cz. Přihlaste se pomocí školního účtu.", category="error")
-    else:
-        flash("Musíte být přihlášeni školním účtem, abyste mohli zobrazit tuto stránku.", category="error")
-    return redirect(url_for("guest_views.dashboard"))
+    return render_template("acga/teacher_dashboard.html", roles=get_roles(current_user))
 
 
 @acga_views.route("/vazeny_prumer", methods=["GET"])
-@require_role_system_name_on_current_user("acga_ucitel")
 def vazeny_prumer():
     if request.method == "GET":
         return render_template("acga/vazeny_prumer.html", roles=get_roles())
     
     
 @acga_views.route("/statistika_ctvrtletky")
-@require_role_system_name_on_current_user("acga_ucitel")
 def statistika_ctvrtletky():
     return render_template("acga/statistika_ctvrtletky.html", roles=get_roles(current_user))
 
@@ -156,9 +149,6 @@ def evaluace_locked(uuid):
             return request.form.to_dict()
 
 
-#TODO tohle jeste neni converted, check vsechny html a js soubory na neobvyklych mistech, check oba dashboardy
-
-
 @acga_views.route("/evaluace_statistiky")
 @require_role_system_name_on_current_user("acga_ucitel")
 def evaluace_statistiky():
@@ -170,12 +160,21 @@ def astrofyzika():
     return render_template("acga/astrofyzika.html", roles=get_roles())
 
 
-@acga_views.route("/google_auth_receiver_acga", methods=["POST"])
-def google_auth_receiver_acga():
+@acga_views.route("/google_auth_receiver_acga_student", methods=["POST"])
+def google_auth_receiver_acga_student():
     token = request.form.get("credential")
     idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config["GOOGLE_CLIENT_ID"], clock_skew_in_seconds=2)
     User.manage_google_login(idinfo)
     return redirect(url_for("acga_views.krouzky"))
+
+
+@acga_views.route("/google_auth_receiver_acga_teacher", methods=["POST"])
+def google_auth_receiver_acga_teacher():
+    token = request.form.get("credential")
+    idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config["GOOGLE_CLIENT_ID"], clock_skew_in_seconds=2)
+    User.manage_google_login(idinfo)
+    return redirect(url_for("acga_views.sprava_krouzku"))
+
 
 
 @acga_views.route("/krouzky")
@@ -187,10 +186,101 @@ def krouzky():
             else:
                 return render_template("acga/krouzky_mimo_acga.html", roles=get_roles(current_user))
         else:
-            return render_template("acga/krouzky_login.html", roles=get_roles())
-        
-        
-@acga_views.route("/sprava_krouzku")
-@require_role_system_name_on_current_user("acga_ucitel")
+            return render_template("acga/krouzky_student_login.html", roles=get_roles())
+
+
+@acga_views.route("/sprava_krouzku", methods=["GET", "POST"])
 def sprava_krouzku():
-    return render_template("acga/sprava_krouzku.html", roles=get_roles(current_user))
+    if request.method == "GET":
+        if current_user.is_authenticated:
+            if Role.get_by_system_name("acga_ucitel") in current_user.roles:
+                return render_template("acga/sprava_krouzku.html", roles=get_roles(current_user), krouzky=Krouzek.get_all_for_seznam())
+            else:
+                return render_template("acga/krouzky_bez_role_ucitele.html", roles=get_roles(current_user))
+        else:
+            return render_template("acga/krouzky_teacher_login.html", roles=get_roles())
+    else:
+        if request.form.get("novy_krouzek"):
+            if name := request.form.get("nazev_krouzku"):
+                krouzek = Krouzek(name=name)
+                krouzek.update()
+                flash("Kroužek byl úspěšně vytvořen.", category="success")
+            else:
+                flash("Kroužek musí mít název.", category="error")
+            return redirect(url_for("acga_views.sprava_krouzku"))
+        elif request.form.get("delete_all"):
+            for k in Krouzek.get_all():
+                k.delete()
+            flash("Všechny kroužky byly úspěšně smazány.", category="success")
+            return redirect(url_for("acga_views.sprava_krouzku"))
+        return request.form.to_dict()
+
+
+@acga_views.route("/zobrazit_studenty", methods=["GET", "POST"])
+@require_role_system_name_on_current_user("acga_ucitel")
+def zobrazit_studenty():
+    if request.method == "GET":
+        return render_template("acga/zobrazit_studenty.html", students_uploaded = acga_students_xlsx_path().exists(), students=get_students_from_xlsx())
+    else:
+        if request.form.get("submit_students"):
+            students_xlsx = request.files.get("import_file_input")
+            if students_xlsx:
+                students_xlsx.save(acga_students_xlsx_path())
+                flash("Data byla úspěšně nahrána.", category="success")
+            else:
+                flash("Nepodařilo se nahrát data.", category="error")
+            return redirect(url_for("acga_views.zobrazit_studenty"))
+        
+
+@acga_views.route("/detail_krouzku/<int:id>", methods=["GET", "POST"])
+@require_role_system_name_on_current_user("acga_ucitel")
+def detail_krouzku(id):
+    krouzek = Krouzek.get_by_id(id)
+    if request.method == "GET":
+        if not krouzek:
+            flash("Kroužek nebyl nalezen.", category="error")
+            return redirect(url_for("acga_views.sprava_krouzku"))
+        return render_template("acga/detail_krouzku.html", id=id, roles=get_roles(current_user))
+    else:
+        if request.form.get("ulozit_krouzek"):
+            krouzek.name = request.form.get("nazev_krouzku")
+            krouzek.description = request.form.get("popis_krouzku")
+            krouzek.update()
+            return redirect(url_for("acga_views.detail_krouzku", id=id))
+        if request.form.get("pridat_studenta"):
+            email = request.form.get("manual_email").strip()
+            if not email:
+                flash("Musíte napsat nějaký e-mail.", category="error")
+                return redirect(url_for("acga_views.detail_krouzku", id=id))
+            emails = json.loads(krouzek.enrolled_emails)
+            if email  in emails:
+                flash("Tento e-mail je již zapsaný.", category="error")
+            else:
+                emails.append(email)
+                krouzek.enrolled_emails = json.dumps(emails)
+                krouzek.update()
+                flash("Student byl úspěšně přidán.", category="success")
+            return redirect(url_for("acga_views.detail_krouzku", id=id))
+        if request.form.get("delete"):
+            email = request.form.get("delete")
+            emails = json.loads(krouzek.enrolled_emails)
+            if email in emails:
+                emails.remove(email)
+                krouzek.enrolled_emails = json.dumps(emails)
+                krouzek.update()
+                flash("Student byl úspěšně odstraněn.", category="success")
+            else:
+                flash("Tento e-mail není zapsaný.", category="error")
+            return redirect(url_for("acga_views.detail_krouzku", id=id))
+        if request.form.get("delete_identifier"):
+            if request.form.get("delete_identifier") == "all":
+                krouzek.enrolled_emails = json.dumps([])
+                krouzek.update()
+                flash("Všichni studenti byli úspěšně odebráni.", category="success")
+                return redirect(url_for("acga_views.detail_krouzku", id=id))
+            elif request.form.get("delete_identifier") == "krouzek":
+                krouzek.delete()
+                flash("Kroužek byl úspěšně smazán.", category="success")
+                return redirect(url_for("acga_views.sprava_krouzku"))
+        else:
+            return request.form.to_dict()

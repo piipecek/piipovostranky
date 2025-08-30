@@ -1,0 +1,71 @@
+{% extends "acga/teacher_navbar.html" %}
+{% block content %}
+<a class="link" href="{{ url_for('acga_views.sprava_krouzku') }}">Zpět na správu kroužků</a>
+<input hidden type="text" id="id" value="{{id}}">
+
+<h2>Detail kroužku <i id="title_name"></i></h2>
+<hr>
+<form method="post">
+    
+    <div class="row">
+        <div class="col-sm-2">Název</div>
+        <div class="col-8">
+            <input class="form-control" name="nazev_krouzku" id="nazev_krouzku">
+        </div>
+        <div class="col-2">
+            <button type="submit" class="btn custom-button" name="ulozit_krouzek" value="whatever">Uložit změny</button>
+        </div>
+    </div>
+    <div class="row my-2">
+        <div class="col-sm-2">Popis</div>
+        <div class="col-8">
+            <textarea class="form-control" name="popis_krouzku" rows=4 id="popis_krouzku"></textarea>
+        </div>
+    </div>
+</form>
+
+<hr>
+
+<form method="post">
+    <div class="row">
+        <div class="col-sm-2">Ručně zapsat studenta</div>
+        <div class="col-8">
+            <input class="form-control" name="manual_email" placeholder="Zadejte e-mail">
+        </div>
+        <div class="col-2">
+            <button type="submit" class="btn custom-button" name="pridat_studenta" value="whatever">Zapsat</button>
+        </div>
+    </div>
+</form>
+
+<hr>
+
+<button class="btn btn-success" id="export_button">Zkopírovat pro vložení do google tabulek</button>
+
+<form method="post">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Číslo</th>
+                <th>Jméno</th>
+                <th>Třída</th>
+                <th>E-mail</th>
+                <th>Smazat</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</form>
+
+
+<button class="btn btn-danger" id="delete_all">Promazat všechny</button>
+<button class="btn btn-danger" id="delete_krouzek">Smazat kroužek</button>
+<form id="delete_all_form" method="post">
+    <input type="hidden" name="delete_identifier" id="delete_identifier">
+</form>
+
+<script type="module" src="{{url_for('static', filename='js/acga/detail_krouzku.js')}}"></script>
+
+
+{% endblock %}

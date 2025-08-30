@@ -30,3 +30,6 @@ def acga_kody_slova() -> Path:
 
 def acga_default_formular() -> Path:
     return Path.cwd() / "acga" / "default_formular.json"
+
+def acga_students_xlsx_path() -> Path:
+    return Path.cwd() / "acga" / "students.xlsx"
