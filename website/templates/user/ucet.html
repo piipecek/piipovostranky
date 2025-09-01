@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "context.html" %}
 {% block content %}
 <h2>Nastavení účtu</h2>
 <div class="row">
@@ -30,9 +30,9 @@
                         <th>Zkoušení</th>
                         <td id="number_of_exams"></td>
                     </tr>
-                    {% if "acga_ucitel" in roles%}
+                    {% if organizace == "acga.cz" %}
                         <tr>
-                            <th>ACGA Jméno učitele</th>
+                            <th>ACGA Jméno</th>
                             <td id="acga_jmeno"></td>
                         </tr>
                     {% endif %} 

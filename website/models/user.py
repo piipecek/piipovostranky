@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from flask import current_app
 from flask_login import UserMixin, current_user, login_user
 from typing import List
+from website.models.role import Role
 import jwt
 
 def get_roles(u: "User" = current_user) -> List[str]:
@@ -24,6 +25,7 @@ class User(Common_methods_db_model, UserMixin):
     registration_datetime = db.Column(db.DateTime, default = datetime.utcnow)
     confirmed = db.Column(db.Boolean, default=False)
     acga_jmeno = db.Column(db.String(200))
+    organizace = db.Column(db.String(200))
     roles = db.relationship("Role", secondary=user_role_jointable, backref="users")
     terms = db.relationship("Term", backref="author")
     decks = db.relationship("Deck", backref="author")
@@ -125,19 +127,40 @@ class User(Common_methods_db_model, UserMixin):
                 "value":len(self.exams)
             },
             {
-                "display_name":"ACGA Jméno učitele",
+                "display_name":"ACGA Jméno",
                 "value": self.acga_jmeno if self.acga_jmeno else "-"
             }
         ]
 
         
     def get_info_for_detail_usera(self) -> dict:
-        return {
+        result =  {
             "email": self.email,
             "registration_datetime": pretty_datetime(self.registration_datetime),
             "confirmed": "Ano" if self.confirmed else "Ne",
             "number_of_decks": len(self.decks),
             "number_of_terms": len(self.terms),
             "number_of_exams": len(self.exams),
-            "acga_jmeno": self.acga_jmeno
         }
+        
+        if current_user.organizace == "acga.cz":
+            result["acga_jmeno"] = self.acga_jmeno if self.acga_jmeno else "-"
+        return result
+        
+        
+    @staticmethod
+    def manage_google_login(idinfo) -> None:
+        email = idinfo['email']
+        user = User.get_by_email(email=email)
+        if not user:
+            user = User(email=email)
+            user.roles.append(Role.get_by_system_name("user"))
+            user.update()
+        
+        user.organizace = idinfo.get('hd')
+        user.name = idinfo.get('name')
+        user.confirmed = True
+        if user.organizace == "acga.cz":
+            user.acga_jmeno = idinfo.get('name')
+        user.update()
+        user.login()

@@ -1,0 +1,15 @@
+{% extends "acga/student_navbar.html" %}
+
+{% block content %}
+
+<h2>Volnočasové aktivity</h2>
+
+<form method="post">
+    <button class="btn custom-button" name="save" value="whatever">Uložit</button>
+    <div id="krouzky"></div>
+</form>
+
+<script type="module" src="{{url_for('static', filename='js/acga/krouzky.js')}}"></script>
+
+
+{% endblock %}

@@ -1,4 +1,4 @@
-from flask import abort, redirect, url_for
+from flask import abort, redirect, url_for, flash
 from flask_login import current_user
 from functools import wraps
 
@@ -26,6 +26,7 @@ def require_role_system_name_on_current_user(role_system_name: str, user = curre
             if should_abort:
                 abort(401)
             else:
+                flash("Nejprve se přihlaste", "error")
                 return redirect(url_for("auth_views.login"))
         return wrapper
     return what_should_i_name_this

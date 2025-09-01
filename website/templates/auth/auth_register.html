@@ -1,9 +1,29 @@
-{%extends "index.html"%}
+{%extends "context.html"%}
 {%block content%}
 
 <form method="post" id="form">
-	<h2>Zaregistruj se:</h2>
 	<div class="container">
+		<h2>Zaregistrujte se:</h2>
+		<script src="https://accounts.google.com/gsi/client" async></script>
+		<div id="g_id_onload"
+			data-client_id="687283986989-pr2mcvs198cu7nfqciut108dupje5a0f.apps.googleusercontent.com"
+			data-context="signin"
+			data-ux_mode="popup"
+			data-login_uri="http://localhost:8000/google_auth_receiver"
+			data-auto_prompt="false">
+		</div>
+	
+		<div class="g_id_signin"
+			data-type="standard"
+			data-shape="rectangular"
+			data-theme="outline"
+			data-text="continue_with"
+			data-size="large"
+			data-logo_alignment="left">
+		</div>
+		<h2>
+			nebo
+		</h2>
 		<div class="row my-1">
 			<div class="col-sm-3">
 				Email:
@@ -30,6 +50,7 @@
 		</div>
 	</div>
 	<button type="button" id="btn" class="btn custom-button">Register</button>
+
 </form>
 <script type="module" src="{{url_for('static',filename='js/auth/register_form_validation.js')}}"></script>
 {%endblock%}

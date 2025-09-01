@@ -1,0 +1,38 @@
+{% extends "acga/student_navbar.html" %}
+
+{% block content %}
+<script src="https://accounts.google.com/gsi/client" async></script>
+<div class="krouzky-login">
+    <h2>Přístup do úprav volnočasových aktivit</h2>
+    <p>
+        Pro správu kroužků a zapsaných studentů je třeba
+        <ul>
+            <li>
+                přihlásit se školním Google účtem
+            </li> 
+            <li>
+                kontaktovat Josefa Láta, který Vám udělí roli učitele na Acga
+            </li>
+        </ul>
+    </p>
+    
+    <div id="g_id_onload"
+        data-client_id="687283986989-pr2mcvs198cu7nfqciut108dupje5a0f.apps.googleusercontent.com"
+        data-context="signin"
+        data-ux_mode="popup"
+        data-login_uri="http://localhost:8000/acga/google_auth_receiver_acga_teacher"
+        data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+        data-type="standard"
+        data-shape="rectangular"
+        data-theme="outline"
+        data-text="continue_with"
+        data-size="large"
+        data-logo_alignment="left">
+    </div>
+
+</div>
+
+{% endblock %}

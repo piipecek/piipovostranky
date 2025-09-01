@@ -1,0 +1,55 @@
+{% extends "acga/teacher_navbar.html" %}
+{% block content %}
+
+<h2>Správa zápisů do volnočasových aktivit</h2>
+
+<hr>
+
+<h2>Import dat studentů ze ŠOL</h2>
+<p>
+    Tento krok se provede jednou a to na začátku škoního roku. Slouží k tomu, aby systém uměl ke studentům přiřadit třídu a jméno. <a class="link" href="{{ url_for('acga_views.zobrazit_studenty') }}">Na import studentů</a>
+</p>
+
+<hr>
+
+<h2>Nový kroužek</h2>
+
+<form method="post">
+    <div class="row">
+        <div class="col">
+            <input type="text" class="form-control" placeholder="Botanika Botiče" name="nazev_krouzku">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn custom-button" name="novy_krouzek" value="whatever">Vytvořit kroužek</button>
+        </div>
+    </div>
+</form>
+
+<hr>
+
+<h2> Seznam kroužků </h2>
+
+<button class="btn btn-success" id="export_button">Zkopírovat všechna data o zápisu studentů pro vložení do google tabulek</button>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Název</th>
+            <th>Počet studentů</th>
+            <th>Detail</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<button class="btn btn-danger" id="delete_krouzky">Promazat všechny kroužky</button>
+<form id="delete_all_form" method="post">
+    <input type="hidden" name="delete_all" value="whatever">
+</form>
+
+
+
+<script type="module" src="{{url_for('static', filename='js/acga/sprava_krouzku.js')}}"></script>
+
+{% endblock %}

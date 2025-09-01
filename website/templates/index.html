@@ -18,27 +18,8 @@
 
 <body class="mx-3">
 
-    <header class="container-sm">
-        <nav class="navbar navbar-expand navbar-light">
-            {% block empty_on_about_page %}
-                <a class="navbar-brand" href="{{url_for('guest_views.about')}}">
-                <img src="{{url_for('static_sender.send_icon', filename='domu.png')}}" alt="House Icon" width="30" height="30" class="d-inline-block align-top">
-                </a>
-            {% endblock%}
-            {% block nav_jedna_ikonka %}
-
-            {% endblock%}
-          
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    {% block nav %}
-
-                    {% endblock %}   
-                </ul>
-            </div>
-          </nav>
-    
-    </header>
+    {% block navbar %}
+    {% endblock %}
 
     {% for category, message in get_flashed_messages(with_categories=True) %}
     <div class="container-sm border-orange border-2 rounded-3 p-2 my-2 alertcolor-{{category}}">

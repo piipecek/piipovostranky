@@ -1,0 +1,6 @@
+{% extends "context.html" %}
+{% block sub_dashboard_icon %}
+<a class="navbar-brand" href="{{url_for('acga_views.teacher_dashboard')}}">
+    <img src="{{url_for('static_sender.send_icon', filename='acga_home.png')}}" alt="Acga Icon" width="30" height="30" class="d-inline-block align-top">
+</a>
+{% endblock %}
