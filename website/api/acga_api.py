@@ -146,3 +146,10 @@ def seznam_krouzku():
 @require_role_system_name_on_current_user("acga_ucitel")
 def detail_krouzku(id):
     return json.dumps(Krouzek.get_by_id(id).get_data_for_detail()), 200
+
+
+@acga_api.route("/student_krouzky")
+def student_krouzky():
+    if current_user.organizace != "acga.cz":
+        return "", 403
+    return json.dumps(Krouzek.get_data_for_current_user()), 200

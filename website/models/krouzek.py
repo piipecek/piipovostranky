@@ -1,3 +1,4 @@
+from flask_login import current_user
 from website import db
 from website.models.common_methods_db_model import Common_methods_db_model
 import json
@@ -91,3 +92,28 @@ class Krouzek(Common_methods_db_model):
 
         return result
         
+        
+    @staticmethod
+    def get_data_for_current_user() -> list:
+        result = []
+        krouzky = sorted(Krouzek.get_all(), key=lambda x: x.name)
+        for k in krouzky:
+            result.append({
+                "name": k.name,
+                "description": k.description,
+                "id": k.id,
+                "enrolled": current_user.email in json.loads(k.enrolled_emails)
+            })
+        return result
+    
+    
+    @staticmethod
+    def manage_incoming_zapis(krouzky_ids: list) -> None:
+        for krouzek in Krouzek.get_all():
+            emails: list = json.loads(krouzek.enrolled_emails)
+            if current_user.email in emails:
+                emails.remove(current_user.email)
+            if krouzek.id in krouzky_ids:
+                emails.append(current_user.email)
+            krouzek.enrolled_emails = json.dumps(emails)
+            krouzek.update()

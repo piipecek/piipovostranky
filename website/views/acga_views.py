@@ -177,7 +177,7 @@ def google_auth_receiver_acga_teacher():
 
 
 
-@acga_views.route("/krouzky")
+@acga_views.route("/krouzky", methods=["GET", "POST"])
 def krouzky():
     if request.method == "GET":
         if current_user.is_authenticated:
@@ -187,6 +187,14 @@ def krouzky():
                 return render_template("acga/krouzky_mimo_acga.html", roles=get_roles(current_user))
         else:
             return render_template("acga/krouzky_student_login.html", roles=get_roles())
+    else:
+        if request.form.get("save"):
+            krouzky_ids = [int(id) for id in request.form.getlist("krouzky")]
+            Krouzek.manage_incoming_zapis(krouzky_ids)
+            flash("Kroužky byly úspěšně uloženy.", category="success")
+            return redirect(url_for("acga_views.krouzky"))
+        else:
+            return request.form.to_dict()
 
 
 @acga_views.route("/sprava_krouzku", methods=["GET", "POST"])
