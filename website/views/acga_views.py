@@ -186,7 +186,7 @@ def krouzky():
             else:
                 return render_template("acga/krouzky_mimo_acga.html", roles=get_roles(current_user))
         else:
-            return render_template("acga/krouzky_student_login.html", roles=get_roles())
+            return render_template("acga/krouzky_student_login.html", roles=get_roles(), site_url=current_app.config["SITE_URL"])
     else:
         if request.form.get("save"):
             krouzky_ids = [int(id) for id in request.form.getlist("krouzky")]
@@ -206,7 +206,7 @@ def sprava_krouzku():
             else:
                 return render_template("acga/krouzky_bez_role_ucitele.html", roles=get_roles(current_user))
         else:
-            return render_template("acga/krouzky_teacher_login.html", roles=get_roles())
+            return render_template("acga/krouzky_teacher_login.html", roles=get_roles(), site_url=current_app.config["SITE_URL"])
     else:
         if request.form.get("novy_krouzek"):
             if name := request.form.get("nazev_krouzku"):

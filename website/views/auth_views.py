@@ -16,7 +16,7 @@ def login():
 	if current_user.is_authenticated:
 		return redirect(url_for("guest_views.dashboard"))
 	if request.method == "GET":
-		return render_template("auth/auth_login.html")
+		return render_template("auth/auth_login.html", site_url=current_app.config["SITE_URL"])
 	else:
 		email = request.form.get("email")
 		password = request.form.get("password")
@@ -41,7 +41,7 @@ def register():
 	if current_user.is_authenticated:
 		return redirect(url_for("guest_views.dashboard"))
 	if request.method == "GET":
-		return render_template("auth/auth_register.html")
+		return render_template("auth/auth_register.html", site_url=current_app.config["SITE_URL"])
 	else:
 		email = request.form.get("email")
 		password = request.form.get("password")
