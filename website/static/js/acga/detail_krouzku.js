@@ -14,6 +14,7 @@ for (let student of data.students) {
         <td>${student.full_name}</td>
         <td>${student.class}</td>
         <td>${student.email}</td>
+        <td>${student.timestamp}</td>
         <td><button class="btn btn-danger" name="delete" value="${student.email}">Smazat</button></td>
     `;
     document.querySelector("tbody").appendChild(row);
