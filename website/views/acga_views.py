@@ -265,7 +265,6 @@ def detail_krouzku(id):
             if email  in [e["email"] for e in emails]:
                 flash("Tento e-mail je již zapsaný.", category="error")
             else:
-                print(datetime.now(), type(datetime.now()), isinstance(datetime.now()))
                 emails.append({
                     "email": email,
                     "timestamp": pretty_datetime(datetime.now())
