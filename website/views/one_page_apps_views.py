@@ -118,3 +118,7 @@ def marsjosefac():
 @one_page_apps_views.route("/jeopardy")
 def jeopardy():
     return render_template("one_page_apps/jeopardy.html", roles=get_roles(current_user))
+
+@one_page_apps_views.route("/location")
+def location():
+    return render_template("guest/location.html", roles=get_roles(current_user))
