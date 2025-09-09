@@ -1,0 +1,12 @@
+{% extends "context.html" %}
+
+{% block content %}
+<h1>Test lokace</h1>
+<p>
+    Tohle vzniklo jako test lokační API před prvním výstřelem
+</p>
+<button id="get_location">Jsem na stanovišti?</button>
+
+<script src="{{url_for('static', filename='js/one_page_apps/location.js')}}"></script>
+
+{% endblock %}
