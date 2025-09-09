@@ -52,8 +52,8 @@ def pocitani_prumeru(file: FileStorage, data=None) -> dict:
                 if z == "" or z == "-":
                     pass
                 else:
-                    znamky.append(int(float(z)))
-            
+                    znamky.append(float(z.replace(",", ".")))
+
             znamky_dict.append({
                 "vaha": int(vaha),
                 "znamky": znamky
