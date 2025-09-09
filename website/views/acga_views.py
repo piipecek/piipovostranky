@@ -4,7 +4,7 @@ from website.models.user import get_roles
 from website.helpers.require_role import require_role_system_name_on_current_user
 from website.models.evaluace import Evaluace
 import json
-from datetime import datetime
+from datetime import datetime, date
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from website.models.user import User
@@ -13,6 +13,7 @@ from website.helpers.krouzky_helpers import get_students_from_xlsx
 from website.paths import acga_students_xlsx_path
 from website.models.krouzek import Krouzek
 from website.models.role import Role
+from website.helpers.pretty_date import pretty_datetime
 
 
 acga_views = Blueprint("acga_views",__name__)
@@ -261,10 +262,14 @@ def detail_krouzku(id):
                 flash("Musíte napsat nějaký e-mail.", category="error")
                 return redirect(url_for("acga_views.detail_krouzku", id=id))
             emails = json.loads(krouzek.enrolled_emails)
-            if email  in emails:
+            if email  in [e["email"] for e in emails]:
                 flash("Tento e-mail je již zapsaný.", category="error")
             else:
-                emails.append(email)
+                print(datetime.now(), type(datetime.now()), isinstance(datetime.now()))
+                emails.append({
+                    "email": email,
+                    "timestamp": pretty_datetime(datetime.now())
+                })
                 krouzek.enrolled_emails = json.dumps(emails)
                 krouzek.update()
                 flash("Student byl úspěšně přidán.", category="success")
@@ -272,8 +277,8 @@ def detail_krouzku(id):
         if request.form.get("delete"):
             email = request.form.get("delete")
             emails = json.loads(krouzek.enrolled_emails)
-            if email in emails:
-                emails.remove(email)
+            if email in [e["email"] for e in emails]:
+                emails.remove(next(e for e in emails if e["email"] == email))
                 krouzek.enrolled_emails = json.dumps(emails)
                 krouzek.update()
                 flash("Student byl úspěšně odstraněn.", category="success")
