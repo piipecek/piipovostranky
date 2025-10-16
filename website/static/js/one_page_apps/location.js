@@ -5,7 +5,8 @@ button.addEventListener("click", () => {
         (pos) => {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
-            alert("Pošu na server: " + lat + ", " + lon);
+            const acc = pos.coords.accuracy;
+            alert("Pošu na server: " + lat + ", " + lon +". Přesnost: " + acc + " metrů.");
         },
         (err) => {
             console.error("Error getting location:", err);
