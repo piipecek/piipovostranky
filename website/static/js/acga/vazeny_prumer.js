@@ -16,7 +16,21 @@ let hranice_12_input = document.getElementById("hranice_12")
 let hranice_23_input = document.getElementById("hranice_23")
 let hranice_34_input = document.getElementById("hranice_34")
 let hranice_45_input = document.getElementById("hranice_45")
+let styl_vypoctu_select = document.getElementById("styl")
 
+styl_vypoctu_select.addEventListener("change", function() {
+    if (styl_vypoctu_select.value == "3") {
+        hranice_12_input.value = "1.5"
+        hranice_23_input.value = "2.5"
+        hranice_34_input.value = "3.5"
+        hranice_45_input.value = "4.5"
+    } else {
+        hranice_12_input.value = "80"
+        hranice_23_input.value = "65"
+        hranice_34_input.value = "50"
+        hranice_45_input.value = "35"
+    }   
+})
 
 
 let barvy = [
@@ -67,7 +81,7 @@ budiz_button.addEventListener("click", function() {
         form_data.append("hranice_34", hranice_34_input.value)
         form_data.append("hranice_45", hranice_45_input.value)
         form_data.append("file", file_input.files[0])
-        form_data.append("styl", document.getElementById("styl").value)
+        form_data.append("styl", styl_vypoctu_select.value)
 
         $.ajax({
             type: "POST",
@@ -212,6 +226,16 @@ function save_input_edit(input_element) {
 }
 
 function prepocitat_radek(edited_span_element) {
+    function smart_int_float_to_str(x) {
+        if (parseInt(x) == x) {
+            return String(parseInt(x))
+        } else {
+            // to 2 decimals
+            return String(parseFloat(x.toFixed(2))).replace(".", ",")
+        }
+    }
+
+
     let row = edited_span_element.parentElement.parentElement
     let znamky = []
     let citatel = 0
@@ -228,8 +252,8 @@ function prepocitat_radek(edited_span_element) {
     }
     for (let i = 0; i < vahy.length; i++) { // vytvorit prumer a jeho vypocet
         for (let znamka of znamky[i]) {
-            citatel += parseInt(znamka) * vahy[i]
-            citatel_tooltip_list.push(znamka + " \\cdot " + vahy[i])
+            citatel += parseFloat(znamka) * vahy[i]
+            citatel_tooltip_list.push(smart_int_float_to_str(parseFloat(znamka)) + " \\cdot " + vahy[i])
             jmenovatel += vahy[i]
             jmenovatel_tooltip_list.push(vahy[i])
         }
@@ -237,7 +261,7 @@ function prepocitat_radek(edited_span_element) {
 
     // prumer
     let prumer = citatel / jmenovatel
-    let prumer_str = prumer.toFixed(2).replace(".", ",")
+    let prumer_str = smart_int_float_to_str(prumer)
     row.children[1 + vahy.length].innerText = prumer_str
 
     // tooltip
@@ -254,36 +278,61 @@ function prepocitat_radek(edited_span_element) {
     let chybi = null
     let rezerva = null
     let znamka = null
-    if (prumer >= hranice_12_input.value) {
-        chybi = 0
-        rezerva = prumer - hranice_12_input.value
-        znamka = 1
-    } else if (prumer >= hranice_23_input.value) {
-        chybi = hranice_12_input.value - prumer
-        rezerva = prumer - hranice_23_input.value
-        znamka = 2
-    } else if (prumer >= hranice_34_input.value) {
-        chybi = hranice_23_input.value - prumer
-        rezerva = prumer - hranice_34_input.value
-        znamka = 3
-    } else if (prumer >= hranice_45_input.value) {
-        chybi = hranice_34_input.value - prumer
-        rezerva = prumer - hranice_45_input.value
-        znamka = 4
-    } else {
-        chybi = hranice_45_input.value - prumer
-        rezerva = 0
-        znamka = 5
+    if (styl_vypoctu_select.value == "1" || styl_vypoctu_select.value == "2") {
+        if (prumer >= hranice_12_input.value) {
+            chybi = 0
+            rezerva = prumer - hranice_12_input.value
+            znamka = 1
+        } else if (prumer >= hranice_23_input.value) {
+            chybi = hranice_12_input.value - prumer
+            rezerva = prumer - hranice_23_input.value
+            znamka = 2
+        } else if (prumer >= hranice_34_input.value) {
+            chybi = hranice_23_input.value - prumer
+            rezerva = prumer - hranice_34_input.value
+            znamka = 3
+        } else if (prumer >= hranice_45_input.value) {
+            chybi = hranice_34_input.value - prumer
+            rezerva = prumer - hranice_45_input.value
+            znamka = 4
+        } else {
+            chybi = hranice_45_input.value - prumer
+            rezerva = 0
+            znamka = 5
+        }
+    } else if (styl_vypoctu_select.value == "3") {
+        if (prumer <= hranice_12_input.value) {
+            chybi = 0
+            rezerva = hranice_12_input.value - prumer
+            znamka = 1
+        } else if (prumer <= hranice_23_input.value) {
+            chybi = prumer - hranice_12_input.value
+            rezerva = hranice_23_input.value - prumer
+            znamka = 2
+        } else if (prumer <= hranice_34_input.value) {
+            chybi = prumer - hranice_23_input.value
+            rezerva = hranice_34_input.value - prumer
+            znamka = 3
+        } else if (prumer <= hranice_45_input.value) {
+            chybi = prumer - hranice_34_input.value
+            rezerva = hranice_45_input.value - prumer
+            znamka = 4
+        } else {
+            chybi = prumer - hranice_45_input.value
+            rezerva = 0
+            znamka = 5
+        }
     }
+
     if (chybi == 0) {
         chybi = "-"
     } else {
-        chybi = chybi.toFixed(2).replace(".", ",")
+        chybi = smart_int_float_to_str(chybi)
     }
     if (rezerva == 0) {
         rezerva = "-"
     } else {
-        rezerva = rezerva.toFixed(2).replace(".", ",")
+        rezerva = smart_int_float_to_str(rezerva)
     }
     row.children[1 + vahy.length + 1].innerText = chybi
     row.children[1 + vahy.length + 2].innerText = rezerva

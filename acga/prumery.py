@@ -1,15 +1,16 @@
 import xlrd
 from werkzeug.datastructures import FileStorage
 from acga.models import Student, Trida, pretty_float
+import json
 
 def pocitani_prumeru(file: FileStorage, data=None) -> dict:
     wb = xlrd.open_workbook(file_contents=file.read())
     sheet = wb.sheet_by_index(0)
     hranice = {
-        "12": int(data["hranice_12"]),
-        "23": int(data["hranice_23"]),
-        "34": int(data["hranice_34"]),
-        "45": int(data["hranice_45"]),
+        "12": float(data["hranice_12"].replace(",", ".")),
+        "23": float(data["hranice_23"].replace(",", ".")),
+        "34": float(data["hranice_34"].replace(",", ".")),
+        "45": float(data["hranice_45"].replace(",", ".")),
     }
     
     names_col = int(data["names_col"]) # index od 1
@@ -49,7 +50,7 @@ def pocitani_prumeru(file: FileStorage, data=None) -> dict:
                 s.klasifikovan = False
             znamky = []
             for z in znamky_split:
-                if z == "" or z == "-":
+                if z in ["", "-", "[S]"]:
                     pass
                 else:
                     znamky.append(float(z.replace(",", ".")))
@@ -65,7 +66,7 @@ def pocitani_prumeru(file: FileStorage, data=None) -> dict:
     
     for s in t.students:
         s.spocist_prumer(styl=styl)
-        s.vytvorit_znamku_a_spocitat_chybejici_a_rezervu(hranice=hranice)
+        s.vytvorit_znamku_a_spocitat_chybejici_a_rezervu(styl = styl, hranice=hranice)
         
         
     
