@@ -43,24 +43,32 @@ class Student:
         self.rezerva = None
     
     def spocist_prumer(self, styl):
+        def smart_int_float_to_str(x):
+            if int(x) == x:
+                return str(int(x))
+            else:
+                return str(x).replace(".", ",")
+        
+        
         citatel = 0
         jmenovatel = 0
         citatel_strings = []
         jmenovatel_strings = []
-        if styl == 1:
+        if styl in [1, 3]:
             for zaznam in self.znamky_dict:
                 for znamka in zaznam["znamky"]:
                     citatel += znamka*zaznam["vaha"]
-                    citatel_strings.append(f"{int(znamka)} \cdot {int(zaznam['vaha'])}")
+                    citatel_strings.append(f"{smart_int_float_to_str(znamka)} \cdot {smart_int_float_to_str(zaznam['vaha'])}")
                     jmenovatel += zaznam["vaha"]
                     jmenovatel_strings.append(str(int(zaznam["vaha"])))
         elif styl == 2:
             for zaznam in self.znamky_dict:
                 if not len(zaznam["znamky"]) == 0:
                     citatel += sum(zaznam["znamky"]) / len(zaznam["znamky"])*zaznam["vaha"] 
-                    citatel_strings.append("\\frac{" + " + ".join([str(z) for z in zaznam["znamky"]]) + " }{ " + str(len(zaznam["znamky"])) + "} \cdot " + str(zaznam["vaha"]))                        
+                    citatel_strings.append("\\frac{" + " + ".join([smart_int_float_to_str(z) for z in zaznam["znamky"]]) + " }{ " + str(len(zaznam["znamky"])) + "} \cdot " + str(zaznam["vaha"]))                        
                     jmenovatel += zaznam["vaha"]
-                    jmenovatel_strings.append(str(zaznam["vaha"]))        
+                    jmenovatel_strings.append(str(zaznam["vaha"]))
+                    
         if jmenovatel == 0:
                 self.klasifikovan = False
         else:
@@ -69,29 +77,57 @@ class Student:
             jmenovatel_str = " + ".join(jmenovatel_strings)
             self.vypocet = "\( \\frac{" + citatel_str + " }{ " + jmenovatel_str + "} = " + pretty_float(self.prumer_pct) + "\)"
     
-    def vytvorit_znamku_a_spocitat_chybejici_a_rezervu(self, hranice):
-        if self.prumer_pct is None:
-            pass
-        elif self.prumer_pct >= hranice["12"]:
-            self.znamka = 1
-            self.chybi = 0
-            self.rezerva = self.prumer_pct - hranice["12"]
-        elif self.prumer_pct >= hranice["23"]:
-            self.znamka = 2
-            self.chybi = hranice["12"] - self.prumer_pct
-            self.rezerva = self.prumer_pct - hranice["23"]
-        elif self.prumer_pct >= hranice["34"]:
-            self.znamka = 3
-            self.chybi = hranice["23"] - self.prumer_pct
-            self.rezerva = self.prumer_pct - hranice["34"]
-        elif self.prumer_pct >= hranice["45"]:
-            self.znamka = 4
-            self.chybi = hranice["34"] - self.prumer_pct
-            self.rezerva = self.prumer_pct - hranice["45"]
+    def vytvorit_znamku_a_spocitat_chybejici_a_rezervu(self, styl: int, hranice: dict):
+        print(self.jmeno, self.prumer_pct, styl, hranice)
+        if styl in [1, 2]: # procenta - cim vice, tim lepe
+            if self.prumer_pct is None:
+                pass
+            elif self.prumer_pct >= hranice["12"]:
+                self.znamka = 1
+                self.chybi = 0
+                self.rezerva = self.prumer_pct - hranice["12"]
+            elif self.prumer_pct >= hranice["23"]:
+                self.znamka = 2
+                self.chybi = hranice["12"] - self.prumer_pct
+                self.rezerva = self.prumer_pct - hranice["23"]
+            elif self.prumer_pct >= hranice["34"]:
+                self.znamka = 3
+                self.chybi = hranice["23"] - self.prumer_pct
+                self.rezerva = self.prumer_pct - hranice["34"]
+            elif self.prumer_pct >= hranice["45"]:
+                self.znamka = 4
+                self.chybi = hranice["34"] - self.prumer_pct
+                self.rezerva = self.prumer_pct - hranice["45"]
+            else:
+                self.znamka = 5
+                self.chybi = hranice["45"] - self.prumer_pct
+                self.rezerva = 0
+        
+        elif styl in [3]: # 1-5 - cim mene, tim lepe
+            if self.prumer_pct is None:
+                pass
+            elif self.prumer_pct <= hranice["12"]:
+                self.znamka = 1
+                self.chybi = 0
+                self.rezerva = hranice["12"] - self.prumer_pct
+            elif self.prumer_pct <= hranice["23"]:
+                self.znamka = 2
+                self.chybi = self.prumer_pct - hranice["12"]
+                self.rezerva = hranice["23"] - self.prumer_pct
+            elif self.prumer_pct <= hranice["34"]:
+                self.znamka = 3
+                self.chybi = self.prumer_pct - hranice["23"]
+                self.rezerva = hranice["34"] - self.prumer_pct
+            elif self.prumer_pct <= hranice["45"]:
+                self.znamka = 4
+                self.chybi = self.prumer_pct - hranice["34"]
+                self.rezerva = hranice["45"] - self.prumer_pct
+            else:
+                self.znamka = 5
+                self.chybi = self.prumer_pct - hranice["45"]
+                self.rezerva = 0
         else:
-            self.znamka = 5
-            self.chybi = hranice["45"] - self.prumer_pct
-            self.rezerva = 0
+            raise ValueError("Neznámý styl výpočtu.")
 
 
     def na_zobrazeni(self):
