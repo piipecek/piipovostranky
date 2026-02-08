@@ -165,7 +165,7 @@ def google_auth_receiver_acga_student():
     token = request.form.get("credential")
     idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config["GOOGLE_CLIENT_ID"], clock_skew_in_seconds=2)
     User.manage_google_login(idinfo)
-    return redirect(url_for("acga_views.krouzky"))
+    return redirect(url_for("acga_views.student_dashboard"))
 
 
 @acga_views.route("/google_auth_receiver_acga_teacher", methods=["POST"])
@@ -173,7 +173,7 @@ def google_auth_receiver_acga_teacher():
     token = request.form.get("credential")
     idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config["GOOGLE_CLIENT_ID"], clock_skew_in_seconds=2)
     User.manage_google_login(idinfo)
-    return redirect(url_for("acga_views.sprava_krouzku"))
+    return redirect(url_for("acga_views.teacher_dashboard"))
 
 
 
@@ -203,7 +203,7 @@ def krouzky_bez_role_ucitele():
     return render_template("acga/krouzky_bez_role_ucitele.html", roles=get_roles(current_user))
 
 
-# sem směřuje ten decorator require_acga_ucitel_role_on_current_user
+# sem smxěřuje ten decorator require_acga_ucitel_role_on_current_user
 @acga_views.route("/teacher_login")
 def teacher_login():
     return render_template("acga/teacher_login.html", roles=get_roles(), site_url=current_app.config["SITE_URL"])
