@@ -2,7 +2,7 @@ from flask_login import current_user
 from website import db
 from website.models.common_methods_db_model import Common_methods_db_model
 import json
-from website.helpers.krouzky_helpers import get_students_from_xlsx
+from acga.db_studentu import get_students_from_xlsx
 from website.helpers.pretty_date import pretty_datetime
 from datetime import datetime
 

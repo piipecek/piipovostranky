@@ -30,3 +30,19 @@ def require_role_system_name_on_current_user(role_system_name: str, user = curre
                 return redirect(url_for("auth_views.login"))
         return wrapper
     return what_should_i_name_this
+
+
+def require_acga_ucitel_role_on_current_user(user = current_user):
+# either throw them to krouzky_bez_role_ucitele.html or to teacher_login.html
+    def what_should_i_name_this(original_function):
+        @wraps(original_function)
+        def wrapper(*args, **kwargs):
+            if current_user.is_authenticated:
+                if "acga_ucitel" in [r.system_name for r in user.roles]:
+                    return original_function(*args, **kwargs)
+                else:
+                    return redirect(url_for("acga_views.krouzky_bez_role_ucitele"))
+            else:
+                return redirect(url_for("acga_views.teacher_login"))
+        return wrapper
+    return what_should_i_name_this

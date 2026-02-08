@@ -1,0 +1,18 @@
+{% extends "acga/teacher_navbar.html" %}
+
+{% block content %}
+<h2>Generování jmenných seznamů</h2>
+<p>
+    Jsou-li v systému <a href="{{url_for('acga_views.zobrazit_studenty')}}">nahráni studenti</a>, můžete generovat jmenné seznamy podle třídy:
+</p>
+
+<form method="post">
+    <select class="form-select" name="trida">
+        {% for class in classes %}
+            <option value="{{class}}">{{class}}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn custom-button my-2" name="novy_krouzek" value="whatever">Budiž</button>
+</form>
+
+{% endblock %}

@@ -26,6 +26,7 @@ xlrd = "*"
 google-auth = "*"
 requests = "*"
 openpyxl = "*"
+czech-sort = "*"
 
 [dev-packages]
 ipykernel = "*"
