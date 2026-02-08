@@ -1,0 +1,198 @@
+<!DOCTYPE HTML">
+<html>
+
+<head>
+	<title>Jmenný seznam {{ class_name }}</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tisk_jmenny_seznam.css')}}">
+</head>
+<body>
+	<div class="info">
+		<p>
+			Tento zelený informační box se v tisku neobjeví
+		</p>
+		<button class="tisk_button" onclick="window.print()">Tisk</button>
+
+		<div>
+			<label for="head_height">Výška hlavičky</label>
+			<input type="range" id="head_height" min="1" max="30" step="1" value="12" oninput="update_header(this.value)">
+			<output id="head_height_output">12</output> rem
+		</div>
+        <div>
+			<label for="mezera">Velikost místa kolem jmen</label>
+			<input type="range" id="mezera" min="0" max="20" step="1" value="9" oninput="update_space(this.value)">
+			<output id="mezera_output">9</output> px
+		</div>
+        <div>
+			<label for="names_width">Šířka sloupce se jmény</label>
+			<input type="range" id="names_width" min="5" max="30" step="1" value="17" oninput="update_names_width(this.value)">
+			<output id="names_width_output">17</output> rem
+		</div>
+        <div>
+			<label for="sloupce">Počet sloupců</label>
+			<input type="range" id="sloupce" min="1" max="30" step="1" value="15" oninput="update_columns(this.value)">
+			<output id="sloupce_output">15</output>
+		</div>
+        <div>
+            První je zobrazováno <span id="name_surname">příjmení</span>.
+            <button class="surname_button" onclick="toggle_name_surname()">Zobrazovat dříve <span id="name_surname_button">jméno</span></button>
+        </div>
+        <div>
+            Název třídy se <span id="class_name">zobrazuje</span>.
+            <button class="surname_button" onclick="toggle_class_name()"><span id="class_name_button">skrýt</span></button>
+        </div>
+	</div>
+    
+    <p id="loader">
+        Počkejte prosím...
+    </p>
+    <table class="main-table" id="table_element">
+    </table>
+</body>
+
+<script>
+    let students = []
+    let columns = 15;
+    let names_width = 17;
+    let name_surname_state = "surname"
+    let class_name_state = "shown"
+
+    let class_name = "{{ class_name }}";
+    fetch("/acga/get_students_for_jmenny_seznam/" + class_name)
+        .then(response => response.json())
+        .then(data => {
+            students = data;
+            draw_table();
+        });
+
+    function update_header(value) {
+        document.getElementById('head_height_output').value = value;
+        let header = document.querySelector('.tr-header');
+        header.style.height = value + "rem";
+    }
+
+    function update_space(value) {
+        document.getElementById('mezera_output').value = value;
+    
+        let lines = document.querySelectorAll('.td-okynko');
+        lines.forEach(function(line) {
+        line.style.paddingTop = value + "px";
+        line.style.paddingBottom = value + "px";
+        });
+    }
+    function update_columns(value) {
+        document.getElementById('sloupce_output').value = value;
+        columns = value;
+        draw_table();
+    }
+    function update_names_width(value) {
+        document.getElementById('names_width_output').value = value;
+        names_width = value;
+        draw_table();
+    }
+
+    function toggle_name_surname() {
+        if (name_surname_state === "name") {
+            name_surname_state = "surname";
+            document.getElementById("name_surname").textContent = "příjmení";
+            document.getElementById("name_surname_button").textContent = "jméno";
+        } else {
+            name_surname_state = "name";
+            document.getElementById("name_surname").textContent = "jméno";
+            document.getElementById("name_surname_button").textContent = "příjmení";
+        }
+        draw_table();
+    }
+
+    function toggle_class_name() {
+        if (class_name_state === "shown") {
+            class_name_state = "hidden";
+            document.getElementById("class_name").textContent = "nezobrazuje";
+            document.getElementById("class_name_button").textContent = "zobrazit";
+            document.getElementById("header_name").textContent = "";
+        } else {
+            class_name_state = "shown";
+            document.getElementById("class_name").textContent = "zobrazuje";
+            document.getElementById("class_name_button").textContent = "skrýt";
+            document.getElementById("header_name").textContent = class_name;
+        }
+    }
+
+    function draw_table() {
+        const table = document.getElementById("table_element");
+        table.innerHTML = "";
+        document.getElementById("loader").style.display = "none";
+
+        // --- COLGROUP (defines widths deterministically) ---
+        const colgroup = document.createElement("colgroup");
+
+        // 1) number column (fixed, small)
+        const colNum = document.createElement("col");
+        colNum.style.width = "2rem";      // tune
+        colgroup.appendChild(colNum);
+
+        // 2) name column (fixed, enough for names)
+        const colName = document.createElement("col");
+        colName.style.width = names_width + "rem";      // tune
+        colgroup.appendChild(colName);
+
+        // 3..N okynko columns: equal share of remaining space
+        for (let i = 0; i < columns; i++) {
+            const col = document.createElement("col");
+            col.style.width = `${100 / columns}%`;
+            colgroup.appendChild(col);
+        }
+
+        table.appendChild(colgroup);
+        // --- /COLGROUP ---
+
+        const tbody = document.createElement("tbody");
+        table.appendChild(tbody);
+
+        // header row
+        const header_row = document.createElement("tr");
+        header_row.classList.add("tr-header");
+        tbody.appendChild(header_row);
+
+        const popisove_pole = document.createElement("td");
+        popisove_pole.classList.add("td-prava-hranice", "td-jmeno", "td-popisove-pole");
+        popisove_pole.setAttribute("colspan", "2");
+        popisove_pole.id = "header_name";
+        popisove_pole.textContent = class_name_state === "shown" ? class_name : "";
+        header_row.appendChild(popisove_pole);
+
+        for (let i = 0; i < columns; i++) {
+            const td = document.createElement("td");
+            td.classList.add("td-okynko");
+            header_row.appendChild(td);
+        }
+
+        // student rows
+        students.forEach(student => {
+            const row = document.createElement("tr");
+            row.classList.add("tr-radek");
+            tbody.appendChild(row);
+
+            const cislo_td = document.createElement("td");
+            cislo_td.classList.add("td-okynko", "td-cislo");
+            cislo_td.textContent = student.cislo;
+            row.appendChild(cislo_td);
+
+            const jmeno_td = document.createElement("td");
+            jmeno_td.classList.add("td-prava-hranice", "td-jmeno");
+            if (name_surname_state === "surname") {
+                jmeno_td.textContent = `${student.surname} ${student.name}`;
+            } else {
+                jmeno_td.textContent = `${student.name} ${student.surname}`;
+            }
+            row.appendChild(jmeno_td);
+
+            for (let i = 0; i < columns; i++) {
+            const td = document.createElement("td");
+            td.classList.add("td-okynko");
+            row.appendChild(td);
+            }
+        });
+    }
+</script>

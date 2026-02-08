@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import current_user
 from website.models.user import get_roles
-from website.helpers.require_role import require_role_system_name_on_current_user
+from website.helpers.require_role import require_role_system_name_on_current_user, require_acga_ucitel_role_on_current_user
 from website.models.evaluace import Evaluace
 import json
 from datetime import datetime, date
@@ -9,8 +9,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from website.models.user import User
 from website.paths import acga_students_xlsx_path
-from website.helpers.krouzky_helpers import get_students_from_xlsx
-from website.paths import acga_students_xlsx_path
+from acga.db_studentu import get_students_from_xlsx, get_classes, get_students_by_class
 from website.models.krouzek import Krouzek
 from website.models.role import Role
 from website.helpers.pretty_date import pretty_datetime
@@ -58,7 +57,7 @@ def evaluace():
         
 
 @acga_views.route("/cist_evaluace", methods=["GET", "POST"])
-@require_role_system_name_on_current_user("acga_ucitel")
+@require_acga_ucitel_role_on_current_user()
 def cist_evaluace():
     if request.method == "GET":
         return render_template("acga/cist_evaluace.html", roles=get_roles())
@@ -151,7 +150,7 @@ def evaluace_locked(uuid):
 
 
 @acga_views.route("/evaluace_statistiky")
-@require_role_system_name_on_current_user("acga_ucitel")
+@require_acga_ucitel_role_on_current_user()
 def evaluace_statistiky():
     return render_template("acga/evaluace_statistiky.html", roles=get_roles())
 
@@ -196,18 +195,25 @@ def krouzky():
             return redirect(url_for("acga_views.krouzky"))
         else:
             return request.form.to_dict()
+        
+
+# sem směřuje ten decorator require_acga_ucitel_role_on_current_user
+@acga_views.route("/krouzky_bez_role_ucitele")
+def krouzky_bez_role_ucitele():
+    return render_template("acga/krouzky_bez_role_ucitele.html", roles=get_roles(current_user))
+
+
+# sem směřuje ten decorator require_acga_ucitel_role_on_current_user
+@acga_views.route("/teacher_login")
+def teacher_login():
+    return render_template("acga/teacher_login.html", roles=get_roles(), site_url=current_app.config["SITE_URL"])
 
 
 @acga_views.route("/sprava_krouzku", methods=["GET", "POST"])
+@require_acga_ucitel_role_on_current_user()
 def sprava_krouzku():
     if request.method == "GET":
-        if current_user.is_authenticated:
-            if Role.get_by_system_name("acga_ucitel") in current_user.roles:
-                return render_template("acga/sprava_krouzku.html", roles=get_roles(current_user), krouzky=Krouzek.get_all_for_seznam())
-            else:
-                return render_template("acga/krouzky_bez_role_ucitele.html", roles=get_roles(current_user))
-        else:
-            return render_template("acga/krouzky_teacher_login.html", roles=get_roles(), site_url=current_app.config["SITE_URL"])
+        return render_template("acga/sprava_krouzku.html", roles=get_roles(current_user), krouzky=Krouzek.get_all_for_seznam())
     else:
         if request.form.get("novy_krouzek"):
             if name := request.form.get("nazev_krouzku"):
@@ -226,10 +232,10 @@ def sprava_krouzku():
 
 
 @acga_views.route("/zobrazit_studenty", methods=["GET", "POST"])
-@require_role_system_name_on_current_user("acga_ucitel")
+@require_acga_ucitel_role_on_current_user()
 def zobrazit_studenty():
     if request.method == "GET":
-        return render_template("acga/zobrazit_studenty.html", students_uploaded = acga_students_xlsx_path().exists(), students=get_students_from_xlsx())
+        return render_template("acga/zobrazit_studenty.html", students_uploaded = acga_students_xlsx_path().exists(), students=get_students_from_xlsx(), roles=get_roles(current_user))
     else:
         if request.form.get("submit_students"):
             students_xlsx = request.files.get("import_file_input")
@@ -242,7 +248,7 @@ def zobrazit_studenty():
         
 
 @acga_views.route("/detail_krouzku/<int:id>", methods=["GET", "POST"])
-@require_role_system_name_on_current_user("acga_ucitel")
+@require_acga_ucitel_role_on_current_user()
 def detail_krouzku(id):
     krouzek = Krouzek.get_by_id(id)
     if request.method == "GET":
@@ -296,3 +302,26 @@ def detail_krouzku(id):
                 return redirect(url_for("acga_views.sprava_krouzku"))
         else:
             return request.form.to_dict()
+        
+
+@acga_views.route("/jmenne_seznamy", methods=["GET", "POST"])
+@require_acga_ucitel_role_on_current_user()
+def jmenne_seznamy():
+    if request.method == "GET":
+        return render_template("acga/jmenne_seznamy.html", roles=get_roles(current_user), classes = get_classes())
+    else:
+        return redirect(url_for("acga_views.jmenny_seznam", class_name=request.form.get("trida")))
+    
+
+@acga_views.route("/jmenny_seznam/<class_name>", methods=["GET"])
+@require_acga_ucitel_role_on_current_user()
+def jmenny_seznam(class_name):
+    students = get_students_by_class(class_name)
+    return render_template("acga/jmenny_sezam.html", roles=get_roles(current_user), class_name=class_name, students=students)
+
+
+@acga_views.route("/get_students_for_jmenny_seznam/<class_name>", methods=["GET"])
+@require_acga_ucitel_role_on_current_user()
+def get_students_for_jmenny_seznam(class_name):
+    students = get_students_by_class(class_name)
+    return json.dumps(students)
