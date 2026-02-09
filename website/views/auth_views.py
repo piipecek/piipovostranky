@@ -27,13 +27,17 @@ def login():
 			flash("Zadané heslo bylo určitě příliš dlouhé.", category="error")
 			return redirect(url_for("auth_views.login"))
 		user = User.get_by_email(email=email)
-		if user and check_password_hash(user.password, password):
-			user.login()
-			flash("úspěšné přihlášení", category="success")
-			return redirect(url_for("guest_views.dashboard"))
-		else:
-			flash("E-mail nebo heslo byly špatně", category="error")
+		try:
+			if user and check_password_hash(user.password, password):
+				user.login()
+				flash("úspěšné přihlášení", category="success")
+				return redirect(url_for("guest_views.dashboard"))
+			else:
+				flash("E-mail nebo heslo byly špatně", category="error")
 			return redirect(url_for("auth_views.login"))
+		except ValueError:
+			flash("Vaše heslo bylo zastaralé, prosíme, nastavte si nové heslo pomocí odkazu pro obnovu hesla.", category="error")
+			return redirect(url_for("auth_views.request_reset"))
 
 
 @auth_views.route("/register", methods=["GET","POST"])
