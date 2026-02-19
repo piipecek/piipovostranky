@@ -1,13 +1,5 @@
 import random
-import json
 import copy
-
-
-
-# with open("example_jmena.txt") as file:
-#     jmena = file.read()
-# with open("example_indicie.txt") as file:
-#     indicie = file.read()
 
 
 def generate(string_jmen: str, string_indicii: str) -> list:
@@ -145,14 +137,3 @@ def generate(string_jmen: str, string_indicii: str) -> list:
                 print(f"Pro zajimavost, je to {i}. reroll grafu a {pokus_count}. reroll instrukci v nem.")
                 return data
         return ["10000 pokusů nestačilo, idk proč, kontaktuj Pípa xd"]
-
-
-
-
-
-# result = generate(jmena, indicie)
-
-# with open("example_result.json", "w") as file:
-#     file.write(json.dumps(result, indent=4))
-
-

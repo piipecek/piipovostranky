@@ -26,12 +26,11 @@ class User(Common_methods_db_model, UserMixin):
     confirmed = db.Column(db.Boolean, default=False)
     acga_jmeno = db.Column(db.String(200))
     organizace = db.Column(db.String(200))
-    roles = db.relationship("Role", secondary=user_role_jointable, backref="users")
-    terms = db.relationship("Term", backref="author")
-    decks = db.relationship("Deck", backref="author")
-    exams = db.relationship("Exam", backref="author")
-    evaluace = db.relationship("Evaluace", backref="ucitel")
-    suggestions = db.relationship("Suggestion", backref="author")
+    roles = db.relationship("Role", secondary=user_role_jointable, back_populates="users")
+    terms = db.relationship("Term", back_populates="author")
+    decks = db.relationship("Deck", back_populates="author")
+    evaluace = db.relationship("Evaluace", back_populates="ucitel")
+    suggestions = db.relationship("Suggestion", back_populates="author")
     
     def __repr__(self) -> str:
         return f"Uživatel | {self.email}"
@@ -62,6 +61,7 @@ class User(Common_methods_db_model, UserMixin):
             return None
         return User.get_by_id(data["user_id"])
     
+    
     @staticmethod
     def get_seznam_pro_jmenovani_adminu() -> list:
         result = {
@@ -79,6 +79,7 @@ class User(Common_methods_db_model, UserMixin):
                 result["users"].append(data)
         return result
     
+    
     def get_info_pro_seznam_useru(self) -> dict:
         return {
             "id": self.id,
@@ -87,10 +88,12 @@ class User(Common_methods_db_model, UserMixin):
             "confirmed": "Ano" if self.confirmed else "Ne"
         }
     
+    
     def login(self):
         login_user(self, remember=True)
         self.last_login_datetime = datetime.now()
         self.update()
+        
         
     def get_info_for_admin_detail_usera(self) -> dict:
         return [
@@ -116,15 +119,11 @@ class User(Common_methods_db_model, UserMixin):
             },
             {
                 "display_name":"Slovíček",
-                "value": len(self.decks)
-            },
-            {
-                "display_name":"Balíčků",
                 "value": len(self.terms)
             },
             {
-                "display_name":"Zkoušení",
-                "value":len(self.exams)
+                "display_name":"Balíčků",
+                "value": len(self.decks)
             },
             {
                 "display_name":"ACGA Jméno",
@@ -140,7 +139,6 @@ class User(Common_methods_db_model, UserMixin):
             "confirmed": "Ano" if self.confirmed else "Ne",
             "number_of_decks": len(self.decks),
             "number_of_terms": len(self.terms),
-            "number_of_exams": len(self.exams),
         }
         
         if current_user.organizace == "acga.cz":

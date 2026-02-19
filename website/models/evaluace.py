@@ -23,9 +23,8 @@ class Evaluace(Common_methods_db_model):
     kod = db.Column(db.Text)
     je_odevzdana = db.Column(db.Boolean, default=False)
     uuid = db.Column(db.String(36), default=uuid.uuid4)
-    
-    def __repr__(self) -> str:
-        return f"Exam | {self.datetime}"
+    ucitel = db.relationship("User", back_populates="evaluace")
+
     
     @staticmethod
     def vytvorit_evaluace(pocet) -> list[str]:

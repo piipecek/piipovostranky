@@ -71,12 +71,9 @@ def create_app() -> Flask:
 
     from .models.answer import Answer
     from .models.deck import Deck
-    from .models.exam import Exam
-    from .models.language import Language
     from .models.role import Role
     from .models.suggestion import Suggestion
     from .models.term import Term
-    from .models.translation import Translation
     from .models.evaluace import Evaluace
     from .models.user import User, get_roles
  

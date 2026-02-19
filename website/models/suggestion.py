@@ -6,6 +6,7 @@ class Suggestion(Common_methods_db_model):
     value = db.Column(db.String(2000))
     state = db.Column(db.String(2000), default="zatím neřešené")
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    author = db.relationship("User", back_populates="suggestions")
     def __repr__(self) -> str:
         return f"Suggestion | {self.value}"
 
