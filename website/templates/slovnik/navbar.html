@@ -1,5 +1,6 @@
 {% extends "context.html" %}
 {% block sub_dashboard_icon %}
+<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/slovnik.css')}}">
 <a class="navbar-brand" href="{{url_for('slovnik_views.slovnik_home')}}">
     <img src="{{url_for('static_sender.send_icon', filename='slovnik_home.png')}}" alt="Slovník Icon" width="30" height="30" class="d-inline-block align-top">
 </a>

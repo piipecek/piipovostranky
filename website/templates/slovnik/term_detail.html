@@ -1,0 +1,61 @@
+{% extends "slovnik/navbar.html" %}
+{% block content %}
+<h2>Detail slovíčka</h2>
+
+<a href="{{url_for('slovnik_views.term_edit', term_id=data.id)}}">
+    <button class="default-button mb-2">
+        Upravit slovíčko
+    </button>
+</a>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <tr>
+            <th>Definice</th>
+            <td>{{data["definition"]}}</td>
+        </tr>
+        <tr>
+            <th>Překlad</th>
+            <td>{{data["translation"]}}</td>
+        </tr>
+        <tr>
+            <th># zkoušeno</th>
+            <td>{{data["times_tested"]}}</td>
+        </tr>
+        <tr>
+            <th># správně</th>
+            <td>{{data["times_correct"]}}</td>
+        </tr>
+    </table>
+</div>
+<p>
+    Založeno: {{data["datetime"]}}
+</p>
+<p>
+    Balíčky:
+    {% for deck in data["decks"] %}
+        <a href="{{url_for('slovnik_views.deck_detail', deck_id=deck['id'])}}">{{deck["name"]}}</a>{% if not loop.last %}, {% endif %}
+    {% endfor %}
+</p>
+<p>
+    Odpovědi:
+    {%if not data["answers"] %}
+        zatím žádné
+    {% endif %}
+    {% for answer in data["answers"] %}
+        {{answer}}{% if not loop.last %}, {% endif %}
+    {% endfor %}
+</p>
+<hr>
+<form method="post" id="form">
+    <input type="hidden" name="delete_term" value="whatever">
+    <button class="red-button" type="button" name="delete_term" value="whatever" id="delete-term-btn">Smazat slovíčko</button>
+    <script>
+        document.getElementById('delete-term-btn').addEventListener('click', function () {
+            if (confirm('Opravdu chcete smazat slovíčko? Dojde tím ke smazání všech odpovědí a odebrání slovíčka ze všech balíčků.')) {
+                document.getElementById('form').submit();
+            }
+        });
+    </script>
+</form>
+{% endblock %}

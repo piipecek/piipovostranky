@@ -59,7 +59,6 @@ addNoteButton.addEventListener('click', () => {
 
     play_infinitely_btn.addEventListener("click", () => {
         if (play_infinitely_btn.innerText == "Play") {
-            console.log("playing")
             play_infinitely_btn.innerText = "Stop"
             let f = 440
             if (frekvence_input.value) {
@@ -67,7 +66,6 @@ addNoteButton.addEventListener('click', () => {
             }
             synth.triggerAttack(f, 1)
         } else {
-            console.log("stopping")
             play_infinitely_btn.innerText = "Play"
             synth.triggerRelease()
         }

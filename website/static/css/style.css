@@ -59,6 +59,55 @@ canvas {
     color: rgb(243,133,8) !important;
     border-color: rgb(243,133,8) !important;
 }
+
+.default-button{
+    cursor: pointer;
+    border: none;
+    padding: .375rem .75rem;
+    border-radius: .25rem;
+    border: 1px solid rgb(243,133,8);
+    background-color: rgb(243,133,8);
+    color: white !important;
+    transition: all 0.3s ease;
+}
+
+.default-button:hover{
+    background-color: rgb(243,234,224) !important;
+    color: rgb(243,133,8) !important;
+}
+
+.green-button{
+    cursor: pointer;
+    border: none;
+    padding: .375rem .75rem;
+    border-radius: .25rem;
+    border: 1px solid rgb(38, 189, 0);
+    background-color: rgb(38, 189, 0);
+    color: white !important;
+    transition: all 0.3s ease;
+}
+
+.green-button:hover{
+    background-color: rgb(243,234,224) !important;
+    color: rgb(38, 189, 0) !important;
+}
+
+.red-button{
+    cursor: pointer;
+    border: none;
+    padding: .375rem .75rem;
+    border-radius: .25rem;
+    border: 1px solid rgb(255, 0, 0);
+    background-color: rgb(255, 0, 0);
+    color: white !important;
+    transition: all 0.3s ease;
+}
+
+.red-button:hover{
+    background-color: rgb(243,234,224) !important;
+    color: rgb(255, 0, 0) !important;
+}
+
 .tooltip1 {
     position: relative;
 }

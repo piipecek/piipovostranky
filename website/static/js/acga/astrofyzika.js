@@ -25,6 +25,5 @@ function createTable(data) {
     table.make_row(["\\(v_{1y}\\)", "\\(" + String(data[5]) + "\\)"])
     table.make_row(["\\(m\\)", "\\(" + String(data[6]) + "\\)"])
     table.make_header(["výsledek", String(data[7])])
-    console.log(data)
     MathJax.typeset()
 }

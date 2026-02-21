@@ -1,0 +1,28 @@
+{% extends "slovnik/navbar.html" %}
+{% block content %}
+<input type="hidden" id="deck_id" value="{{ deck_id }}">
+
+<h2>Úprava balíčku {{ deck_name }}</h2>
+
+<form method="post" id="form">
+    <input type="hidden" name="result" id="result">
+    <button class="default-button" type="button" id="save_button">Uložit</button>
+</form>
+    <div class="row align-items-center g-2">
+        <div class="col-auto">
+            Jméno balíčku balíčku:
+        </div>
+        <div class="col-md">
+            <input type="text" class="form-control" id="deck_name" value="{{ deck_name }}"/>
+        </div>
+    </div>
+<hr>
+<p>
+    Definice, překlad. Odebráním slovíčka jej vyloučíte z balíčku, ale neodstraníte jej ze slovníku.
+</p>
+<div id="term_div" class="mb-2"></div>
+<button id="new_term" class="green-button">Nové slovíčko</button>
+
+<script type="module" src="{{url_for('static', filename='js/slovnik/deck_edit.js')}}"></script>
+
+{% endblock %}

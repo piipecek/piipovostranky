@@ -1,0 +1,43 @@
+{% extends "slovnik/navbar.html" %}
+{% block content %}
+<input type="hidden" id="deck_id" value="{{data.id}}">
+<h2>Detail balíčku {{data.name}}</h2>
+
+<p>
+    Datum vytvoření: {{data.datetime}}
+</p>
+<p>
+    Počet slovíček: {{data.term_count}}
+</p>
+<a href="{{url_for('slovnik_views.deck_edit', deck_id=data.id)}}">
+    <button class="default-button">
+        Upravit balíček
+    </button>
+</a>
+
+<div class="container" id="terms"></div>
+
+<hr>
+<form method="post" id="form">
+    <input type="hidden" name="" value="whatever" id="delete_deck_input">
+    <button class="red-button" type="button" id="delete-deck-btn">Smazat balíček, ponechat slovíčka</button>
+    <button class="red-button" type="button" id="delete-deck-and-words-btn">Smazat balíček a slovíčka</button>
+    <script>
+        document.getElementById('delete-deck-btn').addEventListener('click', function () {
+            if (confirm('Opravdu chcete smazat balíček? Slovíčka budou ve slovníku ponechána.')) {
+                document.getElementById('delete_deck_input').name = "delete_deck"
+                document.getElementById('form').submit();
+            }
+        });
+        document.getElementById('delete-deck-and-words-btn').addEventListener('click', function () {
+            if (confirm('Opravdu chcete smazat balíček a všechna slovíčka v něm?')) {
+                document.getElementById('delete_deck_input').name = "delete_deck_and_words"
+                document.getElementById('form').submit();
+            }
+        });
+    </script>
+</form>
+
+<script type="module" src="{{url_for('static', filename='js/slovnik/deck_detail.js')}}"></script>
+
+{% endblock %}

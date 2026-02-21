@@ -1,5 +1,5 @@
 class TableCreator {
-    constructor(parentDiv, id=null) {
+    constructor(parentDiv, id=null, small=false) {
         this.parentDiv = parentDiv;
         this.parentDiv.innerHTML = ""
         this.table = document.createElement('table')
@@ -7,6 +7,9 @@ class TableCreator {
         let table_responsive_div = document.createElement("div")
         table_responsive_div.classList.add("table-responsive")
         this.table.classList.add("table", "table-hover")
+        if (small) {
+            this.table.classList.add("table-sm")
+        }
         this.table.id = id
         
         this.parentDiv.appendChild(table_responsive_div)
@@ -34,7 +37,7 @@ class TableCreator {
         this.table.appendChild(thead);
     }
 
-    make_row(rowData, th_indexes = [], colors = [], tooltips = []) {
+    make_row(rowData, th_indexes = [], colors = [], tooltips = [], href=null) {
         if (!this.tbody) {
             this.make_tbody()
         }
@@ -97,6 +100,14 @@ class TableCreator {
             tr.appendChild(col)
 
         }
+
+        if (href) {
+            tr.style.cursor = "pointer"
+            tr.addEventListener("click", function() {
+                window.location.href = href
+            })
+        }
+
         this.tbody.appendChild(tr);
     }
 }
