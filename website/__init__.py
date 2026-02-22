@@ -62,6 +62,7 @@ def create_app() -> Flask:
     app.register_blueprint(one_page_apps_views, url_prefix="/")
     app.register_blueprint(admin_views, url_prefix = "/admin")
     app.register_blueprint(acga_views, url_prefix = "/acga")
+    app.register_blueprint(acga_api, url_prefix = "/acga_api")
     app.register_blueprint(admin_api, url_prefix = "/admin_api")
     app.register_blueprint(guest_api, url_prefix = "/guest_api")
     app.register_blueprint(user_views, url_prefix = "/")
