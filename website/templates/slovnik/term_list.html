@@ -1,0 +1,23 @@
+{% extends "slovnik/navbar.html" %}
+{% block content %}
+<h2>Slovník</h2>
+<form method="post">
+    <div class="row align-items-center g-2">
+        <div class="col-md">
+            <input type="text" class="form-control" name="definition" placeholder="definice"/>
+        </div>
+        <div class="col-md">
+            <input type="text" class="form-control" name="translation" placeholder="překlad"/>
+        </div>
+        <div class="col-auto">
+            <button class="default-button" type="submit" name="new_term" value="whatever">Přidat slovíčko</button>
+        </div>
+    </div>
+</form>
+<hr>
+
+<div class="container" id="terms"></div>
+
+<script type="module" src="{{url_for('static', filename='js/slovnik/term_list.js')}}"></script>
+
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "slovnik/navbar.html" %}
+{% block content %}
+<h2>Popis slovníčku na Pípovo strákách</h2>
+
+<p>
+    Cílem této aplikace je vytvořit místo pro zapisování, učení a zkoušení slovíček.
+</p>
+<h3>Popis funkcí</h3>
+<ul>
+    <li>Je možné přidávat balíčky, do kterých se přidávají slovíčka.</li>
+    <li>Balíček slouží jako množina slovíček, ze které můžete být zkoušeni</li>
+    <li>Slovíčka mohou být ve více balíčkách zároveň (TODO)</li>
+    <li>Je k dispozici seznam balíčků a celkový seznam všech uživatelských slovíček.</li>
+    <li>Každé slovíčko ukládá špatné odpovědi, ty jsou vidět v jeho detailu.</li>
+</ul>
+
+<h3>Zkoušení</h3>
+<ul>
+    <li>Slovíčka v balíčku jsou před zkoušením zamíchána.</li>
+    <li>pokud odpovíte špatně, budete slovíčko zkoušeno později znovu, dokud Vaše odpověď nebude správná.</li>
+    <li>Statistiky se ke slovíčkům zapíšou až po řádném ukončení zkoušení.</li>
+</ul>
+
+
+<h3>Co ještě chybí</h3>
+<ul>
+    <li>Učící mód formou otáčecích kartiček</li>
+    <li>Přidání slovíček do více balíčků zároveň</li>
+    <li>Nastavení zkoušení per user</li>
+    <li>poznámka u slovíčka před ukázáním odpovědi a po tom</li>
+    <li>Možnost zkoušení z jiné množiny slovíček, než jen z balíčku - například ze slovíček s nízkou úspěšností</li>
+    <li>Možnosti pro import a export</li>
+</ul>
+
+{% endblock %}

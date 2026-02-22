@@ -5,6 +5,7 @@ class Role(Common_methods_db_model):
     id = db.Column(db.Integer, primary_key=True)
     system_name = db.Column(db.String(200))
     display_name = db.Column(db.String(200))
+    users = db.relationship("User", secondary="user_role_jointable", back_populates="roles")
     
     def __repr__(self) -> str:
         return f"Role | {self.display_name}"

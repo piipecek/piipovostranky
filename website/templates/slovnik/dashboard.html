@@ -7,21 +7,26 @@
 
 <div class="row p-2">
     <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
-        <a href="{{url_for('slovnik_views.slovnik')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+        <a href="{{url_for('slovnik_views.docs')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <div class="text-center">
+                Dokumentace
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+        <a href="{{url_for('slovnik_views.decks')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
+            <div class="text-center">
+                Balíčky
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
+        <a href="{{url_for('slovnik_views.terms')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
             <div class="text-center">
                 Slovník
             </div>
         </a>
     </div>
-    <div class="col-lg-2 col-md-3 col-sm-6 d-flex justify-content-center align-items-center p-2">
-        <a href="{{url_for('slovnik_views.nova_slovicka')}}" class="border-orange rounded-3 panel-link d-flex align-items-center justify-content-center p-2">
-            <div class="text-center">
-                Nová slovíčka
-            </div>
-        </a>
-    </div>
 </div>
-
-<script type="module" src="{{url_for('static', filename='js/slovnik/slovnik_dashboard.js')}}"></script>
 
 {% endblock %}

@@ -1,0 +1,26 @@
+{% extends "slovnik/navbar.html" %}
+{% block content %}
+<h2>Balíčky slovíček</h2>
+
+<form method="post">
+    <div class="row align-items-center g-2">
+        <div class="col-auto">
+            Jméno nového balíčku:
+        </div>
+        <div class="col-md">
+            <input type="text" class="form-control" name="new_deck_name" placeholder="Z výletu do Vídně"/>
+        </div>
+        <div class="col-auto">
+            <button class="default-button" type="submit" name="new_deck" value="whatever">Budiž</button>
+        </div>
+    </div>
+</form>
+<hr>
+
+
+<div class="container" id="decks"></div>
+
+<script type="module" src="{{url_for('static', filename='js/slovnik/deck_list.js')}}"></script>
+
+
+{% endblock %}

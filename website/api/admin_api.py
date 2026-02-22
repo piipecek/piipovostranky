@@ -4,8 +4,8 @@ from website.helpers.require_role import require_role_system_name_on_current_use
 from website.logs import get_app_logs
 from website.models.suggestion import Suggestion
 from website.models.role import Role
+
 from website.models.user import User
-from website.models.language import Language
 
 admin_api = Blueprint("admin_api", __name__)
 
@@ -54,13 +54,3 @@ def admin_users():
 @require_role_system_name_on_current_user("editing_users")
 def detail_usera(id):
     return json.dumps(User.get_by_id(id).get_info_for_admin_detail_usera())
-
-@admin_api.route("/uprava_jazyku")
-@require_role_system_name_on_current_user("editing_languages")
-def uprava_jazyku():
-    return json.dumps([l.get_detail_for_seznam_jazyku() for l in Language.get_all()])
-
-@admin_api.route("/detail_jazyka/<int:id>")
-@require_role_system_name_on_current_user("editing_languages")
-def detail_jazyka(id):
-    return Language.get_by_id(id).get_detail_jazyka()

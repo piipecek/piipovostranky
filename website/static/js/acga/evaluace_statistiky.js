@@ -10,7 +10,6 @@ ukazat_button.addEventListener("click", function() {
     let form_data = new FormData()
     form_data.append("date", date.value)
     form_data.append("type", select.value)
-    console.log(select.value)
     $.ajax({
         type: "POST",
         url: "/acga_api/evaluace_statistiky_data",

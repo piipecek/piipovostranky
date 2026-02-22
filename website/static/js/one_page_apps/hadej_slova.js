@@ -152,7 +152,8 @@ function orezat_databazi(index) {
                 }
                 temp_db = [...new_db]
             } else {
-                console.log("unknown char: " + input.charAt(i))
+                alert("Neplatný znak v zadání výsledku. Použij pouze 0, 1 a 2.")
+                return
             }
         }
     } else {

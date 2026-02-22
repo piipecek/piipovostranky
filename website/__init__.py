@@ -52,6 +52,7 @@ def create_app() -> Flask:
     from .api.guest_api import guest_api
     from .api.user_api import user_api
     from .api.acga_api import acga_api
+    from .api.slovnik_api import slovnik_api
     from .api.static_sender import static_sender
 
 
@@ -65,19 +66,20 @@ def create_app() -> Flask:
     app.register_blueprint(guest_api, url_prefix = "/guest_api")
     app.register_blueprint(user_views, url_prefix = "/")
     app.register_blueprint(user_api, url_prefix = "/user_api")
-    app.register_blueprint(acga_api, url_prefix = "/acga_api")
+    app.register_blueprint(slovnik_api, url_prefix = "/slovnik_api")
     app.register_blueprint(static_sender, url_prefix="/static")
 
 
     from .models.answer import Answer
     from .models.deck import Deck
-    from .models.exam import Exam
-    from .models.language import Language
     from .models.role import Role
     from .models.suggestion import Suggestion
     from .models.term import Term
-    from .models.translation import Translation
     from .models.evaluace import Evaluace
+    from .models.krouzek import Krouzek
+    from .models.term import Term
+    from .models.deck import Deck
+    from .models.answer import Answer
     from .models.user import User, get_roles
  
     with app.app_context():
