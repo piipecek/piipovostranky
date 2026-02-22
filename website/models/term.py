@@ -4,6 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from website.helpers.pretty_date import pretty_datetime
 from flask_login import current_user
+from website.models.answer import Answer
 
 def get_current_user_id():
     return current_user.id if current_user.is_authenticated else None
@@ -69,4 +70,10 @@ class Term(Common_methods_db_model):
         for deck in list(self.decks):
             deck.terms.remove(self)
         db.session.delete(self)
+        db.session.commit()
+        
+    
+    def add_answer(self, answer_value):
+        answer = Answer(value=answer_value, term_id=self.id)
+        db.session.add(answer)
         db.session.commit()

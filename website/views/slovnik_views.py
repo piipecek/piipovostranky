@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from website.helpers.require_role import require_role_system_name_on_current_user
 from website.models.user import get_roles
 from website.models.term import Term
@@ -101,8 +101,6 @@ def deck_detail(deck_id):
         flash("Nemáte oprávnění zobrazit tento balíček!", "error")
         return redirect(url_for("slovnik_views.decks"))
     if request.method == "POST":
-        print(request.form.to_dict())
-        print(request.form.get("delete_deck"))
         if request.form.get("delete_deck"):
             deck.delete()
             flash("Balíček smazán, slovíčka ponechána ve slovnníku.", "info")
@@ -111,6 +109,10 @@ def deck_detail(deck_id):
             deck.delete_and_words()
             flash("Balíček a slovíčka smazány!", "info")
             return redirect(url_for("slovnik_views.decks"))
+        elif request.form.get("edit_deck"):
+            return redirect(url_for("slovnik_views.deck_edit", deck_id=deck_id))
+        elif request.form.get("start_quiz"):
+            return redirect(url_for("slovnik_views.quiz", deck_id=deck_id))
         else:
             return request.form.to_dict()
     return render_template("slovnik/deck_detail.html", roles=get_roles(), data = deck.for_detail())
@@ -152,3 +154,37 @@ def deck_edit(deck_id):
             return redirect(url_for("slovnik_views.deck_detail", deck_id=deck_id))
         else:
             return request.form.to_dict()
+        
+        
+@slovnik_views.route("/quiz/<int:deck_id>", methods=["GET", "POST"])
+@require_role_system_name_on_current_user("user")
+def quiz(deck_id):
+    if request.method == "GET":
+        deck = Deck.get_by_id(deck_id)
+        if not deck:
+            flash("Balíček nenalezen!", "error")
+            return redirect(url_for("slovnik_views.decks"))
+        if deck.author_id != current_user.id:
+            flash("Nemáte oprávnění zobrazit tento balíček!", "error")
+            return redirect(url_for("slovnik_views.decks"))
+        return render_template("slovnik/quiz.html", roles=get_roles(), deck_id=deck_id)
+    else:
+        if data := request.form.get("result"):
+            data = json.loads(data)
+            print(data)
+            for ans_dict in data:
+                term = Term.get_by_id(ans_dict["id"])
+                if term.author_id != current_user.id:
+                    continue
+                term.times_tested += 1
+                if ans_dict["correct"]:
+                    term.times_correct += 1
+                else:
+                    # only recording wrong answers
+                    term.add_answer(ans_dict["answer"])
+                term.update()
+            flash("Kvíz dokončen!", "success")
+            return redirect(url_for("slovnik_views.deck_detail", deck_id=deck_id))
+        else:
+            return request.form.to_dict()
+        

@@ -9,11 +9,14 @@
 <p>
     Počet slovíček: {{data.term_count}}
 </p>
-<a href="{{url_for('slovnik_views.deck_edit', deck_id=data.id)}}">
-    <button class="default-button">
+<form method="post">
+    <button class="default-button" type="submit" name="edit_deck" value="whatever">
         Upravit balíček
     </button>
-</a>
+    <button type="submit" class="default-button" name="start_quiz" value="whatever">
+        Zkoušení
+    </button>
+</form>
 
 <div class="container" id="terms"></div>
 

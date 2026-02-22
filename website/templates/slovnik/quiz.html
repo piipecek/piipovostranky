@@ -1,0 +1,48 @@
+{% extends "slovnik/navbar.html" %}
+{% block content %}
+<input type="hidden" id="deck_id" value="{{deck_id}}"/>
+<div class="quiz-wrapper">
+    <div class="quiz" id="quiz_section">
+        <div class="row">
+            <div class="col">Zkoušení</div>
+            <div class="col d-flex justify-content-end" id="progress">12/15</div>
+        </div>
+        <div class="color-row" id="color_row">
+            <div class="key" id="key"></div>
+            <div class="result" id="result"></div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <input type="text" id="value" class="form-control">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button id="confirm_button" class="quiz-button quiz-button-confirm">Potvrdit</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button id="skip_button" class="quiz-button quiz-button-next">Nevím, další</button>
+            </div>
+            <div class="col">
+                <button id="end_button" class="quiz-button quiz-button-end">Konec zkoušení</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="summary" id="summary_section" hidden>
+        <h2>Souhrn zkoušení</h2>
+        <button id="save_quiz" class="quiz-button quiz-button-confirm">Uložit a ukončit zkoušení</button>
+        <div id="summary"></div>
+    </div>
+</div>
+
+<form method="post" hidden id="form">
+    <input type="hidden" name="result" id="result_input">
+</form>
+
+
+<script type="module" src="{{url_for('static', filename='js/slovnik/quiz.js')}}"></script>
+
+{% endblock %}

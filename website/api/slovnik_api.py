@@ -28,3 +28,12 @@ def get_terms_in_deck(deck_id):
     if deck.author_id != current_user.id:
         return json.dumps({"error": "Nemáte oprávnění zobrazit tento balíček!"})
     return json.dumps(deck.for_detail())
+
+
+@slovnik_api.route("/quiz/<int:deck_id>")
+@require_role_system_name_on_current_user("user")
+def get_quiz(deck_id):
+    deck = Deck.get_by_id(deck_id)
+    if deck.author_id != current_user.id:
+        return json.dumps({"error": "Nemáte oprávnění zobrazit tento balíček!"})
+    return json.dumps(deck.for_quiz())

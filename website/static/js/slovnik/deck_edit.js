@@ -51,8 +51,17 @@ function make_term_row(term) {
     row.appendChild(definition_col)
     row.appendChild(translation_col)
     row.appendChild(delete_col)
+
+    translation_input.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault()
+            make_empty_term_row()
+        }
+    })
+
     
     term_div.appendChild(row)
+    definition_input.focus()
 }
 
 
@@ -109,5 +118,3 @@ function save() {
 for (let term of deck.terms) {
     make_term_row(term)
 }
-
-make_empty_term_row()

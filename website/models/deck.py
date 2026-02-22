@@ -6,6 +6,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from flask_login import current_user
 from website.helpers.pretty_date import pretty_datetime
+import random
 
 def get_current_user_id():
     return current_user.id if current_user.is_authenticated else None
@@ -61,3 +62,16 @@ class Deck(Common_methods_db_model):
             db.session.delete(term)
         db.session.delete(self)
         db.session.commit()
+
+
+    def for_quiz(self) -> list[dict]:
+        terms = [
+            {
+                "id": term.id,
+                "definition": term.definition,
+                "translation": term.translation,
+                "answers": []
+            } for term in self.terms
+        ]
+        random.shuffle(terms)
+        return terms
