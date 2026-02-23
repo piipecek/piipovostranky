@@ -13,8 +13,8 @@ def get_current_user_id():
 class Term(Common_methods_db_model):
     id = db.Column(db.Integer, primary_key=True)
     datetime = db.Column(db.DateTime, default = lambda: datetime.now(ZoneInfo("Europe/Prague")))
-    definition = db.Column(db.String(500))
-    translation = db.Column(db.String(500))
+    front = db.Column(db.String(500))
+    back = db.Column(db.String(500))
     times_tested = db.Column(db.Integer, default=0)
     times_correct = db.Column(db.Integer, default=0)
     
@@ -35,7 +35,7 @@ class Term(Common_methods_db_model):
     
     @staticmethod
     def get_all_for_user_list() -> list[dict]:
-        terms = sorted(Term.get_all_by_user(current_user.id), key=lambda x: x.definition)
+        terms = sorted(Term.get_all_by_user(current_user.id), key=lambda x: x.front)
         return [term.for_user_list() for term in terms]
     
 
@@ -43,8 +43,8 @@ class Term(Common_methods_db_model):
         return {
             "id": self.id,
             "datetime": pretty_datetime(self.datetime),
-            "definition": self.definition,
-            "translation": self.translation,
+            "front": self.front,
+            "back": self.back,
             "times_tested": self.times_tested,
             "times_correct": self.times_correct
         }
@@ -54,8 +54,8 @@ class Term(Common_methods_db_model):
         return {
             "id": self.id,
             "datetime": pretty_datetime(self.datetime),
-            "definition": self.definition,
-            "translation": self.translation,
+            "front": self.front,
+            "back": self.back,
             "times_tested": self.times_tested,
             "times_correct": self.times_correct,
             "decks": [{"id": deck.id, "name": deck.name} for deck in self.decks],

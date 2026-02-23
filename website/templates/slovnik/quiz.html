@@ -1,8 +1,9 @@
 {% extends "slovnik/navbar.html" %}
 {% block content %}
 <input type="hidden" id="deck_id" value="{{deck_id}}"/>
-<div class="quiz-wrapper">
-    <div class="quiz" id="quiz_section">
+<input type="hidden" id="quiz_type" value="{{quiz_type}}"/>
+<div class="slim-wrapper">
+    <div class="slim" id="quiz_section">
         <div class="row">
             <div class="col">Zkoušení</div>
             <div class="col d-flex justify-content-end" id="progress">12/15</div>

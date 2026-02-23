@@ -1,16 +1,23 @@
-.quiz-wrapper {
+.slim-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 2rem;
 }
 
-.quiz {
+.slim {
     max-width: 600px;
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+.slim-form{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
 }
 
 .summary {

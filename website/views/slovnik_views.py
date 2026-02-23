@@ -27,7 +27,15 @@ def terms():
     if request.method == "GET":
         return render_template("slovnik/term_list.html", roles=get_roles())
     else:
-        return request.form.to_dict()
+        if request.form.get("new_term"):
+            front = request.form.get("front")
+            back = request.form.get("back")
+            t = Term(front=front, back=back)
+            t.update()
+            flash("Slovo vytvořeno!", "success")
+            return redirect(url_for("slovnik_views.terms"))
+        else:
+            return request.form.to_dict()
     
     
 @slovnik_views.route("/term/<int:term_id>", methods=["GET", "POST"])
@@ -61,12 +69,12 @@ def term_edit(term_id):
         if term.author_id != current_user.id:
             flash("Nemáte oprávnění upravovat toto slovo!", "error")
             return redirect(url_for("slovnik_views.terms"))
-        return render_template("slovnik/term_edit.html", roles=get_roles(), definition=term.definition, translation=term.translation)
+        return render_template("slovnik/term_edit.html", roles=get_roles(), front=term.front, back=term.back)
     else:
         if request.form.get("update_term"):
             term = Term.get_by_id(term_id)
-            term.definition = request.form.get("definition")
-            term.translation = request.form.get("translation")
+            term.front = request.form.get("front")
+            term.back = request.form.get("back")
             term.update()
             flash("Slovo upraveno!", "success")
             return redirect(url_for("slovnik_views.term_detail", term_id=term_id))
@@ -111,8 +119,10 @@ def deck_detail(deck_id):
             return redirect(url_for("slovnik_views.decks"))
         elif request.form.get("edit_deck"):
             return redirect(url_for("slovnik_views.deck_edit", deck_id=deck_id))
-        elif request.form.get("start_quiz"):
-            return redirect(url_for("slovnik_views.quiz", deck_id=deck_id))
+        elif request.form.get("start_quiz_1"):
+            return redirect(url_for("slovnik_views.quiz", deck_id=deck_id, quiz_type=1))
+        elif request.form.get("start_quiz_2"):
+            return redirect(url_for("slovnik_views.quiz", deck_id=deck_id, quiz_type=2))
         else:
             return request.form.to_dict()
     return render_template("slovnik/deck_detail.html", roles=get_roles(), data = deck.for_detail())
@@ -137,15 +147,15 @@ def deck_edit(deck_id):
             
             for term in data["terms"]:
                 if term["is_new"]:
-                    t = Term(definition=term["definition"], translation=term["translation"])
+                    t = Term(front=term["front"], back=term["back"])
                     t.update()
                     deck.terms.append(t)
                 else:
                     t = Term.get_by_id(term["id"])
                     if t.author_id != current_user.id:
                         continue
-                    t.definition = term["definition"]
-                    t.translation = term["translation"]
+                    t.front = term["front"]
+                    t.back = term["back"]
                     t.update()
                     if t not in deck.terms:
                         deck.terms.append(t)
@@ -156,9 +166,9 @@ def deck_edit(deck_id):
             return request.form.to_dict()
         
         
-@slovnik_views.route("/quiz/<int:deck_id>", methods=["GET", "POST"])
+@slovnik_views.route("/quiz/<int:deck_id>/<int:quiz_type>", methods=["GET", "POST"])
 @require_role_system_name_on_current_user("user")
-def quiz(deck_id):
+def quiz(deck_id, quiz_type):
     if request.method == "GET":
         deck = Deck.get_by_id(deck_id)
         if not deck:
@@ -167,7 +177,7 @@ def quiz(deck_id):
         if deck.author_id != current_user.id:
             flash("Nemáte oprávnění zobrazit tento balíček!", "error")
             return redirect(url_for("slovnik_views.decks"))
-        return render_template("slovnik/quiz.html", roles=get_roles(), deck_id=deck_id)
+        return render_template("slovnik/quiz.html", roles=get_roles(), deck_id=deck_id, quiz_type=quiz_type)
     else:
         if data := request.form.get("result"):
             data = json.loads(data)
@@ -188,3 +198,41 @@ def quiz(deck_id):
         else:
             return request.form.to_dict()
         
+        
+@slovnik_views.route("/export", methods=["GET", "POST"])
+@require_role_system_name_on_current_user("user")
+def export():
+    if request.method == "GET":
+        return render_template("slovnik/export.html", roles=get_roles())
+    else:
+        if request.form.get("import"):
+            file = request.files.get("import_file")
+            if not file:
+                flash("Soubor se nepodařilo načíst!", "error")
+                return redirect(url_for("slovnik_views.export"))
+            result = Deck.import_from_xlsx(file)
+            if result["success"]:
+                flash(f"Import dokončen!", "success")
+                return redirect(url_for("slovnik_views.deck_edit", deck_id=result["deck_id"]))
+            else:
+                flash(f"Při importu došlo k chybě: {result['error']}", "error")
+                return redirect(url_for("slovnik_views.export"))
+        elif request.form.get("pdf_export"):
+            deck_id = request.form.get("pdf_deck")
+            return redirect(url_for("slovnik_views.export_pdf", deck_id=deck_id))
+        else:
+            return request.form.to_dict()
+        
+
+@slovnik_views.route("/export_pdf/<int:deck_id>", methods=["GET"])
+@require_role_system_name_on_current_user("user")
+def export_pdf(deck_id):
+    deck = Deck.get_by_id(deck_id)
+    if not deck:
+        flash("Balíček nenalezen!", "error")
+        return redirect(url_for("slovnik_views.export"))
+    if deck.author_id != current_user.id:
+        flash("Nemáte oprávnění zobrazit tento balíček!", "error")
+        return redirect(url_for("slovnik_views.export"))
+    data = deck.for_pdf()
+    return render_template("slovnik/deck_pdf.html", data=data)
