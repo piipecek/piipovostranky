@@ -4,8 +4,8 @@ import TableCreator from "../table_creator.js"
 let terms = JSON.parse(httpGet("/slovnik_api/terms"))
 
 let table = new TableCreator(document.getElementById("terms"), null, true)
-table.make_header(["Definice", "Překlad", "Zkoušeno", "Správně"])
+table.make_header(["Pojem", "Vysvětlení", "Zkoušeno", "Správně"])
 
 for (let term of terms) {
-    table.make_row([term["definition"], term["translation"], term["times_tested"], term["times_correct"]], [], [], [], "/slovnik/term/" + term["id"])
+    table.make_row([term["front"], term["back"], term["times_tested"], term["times_correct"]], [], [], [], "/slovnik/term/" + term["id"])
 }

@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Balíček {{ data.deck_name }}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/tisk_jmenny_seznam.css')}}">
+
+    <style>
+        /* Container for "rows" */
+        #terms {
+            font-size: 12px; /* default; JS updates */
+            width: 100%;
+        }
+
+        /* Each row = two columns */
+        .term-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;                /* default column gap; JS updates */
+            margin-bottom: 9px;       /* default row gap; JS updates */
+        }
+
+        .term-def {
+            width: 17rem;             /* default; JS updates */
+            flex: 0 0 auto;
+            overflow-wrap: anywhere;
+        }
+
+        .term-trn {
+            width: 15rem;             /* default; JS updates */
+            flex: 0 0 auto;
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+
+<body>
+<div class="info">
+    <p>Tento zelený informační box se v tisku neobjeví</p>
+    <button class="tisk_button" onclick="window.print()">Tisk</button>
+
+    <div>
+        <label for="head_height">Velikost písma</label>
+        <input type="range" id="head_height" min="1" max="42" step="1" value="12" oninput="update_font(this.value)">
+        <output id="head_height_output">12</output> px
+    </div>
+
+    <div>
+        <label for="mezera">Prostor mezi řádky</label>
+        <input type="range" id="mezera" min="0" max="40" step="1" value="9" oninput="update_space(this.value)">
+        <output id="mezera_output">9</output> px
+    </div>
+
+    <div>
+        <label for="mezera_sloupce">Prostor mezi sloupci</label>
+        <input type="range" id="mezera_sloupce" min="0" max="20" step="1" value="9" oninput="update_column_space(this.value)">
+        <output id="mezera_sloupce_output">9</output> px
+    </div>
+
+    <div>
+        <label for="names_width">Šířka sloupce s pojmy</label>
+        <input type="range" id="names_width" min="5" max="30" step="1" value="17" oninput="update_front_column(this.value)">
+        <output id="names_width_output">17</output> rem
+    </div>
+
+    <div>
+        <label for="sloupce">Šířka sloupce s vysvětleními</label>
+        <input type="range" id="sloupce" min="1" max="30" step="1" value="15" oninput="update_back_column(this.value)">
+        <output id="sloupce_output">15</output> rem
+    </div>
+</div>
+
+<!-- Nested div "table" -->
+<div id="terms">
+    {% for term in data.terms %}
+        <div class="term-row">
+            <div class="term-def">{{ term.front }}</div>
+            <div class="term-trn">{{ term.back }}</div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    function update_font(value) {
+        const terms = document.getElementById("terms");
+        terms.style.fontSize = value + "px";
+        document.getElementById("head_height_output").textContent = value;
+    }
+
+    function update_space(value) {
+        const rows = document.querySelectorAll("#terms .term-row");
+        rows.forEach(row => row.style.marginBottom = value + "px");
+        document.getElementById("mezera_output").textContent = value;
+    }
+
+    function update_column_space(value) {
+        const rows = document.querySelectorAll("#terms .term-row");
+        rows.forEach(row => row.style.gap = value + "px");
+        document.getElementById("mezera_sloupce_output").textContent = value;
+    }
+
+    function update_front_column(value) {
+        const defs = document.querySelectorAll("#terms .term-def");
+        defs.forEach(d => d.style.width = value + "rem");
+        document.getElementById("names_width_output").textContent = value;
+    }
+
+    function update_back_column(value) {
+        const trns = document.querySelectorAll("#terms .term-trn");
+        trns.forEach(t => t.style.width = value + "rem");
+        document.getElementById("sloupce_output").textContent = value;
+    }
+
+    // Apply initial slider values on load
+    update_font(document.getElementById("head_height").value);
+    update_space(document.getElementById("mezera").value);
+    update_column_space(document.getElementById("mezera_sloupce").value);
+    update_front_column(document.getElementById("names_width").value);
+    update_back_column(document.getElementById("sloupce").value);
+</script>
+</body>
+</html>

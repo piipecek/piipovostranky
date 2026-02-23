@@ -3,6 +3,8 @@ let deck_id = document.getElementById("deck_id").value
 let data = JSON.parse(httpGet("/slovnik_api/quiz/" + deck_id))
 import TableCreator from "../table_creator.js"
 
+// 1: front -> back, 2: back -> front
+let quiz_type = document.getElementById("quiz_type").value
 
 let confirm_button = document.getElementById("confirm_button")
 let skip_button = document.getElementById("skip_button")
@@ -41,8 +43,8 @@ function initialize_queue() {
     for (let term of data) {
         quiz_queue.push({
             id: term["id"],
-            definition: term["definition"],
-            translation: term["translation"],
+            front: term["front"],
+            back: term["back"],
         })
     }
 }
@@ -55,16 +57,22 @@ function handle_confirm() {
     }
     
     let input = value_input.value.trim()
-    let translation = quiz_queue[index]["translation"].trim()
+    let back = quiz_queue[index]["back"].trim()
+    let front = quiz_queue[index]["front"].trim()
 
     // in case of other correctness settings, here would be the evaluator
-    let correct = input == translation
+    let correct = false
+    if (quiz_type == 1) {
+        correct = input == back
+    } else if (quiz_type == 2) {
+        correct = input == front
+    }
 
     // take the value, create a quiz_answer and push it
     let answer_element = {
         id: quiz_queue[index]["id"],
-        definition: quiz_queue[index]["definition"],
-        translation: quiz_queue[index]["translation"],
+        front: quiz_queue[index]["front"],
+        back: quiz_queue[index]["back"],
         answer: input,
         correct: correct,
     }
@@ -79,15 +87,15 @@ function handle_confirm() {
         result_div.innerText = "Správně!"
         color_row.classList.add("correct")
     } else {
-        result_div.innerText = quiz_queue[index]["translation"]
+        result_div.innerText = quiz_type == 1 ? back : front
         color_row.classList.add("wrong")
     }
     // if wrong, add a new entry to queue to practice the wrong term again
     if (!correct) {
         quiz_queue.push({
             id: quiz_queue[index]["id"],
-            definition: quiz_queue[index]["definition"],
-            translation: quiz_queue[index]["translation"],
+            front: quiz_queue[index]["front"],
+            back: quiz_queue[index]["back"],
         })
     }
     // increment the index
@@ -110,8 +118,8 @@ function handle_skip() {
     // add the current term to the end of the queue
     quiz_queue.push({
         id: quiz_queue[index]["id"],
-        definition: quiz_queue[index]["definition"],
-        translation: quiz_queue[index]["translation"],
+        front: quiz_queue[index]["front"],
+        back: quiz_queue[index]["back"],
     })
     // increment the index and draw current
     index++
@@ -130,8 +138,12 @@ function draw_current() {
     color_row.classList.remove("correct", "wrong")
     // clear the result_div
     result_div.innerText = ""
-    // write the current definition to key_div
-    key_div.innerText = quiz_queue[index]["definition"]
+    // write the current front to key_div
+    if (quiz_type == 1) {
+        key_div.innerText = quiz_queue[index]["front"]
+    } else if (quiz_type == 2) {
+        key_div.innerText = quiz_queue[index]["back"]
+    }
 }
 
 function end_summary() {
@@ -139,10 +151,10 @@ function end_summary() {
     summary_section.hidden = false
 
     let table = new TableCreator(document.getElementById("summary"), null, true)
-    table.make_header(["#", "Definice", "Překlad", "Tvoje odpověď"])
+    table.make_header(["#", "Pojem", "Vysvětlení", "Tvoje odpověď"])
     for (let i = 0; i < quiz_answers.length; i++) {
         let answer = quiz_answers[i]
-        table.make_row([i + 1, answer["definition"], answer["translation"], answer["answer"]])
+        table.make_row([i + 1, answer["front"], answer["back"], answer["answer"]])
     }
 
     // write the quiz_answers to result_input as json

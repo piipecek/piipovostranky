@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import current_user
+from flask_login import current_user, logout_user
 from website.models.suggestion import Suggestion
 from website.models.user import User, get_roles
 from website.models.role import Role
@@ -136,5 +136,12 @@ def detail_usera(id):
                 user_na_odstraneni.delete()
                 flash("User smazán", category="success")
             return redirect(url_for("admin_views.admin_dashboard"))
+        if request.form.get("login"):
+            user = User.get_by_id(id)
+            logout_user()
+            user.login()
+            flash(f"Přihlášení jako {user.email} proběhlo úspěšně.", category="success")
+            return redirect(url_for("guest_views.dashboard"))
+            
         else:
             return request.form.to_dict()

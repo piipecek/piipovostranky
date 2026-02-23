@@ -2,23 +2,37 @@
 {% block content %}
 <h2>Popis slovníčku na Pípovo strákách</h2>
 
-<p>
-    Cílem této aplikace je vytvořit místo pro zapisování, učení a zkoušení slovíček.
-</p>
+<p>Cílem této aplikace je vytvořit místo pro zapisování, učení a zkoušení slovíček.</p>
+
+
 <h3>Popis funkcí</h3>
 <ul>
+    <li>Ačkoli jde aplikace použít o pro jiný účel, než učení slovíček cizího jazyka, používám nadále pojem slovíčko pro dvojici termínu a jeho vysvětlení.</li>
     <li>Je možné přidávat balíčky, do kterých se přidávají slovíčka.</li>
-    <li>Balíček slouží jako množina slovíček, ze které můžete být zkoušeni</li>
-    <li>Slovíčka mohou být ve více balíčkách zároveň (TODO)</li>
+    <li>Balíček slouží jako množina slovíček, ze které můžete být zkoušeni.</li>
+    <li>Slovíčka mohou být ve více balíčkách zároveň (TODO).</li>
     <li>Je k dispozici seznam balíčků a celkový seznam všech uživatelských slovíček.</li>
     <li>Každé slovíčko ukládá špatné odpovědi, ty jsou vidět v jeho detailu.</li>
 </ul>
+
 
 <h3>Zkoušení</h3>
 <ul>
     <li>Slovíčka v balíčku jsou před zkoušením zamíchána.</li>
     <li>pokud odpovíte špatně, budete slovíčko zkoušeno později znovu, dokud Vaše odpověď nebude správná.</li>
     <li>Statistiky se ke slovíčkům zapíšou až po řádném ukončení zkoušení.</li>
+</ul>
+
+
+<h3>Import a export</h3>
+<ul>
+    <li>Formát souboru pro import balíčku:</li>
+    <ul>
+        <li>Je možné nahrát pouze dvojice termínů a vysvětlení, není zatím možné přehrávat datumy založení ani statistiky.</li>
+        <li>Balíček je .xlsx soubor, kde název souboru je název balíčku.</li>
+        <li>První sloupec obsahuje termín, druhý vysvětlení.</li>
+        <li>První řádek neobsahuje hlavičku, ale rovnou data.</li>
+    </ul>
 </ul>
 
 

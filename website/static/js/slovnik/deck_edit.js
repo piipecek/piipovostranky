@@ -6,6 +6,17 @@ let new_term_button = document.getElementById("new_term")
 let save_button = document.getElementById("save_button")
 let form = document.getElementById("form")
 let result_input = document.getElementById("result")
+let swap_button = document.getElementById("swap")
+
+swap_button.addEventListener("click", function() {
+    for (let child of term_div.children) {
+        let front_input = child.children[0].children[0]
+        let back_input = child.children[1].children[0]
+        let temp = front_input.value
+        front_input.value = back_input.value
+        back_input.value = temp
+    }
+})
 
 let deck = JSON.parse(httpGet("/slovnik_api/deck/" + deck_id))
 let new_term_id = 0
@@ -20,16 +31,16 @@ save_button.addEventListener("click", function() {
 
 
 function make_term_row(term) {
-    let definition_input = document.createElement("input")
-    definition_input.type = "text"
-    definition_input.value = term.definition
-    definition_input.classList.add("form-control")
-    definition_input.placeholder = "definice"
-    let translation_input = document.createElement("input")
-    translation_input.type = "text"
-    translation_input.value = term.translation
-    translation_input.classList.add("form-control")
-    translation_input.placeholder = "překlad"
+    let front_input = document.createElement("input")
+    front_input.type = "text"
+    front_input.value = term.front
+    front_input.classList.add("form-control")
+    front_input.placeholder = "pojem"
+    let back_input = document.createElement("input")
+    back_input.type = "text"
+    back_input.value = term.back
+    back_input.classList.add("form-control")
+    back_input.placeholder = "vysvětlení"
     let delete_button = document.createElement("button")
     delete_button.classList.add("red-button")
     delete_button.innerText = "X"
@@ -39,20 +50,20 @@ function make_term_row(term) {
     let row = document.createElement("div")
     row.id = "term_row_" + term.id
     row.classList.add("row", "align-items-center", "g-2", "mb-2")
-    let definition_col = document.createElement("div")
-    definition_col.classList.add("col")
-    definition_col.appendChild(definition_input)
-    let translation_col = document.createElement("div")
-    translation_col.classList.add("col")
-    translation_col.appendChild(translation_input)
+    let front_col = document.createElement("div")
+    front_col.classList.add("col")
+    front_col.appendChild(front_input)
+    let back_col = document.createElement("div")
+    back_col.classList.add("col")
+    back_col.appendChild(back_input)
     let delete_col = document.createElement("div")
     delete_col.classList.add("col-auto")
     delete_col.appendChild(delete_button)
-    row.appendChild(definition_col)
-    row.appendChild(translation_col)
+    row.appendChild(front_col)
+    row.appendChild(back_col)
     row.appendChild(delete_col)
 
-    translation_input.addEventListener("keypress", function(event) {
+    back_input.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             event.preventDefault()
             make_empty_term_row()
@@ -61,14 +72,14 @@ function make_term_row(term) {
 
     
     term_div.appendChild(row)
-    definition_input.focus()
+    front_input.focus()
 }
 
 
 function make_empty_term_row() {
     let empty_term = {
-        definition: "",
-        translation: "",
+        front: "",
+        back: "",
         id: "new_" + new_term_id
     }
     new_term_id++
@@ -86,8 +97,8 @@ function save() {
     let terms = []
     let deck_name = document.getElementById("deck_name").value
     for (let child of term_div.children) {
-        let definition = child.children[0].children[0].value
-        let translation = child.children[1].children[0].value
+        let front = child.children[0].children[0].value
+        let back = child.children[1].children[0].value
         let id = child.id.replace("term_row_", "")
         let is_new = id.startsWith("new_")
         if (!is_new) {
@@ -96,14 +107,14 @@ function save() {
             id = null
         }
         
-        if (definition.trim() == "" && translation.trim() == "") {
+        if (front.trim() == "" && back.trim() == "") {
             continue
         }
         terms.push({
             id: id,
             is_new: is_new,
-            definition: definition,
-            translation: translation
+            front: front,
+            back: back
         })
     }
 

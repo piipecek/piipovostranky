@@ -1,0 +1,32 @@
+{% extends "slovnik/navbar.html" %}
+{% block content %}
+<div class="slim-wrapper">
+    <div class="slim">
+        <h2>Export všech dat</h2>
+        <p>Slouží pro export všech dat do .xlsx, který není určen pro zpětné nahrávání.</p>
+        <button class="default-button" id="export_all">Stáhnout .xlsx</button>
+        
+        <h2>Export balíčku do .xlsx</h2>
+        <p>Tento export jde potom např. importovat jiným uživatelem.</p>
+        <select class="form-select" id="export_deck_select"></select>
+        <button class="default-button" id="export_deck">Stáhnout .xlsx</button>
+        
+        <h2>Export balíčku do .pdf</h2>
+        <form method="post" class="slim-form">
+            <select class="form-select" id="pdf_deck_select" name="pdf_deck"></select>
+            <button class="default-button" type="submit" name="pdf_export" value="whatever">Pokračovat</button>
+        </form>
+        
+        <h2>Import balíčku</h2>
+        <p>Vložte soubor se strukturou popsanou v <a href="{{url_for('slovnik_views.docs')}}">dokumentaci</a>.</p>
+        <form method="post" enctype="multipart/form-data" class="slim-form">
+            <input type="file" name="import_file" accept=".xlsx" class="form-control">
+            <button class="default-button" name="import" value="whatever">Importovat</button>
+        </form>
+    </div>
+</div>
+
+
+<script type="module" src="{{url_for('static', filename='js/slovnik/export.js')}}"></script>
+
+{% endblock %}
