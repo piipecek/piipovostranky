@@ -5,7 +5,9 @@ import TableCreator from "../table_creator.js"
 
 // 1: front -> back, 2: back -> front
 let quiz_type = document.getElementById("quiz_type").value
+let number_of_terms = document.getElementById("number_of_terms").value
 
+let start_button = document.getElementById("start_quiz")
 let confirm_button = document.getElementById("confirm_button")
 let skip_button = document.getElementById("skip_button")
 let end_button = document.getElementById("end_button")
@@ -17,6 +19,7 @@ let progress_col = document.getElementById("progress")
 
 let quiz_section = document.getElementById("quiz_section")
 let summary_section = document.getElementById("summary_section")
+let overview_section = document.getElementById("overview_section")
 let form = document.getElementById("form")
 let save_quiz_button = document.getElementById("save_quiz")
 let result_input = document.getElementById("result_input")
@@ -24,6 +27,7 @@ let result_input = document.getElementById("result_input")
 confirm_button.addEventListener("click", handle_confirm)
 skip_button.addEventListener("click", handle_skip)
 end_button.addEventListener("click", handle_end)
+start_button.addEventListener("click", handle_start)
 value_input.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         event.preventDefault()
@@ -40,6 +44,11 @@ let quiz_answers = []
 
 
 function initialize_queue() {
+    // randomly sample number_of_terms from data
+    if (number_of_terms != "0") { // 0 means all
+        data = data.sort(() => Math.random() - 0.5).slice(0, number_of_terms)
+    }
+
     for (let term of data) {
         quiz_queue.push({
             id: term["id"],
@@ -168,5 +177,25 @@ function end_summary() {
     result_input.value = JSON.stringify(quiz_answers)
 }
 
+function draw_overview() {
+    quiz_section.hidden = true
+    summary_section.hidden = true
+
+    let table = new TableCreator(document.getElementById("overview"), null, true)
+    table.make_header(["#", "Pojem", "Vysvětlení"])
+    for (let i = 0; i < quiz_queue.length; i++) {
+        let term = quiz_queue[i]
+        table.make_row([i + 1, term["front"], term["back"]])
+    }
+}
+
+function handle_start() {
+    overview_section.hidden = true
+    quiz_section.hidden = false
+    // shuffle the quiz_queue
+    quiz_queue = quiz_queue.sort(() => Math.random() - 0.5)
+    draw_current()
+}
+
 initialize_queue()
-draw_current()
+draw_overview()

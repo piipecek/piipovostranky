@@ -120,9 +120,11 @@ def deck_detail(deck_id):
         elif request.form.get("edit_deck"):
             return redirect(url_for("slovnik_views.deck_edit", deck_id=deck_id))
         elif request.form.get("start_quiz_1"):
-            return redirect(url_for("slovnik_views.quiz", deck_id=deck_id, quiz_type=1))
+            number_of_terms = request.form.get("number_of_terms")
+            return redirect(url_for("slovnik_views.quiz", deck_id=deck_id, quiz_type=1, number_of_terms=number_of_terms))
         elif request.form.get("start_quiz_2"):
-            return redirect(url_for("slovnik_views.quiz", deck_id=deck_id, quiz_type=2))
+            number_of_terms = request.form.get("number_of_terms")
+            return redirect(url_for("slovnik_views.quiz", deck_id=deck_id, quiz_type=2, number_of_terms=number_of_terms))
         else:
             return request.form.to_dict()
     return render_template("slovnik/deck_detail.html", roles=get_roles(), data = deck.for_detail())
@@ -166,9 +168,9 @@ def deck_edit(deck_id):
             return request.form.to_dict()
         
         
-@slovnik_views.route("/quiz/<int:deck_id>/<int:quiz_type>", methods=["GET", "POST"])
+@slovnik_views.route("/quiz/<int:deck_id>/<int:quiz_type>/<int:number_of_terms>", methods=["GET", "POST"])
 @require_role_system_name_on_current_user("user")
-def quiz(deck_id, quiz_type):
+def quiz(deck_id, quiz_type, number_of_terms):
     if request.method == "GET":
         deck = Deck.get_by_id(deck_id)
         if not deck:
@@ -177,7 +179,7 @@ def quiz(deck_id, quiz_type):
         if deck.author_id != current_user.id:
             flash("Nemáte oprávnění zobrazit tento balíček!", "error")
             return redirect(url_for("slovnik_views.decks"))
-        return render_template("slovnik/quiz.html", roles=get_roles(), deck_id=deck_id, quiz_type=quiz_type)
+        return render_template("slovnik/quiz.html", roles=get_roles(), deck_id=deck_id, quiz_type=quiz_type, number_of_terms=number_of_terms)
     else:
         if data := request.form.get("result"):
             data = json.loads(data)
