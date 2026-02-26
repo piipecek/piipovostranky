@@ -6,18 +6,25 @@
 <p>
     Datum vytvoření: {{data.datetime}}
 </p>
-<p>
-    Počet slovíček: {{data.term_count}}
-</p>
+<h3>Možnosti zkoušení</h3>
 <form method="post">
-    <button class="default-button" type="submit" name="edit_deck" value="whatever">
-        Upravit balíček
-    </button>
+    <p>
+        Kolik slovíček bude zkoušeno? Budou vybrány náhodně.
+    </p>
+    <select class="form-select mb-2" id="number_of_terms_select" name="number_of_terms">
+        <option value="0" selected>Všechny</option>
+    </select>
     <button type="submit" class="default-button" name="start_quiz_1" value="whatever">
         Zkoušení pojem -> vysvětlení
     </button>
     <button type="submit" class="default-button" name="start_quiz_2" value="whatever">
         Zkoušení vysvětlení -> pojem
+    </button>
+</form>
+<hr>
+<form method="post">
+    <button class="default-button" type="submit" name="edit_deck" value="whatever">
+        Upravit balíček
     </button>
 </form>
 

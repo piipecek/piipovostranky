@@ -2,8 +2,14 @@
 {% block content %}
 <input type="hidden" id="deck_id" value="{{deck_id}}"/>
 <input type="hidden" id="quiz_type" value="{{quiz_type}}"/>
+<input type="hidden" id="number_of_terms" value="{{number_of_terms}}"/>
 <div class="slim-wrapper">
-    <div class="slim" id="quiz_section">
+    <div class="slim" id="overview_section">
+        <h2>Přehled zkoušení</h2>
+        <button id="start_quiz" class="quiz-button quiz-button-confirm">Začít zkoušení</button>
+        <div id="overview"></div>
+    </div>
+    <div class="slim" id="quiz_section" hidden>
         <div class="row">
             <div class="col">Zkoušení</div>
             <div class="col d-flex justify-content-end" id="progress">12/15</div>
