@@ -121,9 +121,16 @@ function handle_skip() {
         front: quiz_queue[index]["front"],
         back: quiz_queue[index]["back"],
     })
+    // draw the current answer as wrong and show the correct answer in result_div
+    // do not create a new answer element, just show the correct answer
+    let back = quiz_queue[index]["back"].trim()
+    let front = quiz_queue[index]["front"].trim()
+    result_div.innerText = quiz_type == 1 ? back : front
+    color_row.classList.add("skip")
+
     // increment the index and draw current
     index++
-    setTimeout(draw_current, 200)
+    setTimeout(draw_current, 2000)
 }
 
 function handle_end() {
@@ -135,7 +142,7 @@ function draw_current() {
     // write index / len(queue) to progress_col
     progress_col.innerText = `${index + 1} / ${quiz_queue.length}`
     // clear the color classes by removing them
-    color_row.classList.remove("correct", "wrong")
+    color_row.classList.remove("correct", "wrong", "skip")
     // clear the result_div
     result_div.innerText = ""
     // write the current front to key_div
