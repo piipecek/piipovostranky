@@ -67,12 +67,12 @@ def cist_evaluace():
             current_user.acga_jmeno = jmeno
             current_user.update()
             flash("Změna ACGA Jména proběhla v pořádku.", category="success")
-            return redirect(url_for("acga_views.cist_evaluace_auth"))
+            return redirect(url_for("acga_views.cist_evaluace"))
         elif id := request.form.get("smazat_evaluaci"):
             e = Evaluace.get_by_id(id)
             e.delete()
             flash("Evaluace úspěšně smazána", category="success")
-            return redirect(url_for("acga_views.cist_evaluace_auth"))
+            return redirect(url_for("acga_views.cist_evaluace"))
         elif id := request.form.get("detail"):
             e = Evaluace.get_by_id(id)
             return redirect(url_for("acga_views.evaluace_locked", uuid=e.uuid))
@@ -80,10 +80,10 @@ def cist_evaluace():
             date = datetime.fromisoformat(date)
             for e in current_user.evaluace:
                 e: Evaluace
-                if e.datetime_vytvoreni < date:
+                if e.datetime_vytvoreni < date and not e.je_odevzdana:
                     e.delete()
             flash("Starší formuláře promazány.", category="success")
-            return redirect(url_for("acga_views.cist_evaluace_auth"))
+            return redirect(url_for("acga_views.cist_evaluace"))
         elif request.form.get("tisk_neodevzdane"):
             result = []
             for e in current_user.evaluace:
@@ -92,7 +92,7 @@ def cist_evaluace():
                     result.append(e)
             if len(result) == 0:
                 flash("Nejsou žádné neodevzdané evaluace k tisku.", category="error")
-                return redirect(url_for("acga_views.cist_evaluace_auth"))
+                return redirect(url_for("acga_views.cist_evaluace"))
             else:
                 result = Evaluace.vytvorit_kody_k_tisku(result)
                 return render_template("acga/tisk_kodu.html", kody = result)
@@ -115,7 +115,7 @@ def evaluace_formular(uuid):
             if e.je_odevzdana:
                 return redirect(url_for("acga_views.evaluace_locked", uuid=uuid))
             else:
-                return render_template("acga/evaluace_formular.html", uuid=uuid, name=Evaluace.get_by_uuid(uuid).ucitel.acga_jmeno)
+                return render_template("acga/evaluace_formular.html", uuid=uuid, name=Evaluace.get_by_uuid(uuid).ucitel.acga_jmeno, roles=get_roles())
         else:
             data = json.loads(request.form.get("result"))
             akce = data.get("akce")
@@ -142,7 +142,7 @@ def evaluace_locked(uuid):
         e = Evaluace.get_by_uuid(uuid)
         if request.method == "GET":
             if e.je_odevzdana:
-                return render_template("acga/evaluace_locked.html", uuid=uuid)
+                return render_template("acga/evaluace_locked.html", uuid=uuid, roles=get_roles())
             else:
                 return redirect(url_for("acga_views.evaluace_formular", uuid=uuid))
         else:

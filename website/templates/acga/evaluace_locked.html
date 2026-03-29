@@ -1,7 +1,8 @@
 {% extends "acga/student_navbar.html" %}
 
 {% block content %}
-<h2>Odevzdaný evaluační dotazník - <span id="name"></span></h2>
+<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/evaluace.css')}}">
+<h2 class="evaluace-nadpis">Odevzdaný evaluační dotazník - <span id="name"></span></h2>
 <p>Datum odevzdání: <span id="date"></span></p>
 <hr>
 
