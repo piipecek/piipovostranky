@@ -238,3 +238,12 @@ def export_pdf(deck_id):
         return redirect(url_for("slovnik_views.export"))
     data = deck.for_pdf()
     return render_template("slovnik/deck_pdf.html", data=data)
+
+
+@slovnik_views.route("/settings", methods=["GET", "POST"])
+@require_role_system_name_on_current_user("user")
+def settings():
+    if request.method == "GET":
+        return render_template("slovnik/settings.html", roles=get_roles())
+    else:
+        return request.form.to_dict()
