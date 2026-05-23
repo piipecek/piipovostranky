@@ -48,6 +48,7 @@ def create_app() -> Flask:
     from .views.user_views import user_views
     from .views.slovnik_views import slovnik_views
     from .views.acga_views import acga_views
+    from .views.blog_views import blog_views
     from .api.admin_api import admin_api
     from .api.guest_api import guest_api
     from .api.user_api import user_api
@@ -69,6 +70,7 @@ def create_app() -> Flask:
     app.register_blueprint(user_api, url_prefix = "/user_api")
     app.register_blueprint(slovnik_api, url_prefix = "/slovnik_api")
     app.register_blueprint(static_sender, url_prefix="/static")
+    app.register_blueprint(blog_views, url_prefix="/blog")
 
 
     from .models.answer import Answer
