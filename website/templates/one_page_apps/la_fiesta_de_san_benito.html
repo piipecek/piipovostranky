@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La fiesta de San Benito</title>
+  <style>
+    :root {
+      --bg: #FFF1E2;
+      --panel: #ffffff;
+      --text: #000000;
+      --muted: #6b7280;
+      --line: #F38508;
+      --blue: #2563eb;
+      --red: #dc2626;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .wrap {
+      width: min(100%, 980px);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: .3rem;
+      padding: 12px 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .left-controls,
+    .right-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      align-items: center;
+    }
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      color: var(--text);
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #f3f4f6;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      align-items: center;
+      font-size: 15px;
+    }
+
+    .canvas-panel {
+      padding: 10px;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: white;
+      border-radius: 14px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel note">
+      <a href="{{url_for('guest_views.dashboard')}}">Zpět na dashboard Pípovo stránek</a><br>
+      Vizualizace tance La fiesta de San Benito (<a href="https://youtu.be/wmtiT42PiAk?si=uNRYBLQwFSke3XO5" target="_blank">hudba na youtube</a>). Vytvořeno zcela pomocí ChatGPT, doupravil Josef Lát v červenci 2026.
+    </div>
+
+    <div class="panel controls">
+      <div class="left-controls">
+        <label><input type="checkbox" id="toggleCircle" checked> Obrys kruhu</label>
+        <label><input type="checkbox" id="toggleTrails" checked> Trajektorie</label>
+        <label><input type="checkbox" id="toggleGuidePoints" checked> Průchozí body</label>
+        <label><input type="checkbox" id="toggleLabels"> Čísla dob</label>
+      </div>
+      <div class="right-controls">
+        <div class="badge">Doba v cyklu: <strong id="beatInCycle">1</strong> / 4</div>
+      </div>
+    </div>
+
+
+    <div class="panel canvas-panel">
+      <canvas id="danceCanvas" width="900" height="900"></canvas>
+    </div>
+
+  </div>
+
+  <script>
+    const canvas = document.getElementById('danceCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const toggleCircle = document.getElementById('toggleCircle');
+    const toggleTrails = document.getElementById('toggleTrails');
+    const toggleGuidePoints = document.getElementById('toggleGuidePoints');
+    const toggleLabels = document.getElementById('toggleLabels');
+
+    const beatInCycleEl = document.getElementById('beatInCycle');
+    const totalBeatEl = document.getElementById('totalBeat');
+    const pulses = [1,2,3,4].map(n => document.getElementById('pulse' + n));
+
+    const BPM = 89;
+    const BEAT_DURATION = 60 / BPM;
+    const MOVE_FRACTION = 0.5;
+    const MOVE_DURATION = BEAT_DURATION * MOVE_FRACTION;
+    const WAIT_DURATION = BEAT_DURATION - MOVE_DURATION;
+
+
+    const center = { x: canvas.width / 2, y: canvas.height / 2 };
+    const baseRadius = 270;
+    const radialUnit = 38;
+    const slotAngle = Math.PI / 8;     // 22.5° between neighboring dots
+    const xUnitAngle = Math.PI / 16;   // x = 4 corresponds to 45° = next dot of same color
+    const dotRadius = 10;
+
+    const bluePattern = [
+      [0, 1],
+      [2, 0],
+      [2, -2],
+      [2, 0],
+      [4, 1],
+    ];
+
+    const redPattern = [
+      [4, -2],
+      [4, 0],
+      [2, 1],
+      [0, 0],
+      [0, -2],
+    ];
+
+    const dancers = [];
+
+    // Osm stejných úseků po 45°. Modrý a červený tanečník v každém
+    // úseku používají stejný počátek osy x. Díky tomu modří vystupují
+    // ven v polohách x = 2 (mod 4), zatímco červení v x = 0 (mod 4):
+    // jejich vnější pozice jsou tedy po obvodu vzájemně posunuté o x = 2.
+    for (let i = 0; i < 8; i++) {
+      const baseAngle = Math.PI / 2 + i * (Math.PI / 4);
+
+      dancers.push({
+        color: '#2563eb',
+        baseAngle,
+        pattern: bluePattern,
+      });
+
+      dancers.push({
+        color: '#dc2626',
+        baseAngle,
+        pattern: redPattern,
+      });
+    }
+
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function patternPointAt(pattern, stepIndex, phase) {
+      const start = pattern[stepIndex];
+      const end = pattern[stepIndex + 1];
+      return [
+        lerp(start[0], end[0], phase),
+        lerp(start[1], end[1], phase),
+      ];
+    }
+
+    function unwrappedToCanvas(baseAngle, p) {
+      const [x, y] = p;
+      const angle = baseAngle + x * xUnitAngle;
+      const radius = baseRadius - y * radialUnit;
+      return {
+        x: center.x + radius * Math.cos(angle),
+        y: center.y - radius * Math.sin(angle),
+      };
+    }
+
+    function getStateAtTime(t) {
+      const beatFloat = t / BEAT_DURATION;
+      const beatIndex = Math.floor(beatFloat);
+      const beatPhase = beatFloat - beatIndex;
+      const stepIndex = beatIndex % 4;
+
+      const moving = beatPhase < MOVE_FRACTION;
+      const localMovePhase = moving ? easeOutCubic(beatPhase / MOVE_FRACTION) : 1;
+
+      return {
+        beatIndex,
+        beatInCycle: stepIndex + 1,
+        beatPhase,
+        stepIndex,
+        moving,
+        localMovePhase,
+      };
+    }
+
+    function drawCircle() {
+      ctx.save();
+      ctx.strokeStyle = '#c7cdd8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, baseRadius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawGuidePoints() {
+      dancers.forEach((dancer) => {
+        const pts = dancer.pattern.map(p => unwrappedToCanvas(dancer.baseAngle, p));
+        pts.forEach((p, idx) => {
+          ctx.save();
+          ctx.fillStyle = dancer.color;
+          ctx.globalAlpha = 0.30;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          if (toggleLabels.checked && idx < 4) {
+            ctx.save();
+            ctx.fillStyle = '#111827';
+            ctx.font = '12px system-ui, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(idx + 1), p.x, p.y - 14);
+            ctx.restore();
+          }
+        });
+      });
+    }
+
+    function drawTrails() {
+      dancers.forEach((dancer) => {
+        const sampleCount = 80;
+        ctx.save();
+        ctx.strokeStyle = dancer.color;
+        ctx.globalAlpha = 0.22;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        for (let s = 0; s <= sampleCount; s++) {
+          const u = s / sampleCount;
+          const total = u * 4;
+          const seg = Math.min(3, Math.floor(total));
+          const phase = total - seg;
+          const p = patternPointAt(dancer.pattern, seg, phase);
+          const c = unwrappedToCanvas(dancer.baseAngle, p);
+          if (s === 0) ctx.moveTo(c.x, c.y);
+          else ctx.lineTo(c.x, c.y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    function drawDancers(state) {
+      dancers.forEach((dancer) => {
+        const p = state.moving
+          ? patternPointAt(dancer.pattern, state.stepIndex, state.localMovePhase)
+          : dancer.pattern[state.stepIndex + 1];
+        const c = unwrappedToCanvas(dancer.baseAngle, p);
+
+        ctx.save();
+        ctx.fillStyle = dancer.color;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, dotRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(17,24,39,0.18)';
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    function render(state) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (toggleCircle.checked) drawCircle();
+      if (toggleTrails.checked) drawTrails();
+      if (toggleGuidePoints.checked) drawGuidePoints();
+      drawDancers(state);
+
+      beatInCycleEl.textContent = String(state.beatInCycle);
+    }
+
+    let running = true;
+    let startTime = performance.now();
+    let pausedElapsed = 0;
+
+    function frame(now) {
+      const elapsed = running ? (now - startTime) / 1000 : pausedElapsed;
+      const state = getStateAtTime(elapsed);
+      render(state);
+      requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
