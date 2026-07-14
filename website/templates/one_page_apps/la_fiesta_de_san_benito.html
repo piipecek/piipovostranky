@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>La fiesta de San Benito</title>
+  <title>Porthogese - La fiesta de San Benito</title>
   <style>
     :root {
       --bg: #FFF1E2;
@@ -120,7 +120,7 @@
   <div class="wrap">
     <div class="panel note">
       <a href="{{url_for('guest_views.dashboard')}}">Zpět na dashboard Pípovo stránek</a><br>
-      Vizualizace tance La fiesta de San Benito (<a href="https://youtu.be/wmtiT42PiAk?si=uNRYBLQwFSke3XO5" target="_blank">hudba na youtube</a>). Vytvořeno zcela pomocí ChatGPT, doupravil Josef Lát v červenci 2026.
+      Vizualizace tance Porthogese tak, jak nás jej učil Gianmarco. Originální hudbu sice neznáme, ale italská balfolková komunita našla tuto píseň a zjistila, že na tanec sedí perfektně: La fiesta de San Benito (<a href="https://youtu.be/wmtiT42PiAk?si=uNRYBLQwFSke3XO5" target="_blank">hudba na youtube</a>). Vytvořeno zcela pomocí ChatGPT, doupravil Josef Lát v červenci 2026.
     </div>
 
     <div class="panel controls">
@@ -131,7 +131,7 @@
         <label><input type="checkbox" id="toggleLabels"> Čísla dob</label>
       </div>
       <div class="right-controls">
-        <div class="badge">Doba v cyklu: <strong id="beatInCycle">1</strong> / 4</div>
+        <div class="badge">Doba v taktu: <strong id="beatInCycle">1</strong> / 4</div>
       </div>
     </div>
 
@@ -238,14 +238,14 @@
       const beatFloat = t / BEAT_DURATION;
       const beatIndex = Math.floor(beatFloat);
       const beatPhase = beatFloat - beatIndex;
-      const stepIndex = beatIndex % 4;
+      const stepIndex = (beatIndex) % 4;
 
       const moving = beatPhase < MOVE_FRACTION;
       const localMovePhase = moving ? easeOutCubic(beatPhase / MOVE_FRACTION) : 1;
 
       return {
         beatIndex,
-        beatInCycle: stepIndex + 1,
+        beatInCycle: ((stepIndex + 1) % 4) + 1,
         beatPhase,
         stepIndex,
         moving,
