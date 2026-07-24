@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Porthogese - La fiesta de San Benito</title>
+  <title>Vizualizace tanců — Pípovo stránky</title>
   <style>
     :root {
       --bg: #FFF1E2;
@@ -75,6 +75,16 @@
       cursor: pointer;
     }
 
+    select {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
     button {
       border: 1px solid var(--line);
       background: white;
@@ -89,12 +99,20 @@
       background: #f3f4f6;
     }
 
-    .stats {
-      display: flex;
+    button:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .playback {
+      display: none;
       flex-wrap: wrap;
-      gap: 10px 18px;
+      gap: 10px;
       align-items: center;
-      font-size: 15px;
+    }
+
+    .playback.is-visible {
+      display: flex;
     }
 
     .canvas-panel {
@@ -114,60 +132,330 @@
       font-size: 14px;
       line-height: 1.45;
     }
+
+    .note strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .badge {
+      font-size: 15px;
+    }
+
+    .section-label {
+      color: var(--muted);
+      font-size: 14px;
+      min-height: 1.2em;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="panel note">
-      <a href="{{url_for('guest_views.dashboard')}}">Zpět na dashboard Pípovo stránek</a><br>
-      Vizualizace tance Porthogese tak, jak nás jej učil Gianmarco. Originální hudbu sice neznáme, ale italská balfolková komunita našla tuto píseň a zjistila, že na tanec sedí perfektně: La fiesta de San Benito (<a href="https://youtu.be/wmtiT42PiAk?si=uNRYBLQwFSke3XO5" target="_blank">hudba na youtube</a>). Vytvořeno zcela pomocí ChatGPT, doupravil Josef Lát v červenci 2026.
+    <div class="panel note" id="danceNote">
+      <a href="{{url_for('guest_views.dashboard')}}">Zpět na dashboard Pípovo stránek</a>
+      <div id="danceNoteBody" style="margin-top: 8px;"></div>
     </div>
 
     <div class="panel controls">
       <div class="left-controls">
-        <label><input type="checkbox" id="toggleCircle" checked> Obrys kruhu</label>
+        <label>
+          Tanec
+          <select id="danceSelect" aria-label="Výběr tance"></select>
+        </label>
+        <label><input type="checkbox" id="toggleBackdrop" checked> <span id="backdropLabel">Podklad</span></label>
         <label><input type="checkbox" id="toggleTrails" checked> Trajektorie</label>
         <label><input type="checkbox" id="toggleGuidePoints" checked> Průchozí body</label>
         <label><input type="checkbox" id="toggleLabels"> Čísla dob</label>
       </div>
       <div class="right-controls">
-        <div class="badge">Doba v taktu: <strong id="beatInCycle">1</strong> / 4</div>
+        <div class="playback" id="playbackControls">
+          <button type="button" id="btnStepBack" title="O krok zpět">◀ Zpět</button>
+          <button type="button" id="btnPlayPause" title="Zastavit / přehrát">Zastavit</button>
+          <button type="button" id="btnStepFwd" title="O krok vpřed">Vpřed ▶</button>
+          <button type="button" id="btnSpeed" title="Rychlost přehrávání">1×</button>
+        </div>
+        <div class="badge">Pozice: <strong id="beatInCycle">1</strong> / <span id="beatTotal">4</span></div>
+        <div class="section-label" id="sectionLabel"></div>
       </div>
     </div>
-
 
     <div class="panel canvas-panel">
       <canvas id="danceCanvas" width="900" height="900"></canvas>
     </div>
-
   </div>
 
   <script>
     const canvas = document.getElementById('danceCanvas');
     const ctx = canvas.getContext('2d');
+    const center = { x: canvas.width / 2, y: canvas.height / 2 };
+    const dotRadius = 10;
+    const MOVE_FRACTION = 0.5;
 
-    const toggleCircle = document.getElementById('toggleCircle');
+    const danceSelect = document.getElementById('danceSelect');
+    const toggleBackdrop = document.getElementById('toggleBackdrop');
     const toggleTrails = document.getElementById('toggleTrails');
     const toggleGuidePoints = document.getElementById('toggleGuidePoints');
     const toggleLabels = document.getElementById('toggleLabels');
-
+    const backdropLabel = document.getElementById('backdropLabel');
     const beatInCycleEl = document.getElementById('beatInCycle');
-    const totalBeatEl = document.getElementById('totalBeat');
-    const pulses = [1,2,3,4].map(n => document.getElementById('pulse' + n));
+    const beatTotalEl = document.getElementById('beatTotal');
+    const sectionLabelEl = document.getElementById('sectionLabel');
+    const danceNoteBody = document.getElementById('danceNoteBody');
+    const playbackControls = document.getElementById('playbackControls');
+    const btnPlayPause = document.getElementById('btnPlayPause');
+    const btnStepBack = document.getElementById('btnStepBack');
+    const btnStepFwd = document.getElementById('btnStepFwd');
+    const btnSpeed = document.getElementById('btnSpeed');
 
-    const BPM = 89;
-    const BEAT_DURATION = 60 / BPM;
-    const MOVE_FRACTION = 0.5;
-    const MOVE_DURATION = BEAT_DURATION * MOVE_FRACTION;
-    const WAIT_DURATION = BEAT_DURATION - MOVE_DURATION;
+    const SPEED_STEPS = [1, 0.5, 0.25];
+    const SPEED_LABELS = ['1×', '½×', '¼×'];
+    let speedIndex = 0;
 
+    // ——— shared helpers ———
 
-    const center = { x: canvas.width / 2, y: canvas.height / 2 };
-    const baseRadius = 270;
-    const radialUnit = 38;
-    const slotAngle = Math.PI / 8;     // 22.5° between neighboring dots
-    const xUnitAngle = Math.PI / 16;   // x = 4 corresponds to 45° = next dot of same color
-    const dotRadius = 10;
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function patternPointAt(pattern, stepIndex, phase, destIndex) {
+      const endIdx = destIndex != null ? destIndex : stepIndex + 1;
+      const start = pattern[stepIndex];
+      const end = pattern[endIdx];
+      return [
+        lerp(start[0], end[0], phase),
+        lerp(start[1], end[1], phase),
+      ];
+    }
+
+    function framesPoseEqual(dance, i, j) {
+      return dance.dancers.every((dancer) => {
+        const a = dancer.pattern[i];
+        const b = dancer.pattern[j];
+        return a && b && a[0] === b[0] && a[1] === b[1];
+      });
+    }
+
+    /** Ordered keyframes for a dance. Each entry: { id, beat }. */
+    function getTimeline(dance) {
+      if (dance.timeline) {
+        return dance.timeline.map(f => ({ id: f.id, beat: f.beat }));
+      }
+      // Default: one keyframe per integer beat 0..stepCount
+      const tl = [];
+      for (let i = 0; i <= dance.stepCount; i++) {
+        tl.push({ id: String(dance.guideLabelsFromZero ? i : i + 1), beat: i });
+      }
+      if (!dance.guideLabelsFromZero) {
+        for (let i = 0; i < dance.stepCount; i++) tl[i].id = String(i + 1);
+        tl[dance.stepCount].id = '1';
+      }
+      return tl;
+    }
+
+    // When the last keyframe is not a duplicate of the first, the engine adds a
+    // wrap segment last→first so playback/stepping never jump. Closing-frame
+    // dances (last pose == first) keep the old model with no extra wrap.
+    function getWrapBeats(dance) {
+      if (dance.wrapBeats === 0) return 0;
+      const n = dance.dancers[0].pattern.length;
+      if (n < 2) return 0;
+      if (framesPoseEqual(dance, 0, n - 1)) return 0;
+      if (dance.wrapBeats != null) return dance.wrapBeats;
+      // Custom timeline without a closing duplicate → wrap by default
+      if (dance.timeline) return 1;
+      return 0;
+    }
+
+    function getCycleBeats(dance) {
+      const tl = getTimeline(dance);
+      return tl[tl.length - 1].beat + getWrapBeats(dance);
+    }
+
+    function isHalfBeatFrame(frame) {
+      if (!frame) return false;
+      if (/[a-z]$/i.test(String(frame.id))) return true;
+      return Math.abs(frame.beat - Math.round(frame.beat)) > 1e-6;
+    }
+
+    function getFullBeatIndices(timeline) {
+      const idxs = [];
+      for (let i = 0; i < timeline.length; i++) {
+        if (!isHalfBeatFrame(timeline[i])) idxs.push(i);
+      }
+      return idxs.length ? idxs : [0];
+    }
+
+    /** Effective beat time for a waypoint inside a full-beat group (wrap end → cycleBeats). */
+    function groupWaypointBeat(timeline, idx, group) {
+      if (group.wraps && idx === group.bIdx) return group.bBeat;
+      return timeline[idx].beat;
+    }
+
+    /**
+     * Full-beat group containing beatInCycle: from full-beat A to next full-beat B,
+     * including any half-beat waypoints in between. Pause lives only at B.
+     */
+    function findFullBeatGroup(dance, beatInCycle) {
+      const timeline = getTimeline(dance);
+      const cycleBeats = getCycleBeats(dance);
+      const wrapBeats = getWrapBeats(dance);
+      const fullIdxs = getFullBeatIndices(timeline);
+
+      for (let g = 0; g < fullIdxs.length; g++) {
+        const aIdx = fullIdxs[g];
+        const isLast = g === fullIdxs.length - 1;
+        const bIdx = isLast ? fullIdxs[0] : fullIdxs[g + 1];
+        const aBeat = timeline[aIdx].beat;
+        const wraps = isLast && wrapBeats > 0;
+        const bBeat = wraps ? cycleBeats : timeline[bIdx].beat;
+
+        const inGroup = wraps
+          ? beatInCycle >= aBeat
+          : (beatInCycle >= aBeat && beatInCycle < bBeat);
+
+        if (!inGroup) continue;
+
+        const waypoints = [];
+        if (!wraps) {
+          for (let i = aIdx; i <= bIdx; i++) waypoints.push(i);
+        } else {
+          for (let i = aIdx; i < timeline.length; i++) waypoints.push(i);
+          if (waypoints[waypoints.length - 1] !== bIdx) waypoints.push(bIdx);
+        }
+
+        return { aIdx, bIdx, aBeat, bBeat, waypoints, wraps };
+      }
+
+      // Fallback: first group
+      const aIdx = fullIdxs[0];
+      const bIdx = fullIdxs.length > 1 ? fullIdxs[1] : aIdx;
+      const waypoints = [];
+      for (let i = aIdx; i <= bIdx; i++) waypoints.push(i);
+      return {
+        aIdx,
+        bIdx,
+        aBeat: timeline[aIdx].beat,
+        bBeat: timeline[bIdx].beat,
+        waypoints,
+        wraps: false,
+      };
+    }
+
+    function findGroupForSegment(dance, from, to) {
+      const timeline = getTimeline(dance);
+      const wrapBeats = getWrapBeats(dance);
+      const cycleBeats = getCycleBeats(dance);
+      const n = timeline.length;
+      // Probe a beat slightly inside the segment (incl. wrap either direction).
+      let probe;
+      if (from === n - 1 && to === 0 && wrapBeats > 0) {
+        probe = timeline[from].beat + Math.min(0.01, wrapBeats / 2);
+      } else if (from === 0 && to === n - 1 && wrapBeats > 0) {
+        probe = timeline[to].beat + Math.min(0.01, wrapBeats / 2);
+      } else {
+        const a = timeline[from].beat;
+        const b = timeline[to].beat;
+        probe = a + (b - a) * 0.5;
+      }
+      if (probe >= cycleBeats) probe = Math.max(0, cycleBeats - 1e-6);
+      return findFullBeatGroup(dance, probe);
+    }
+
+    /** Move duration (in beats) for one keyframe→keyframe step inside its full-beat group. */
+    function subSegmentMoveBeats(dance, from, to) {
+      const timeline = getTimeline(dance);
+      const group = findGroupForSegment(dance, from, to);
+      const parentDuration = Math.max(1e-9, group.bBeat - group.aBeat);
+      const moveWindow = parentDuration * MOVE_FRACTION;
+      const bFrom = groupWaypointBeat(timeline, from, group);
+      const bTo = groupWaypointBeat(timeline, to, group);
+      const delta = Math.abs(bTo - bFrom);
+      return Math.max(0.05, moveWindow * (delta / parentDuration));
+    }
+
+    function getStateAtTime(t, dance) {
+      const beatDuration = 60 / dance.bpm;
+      const timeline = getTimeline(dance);
+      const cycleBeats = getCycleBeats(dance);
+      const totalBeats = t / beatDuration;
+      const beatInCycle = ((totalBeats % cycleBeats) + cycleBeats) % cycleBeats;
+      const group = findFullBeatGroup(dance, beatInCycle);
+      const parentDuration = Math.max(1e-9, group.bBeat - group.aBeat);
+      const moveWindow = parentDuration * MOVE_FRACTION;
+      const localInParent = beatInCycle - group.aBeat;
+
+      // Wait on the destination full beat after the move window.
+      if (localInParent >= moveWindow) {
+        return {
+          beatIndex: Math.floor(totalBeats),
+          beatInCycle: timeline[group.bIdx].id,
+          beatPhase: 1,
+          stepIndex: group.waypoints[group.waypoints.length - 2] ?? group.aIdx,
+          destIndex: group.bIdx,
+          frameId: timeline[group.bIdx].id,
+          moving: false,
+          localMovePhase: 1,
+          beatFloat: beatInCycle,
+          segmentBeats: parentDuration,
+          destIsHalf: false,
+        };
+      }
+
+      // Progress u through the move window maps across all waypoints A..B.
+      const u = localInParent / moveWindow;
+      const fracs = group.waypoints.map((idx) => {
+        const b = groupWaypointBeat(timeline, idx, group);
+        return (b - group.aBeat) / parentDuration;
+      });
+
+      let sub = 0;
+      for (let i = 0; i < fracs.length - 1; i++) {
+        if (u >= fracs[i] && u <= fracs[i + 1] + 1e-9) {
+          sub = i;
+          break;
+        }
+        if (i === fracs.length - 2) sub = i;
+      }
+
+      const f0 = fracs[sub];
+      const f1 = fracs[sub + 1];
+      const span = Math.max(1e-9, f1 - f0);
+      const raw = Math.min(1, Math.max(0, (u - f0) / span));
+      const stepIndex = group.waypoints[sub];
+      const destIndex = group.waypoints[sub + 1];
+      const destIsHalf = isHalfBeatFrame(timeline[destIndex]);
+
+      return {
+        beatIndex: Math.floor(totalBeats),
+        beatInCycle: timeline[destIndex].id,
+        beatPhase: raw,
+        stepIndex,
+        destIndex,
+        frameId: raw < 1 ? timeline[stepIndex].id : timeline[destIndex].id,
+        moving: raw < 1,
+        localMovePhase: destIsHalf ? raw : easeOutCubic(raw),
+        beatFloat: beatInCycle,
+        segmentBeats: parentDuration * span,
+        destIsHalf,
+      };
+    }
+
+    function sectionLabelFor(dance, state) {
+      if (!dance.sections) return '';
+      const beat = state.beatFloat != null ? state.beatFloat : 0;
+      const hit = dance.sections.find(s => beat >= s.fromBeat && beat < s.toBeat);
+      return hit ? hit.label : '';
+    }
+
+    // ——— San Benito (polar circle) ———
+
+    const sanBenitoBaseRadius = 270;
+    const sanBenitoRadialUnit = 38;
+    const sanBenitoXUnitAngle = Math.PI / 16;
 
     const bluePattern = [
       [0, 1],
@@ -185,88 +473,433 @@
       [0, -2],
     ];
 
-    const dancers = [];
-
+    const sanBenitoDancers = [];
     // Osm stejných úseků po 45°. Modrý a červený tanečník v každém
-    // úseku používají stejný počátek osy x. Díky tomu modří vystupují
-    // ven v polohách x = 2 (mod 4), zatímco červení v x = 0 (mod 4):
-    // jejich vnější pozice jsou tedy po obvodu vzájemně posunuté o x = 2.
+    // úseku používají stejný počátek osy x.
     for (let i = 0; i < 8; i++) {
       const baseAngle = Math.PI / 2 + i * (Math.PI / 4);
-
-      dancers.push({
+      sanBenitoDancers.push({
         color: '#2563eb',
+        label: '',
         baseAngle,
         pattern: bluePattern,
       });
-
-      dancers.push({
+      sanBenitoDancers.push({
         color: '#dc2626',
+        label: '',
         baseAngle,
         pattern: redPattern,
       });
     }
 
-    function easeOutCubic(t) {
-      return 1 - Math.pow(1 - t, 3);
-    }
-
-    function lerp(a, b, t) {
-      return a + (b - a) * t;
-    }
-
-    function patternPointAt(pattern, stepIndex, phase) {
-      const start = pattern[stepIndex];
-      const end = pattern[stepIndex + 1];
-      return [
-        lerp(start[0], end[0], phase),
-        lerp(start[1], end[1], phase),
-      ];
-    }
-
-    function unwrappedToCanvas(baseAngle, p) {
+    function sanBenitoToCanvas(dancer, p) {
       const [x, y] = p;
-      const angle = baseAngle + x * xUnitAngle;
-      const radius = baseRadius - y * radialUnit;
+      const angle = dancer.baseAngle + x * sanBenitoXUnitAngle;
+      const radius = sanBenitoBaseRadius - y * sanBenitoRadialUnit;
       return {
         x: center.x + radius * Math.cos(angle),
         y: center.y - radius * Math.sin(angle),
       };
     }
 
-    function getStateAtTime(t) {
-      const beatFloat = t / BEAT_DURATION;
-      const beatIndex = Math.floor(beatFloat);
-      const beatPhase = beatFloat - beatIndex;
-      const stepIndex = (beatIndex) % 4;
-
-      const moving = beatPhase < MOVE_FRACTION;
-      const localMovePhase = moving ? easeOutCubic(beatPhase / MOVE_FRACTION) : 1;
-
-      return {
-        beatIndex,
-        beatInCycle: ((stepIndex + 1) % 4) + 1,
-        beatPhase,
-        stepIndex,
-        moving,
-        localMovePhase,
-      };
-    }
-
-    function drawCircle() {
+    function sanBenitoBackdrop() {
       ctx.save();
       ctx.strokeStyle = '#c7cdd8';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(center.x, center.y, baseRadius, 0, Math.PI * 2);
+      ctx.arc(center.x, center.y, sanBenitoBaseRadius, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
 
-    function drawGuidePoints() {
-      dancers.forEach((dancer) => {
-        const pts = dancer.pattern.map(p => unwrappedToCanvas(dancer.baseAngle, p));
+    // ——— Congo de Captieux (Cartesian square / quadrette) ———
+    // Dance coords: x right, y up. Square half-side CONGO_S.
+    // Start at the four corners; other frames stay on edges or diagonals.
+    // Timeline may include half-beats (e.g. "0a" at beat 0.5).
+
+    const CONGO_S = 2.4;
+    const congoUnit = 120;
+
+    function congoToCanvas(_dancer, p) {
+      return {
+        x: center.x + p[0] * congoUnit,
+        y: center.y - p[1] * congoUnit,
+      };
+    }
+
+    function congoBackdrop() {
+      const half = CONGO_S * congoUnit;
+      const left = center.x - half;
+      const right = center.x + half;
+      const top = center.y - half;
+      const bottom = center.y + half;
+
+      ctx.save();
+      ctx.strokeStyle = '#c7cdd8';
+      ctx.lineWidth = 2;
+
+      // Square floor
+      ctx.strokeRect(left, top, half * 2, half * 2);
+
+      // Diagonals (X)
+      ctx.beginPath();
+      ctx.moveTo(left, top);
+      ctx.lineTo(right, bottom);
+      ctx.moveTo(right, top);
+      ctx.lineTo(left, bottom);
+      ctx.stroke();
+
+      // Horizontal midline
+      ctx.setLineDash([5, 5]);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(left, center.y);
+      ctx.lineTo(right, center.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.restore();
+    }
+
+    // Corners: NW=(-S,S) FN, NE=(S,S) LN, SW=(-S,-S) LS, SE=(S,-S) FS
+    // One list per keyframe: id + beat + dancer positions (edit the dance here only).
+    const S = CONGO_S;
+
+    const congoFrames = [
+      {
+        id: '0', beat: 0,
+        LN: [S, S], FN: [-S, S],
+        LS: [-S, -S], FS: [S, -S],
+      },
+      {
+        id: '1', beat: 1,
+        LN: [S, S * 0.28], FN: [-S, S * 0.28],
+        LS: [-S, -S * 0.28], FS: [S, -S * 0.28],
+      },
+      {
+        id: '2', beat: 2,
+        LN: [S, S], FN: [-S, S],
+        LS: [-S, -S], FS: [S, -S],
+      },
+      {
+        id: '3', beat: 3,
+        LN: [S, S * 0.28], FN: [-S, S * 0.28],
+        LS: [-S, -S * 0.28], FS: [S, -S * 0.28],
+      },
+      {
+        id: '3a', beat: 3.5,
+        LN: [0, S * 0.2], FN: [0, S * 0.4],
+        LS: [0, -S * 0.2], FS: [0, -S * 0.4],
+      },
+      {
+        id: '4', beat: 4,
+        LN: [-S, S], FN: [S, S],
+        LS: [S, -S], FS: [-S, -S],
+      },
+      {
+        id: '5', beat: 5,
+        LN: [-S, S * 0.18], FN: [S, S * 0.18],
+        LS: [S, -S * 0.18], FS: [-S, -S * 0.18],
+      },
+      {
+        id: '6', beat: 6,
+        LN: [-S, S], FN: [S, S],
+        LS: [S, -S], FS: [-S, -S],
+      },
+      {
+        id: '6a', beat: 6.5,
+        LN: [0, S], FN: [0, S * 0.64],
+        LS: [0, -S], FS: [0, -S * 0.64],
+      },
+      {
+        id: '7', beat: 7,
+        LN: [S, S * 0.28], FN: [-S, S * 0.28],
+        LS: [-S, -S * 0.28], FS: [S, -S * 0.28],
+      },
+      {
+        id: '8', beat: 8,
+        LN: [S, S], FN: [-S, S],
+        LS: [-S, -S], FS: [S, -S],
+      },
+      {
+        id: '9', beat: 9,
+        LN: [S, 0], FN: [S * 0.22, 0],
+        FS: [-S * 0.22, 0], LS: [-S, 0],
+      },
+      {
+        id: '10', beat: 10,
+        LN: [-S, 0], FN: [S, -S],
+        LS: [S, 0], FS: [-S, S],
+      },
+      {
+        id: '11', beat: 11,
+        LN: [-S, -S], FN: [S, 0],
+        LS: [S, S], FS: [-S, 0],
+      },
+      {
+        id: '12', beat: 12,
+        LN: [-S, -S], FN: [S, -S],
+        LS: [S, S], FS: [-S, S],
+      },
+      {
+        id: '13', beat: 13,
+        LN: [-S, 0], FN: [-S * 0.22, 0],
+        FS: [S * 0.22, 0], LS: [S, 0],
+      },
+      {
+        id: '14', beat: 14,
+        LN: [S, 0], FN: [-S, S],
+        LS: [-S, 0], FS: [S, -S],
+      },
+      {
+        id: '15', beat: 15,
+        LN: [S * 0.15, S * 0.15], FN: [S * 0.4, S * 0.4],
+        LS: [-S * 0.15, -S * 0.15], FS: [-S * 0.4, -S * 0.4],
+      },
+      {
+        id: '15a', beat: 15.5,
+        LN: [0, S * 0.4], FN: [0, S * 0.2],
+        LS: [0, -S * 0.4], FS: [0, -S * 0.2],
+      },
+    ];
+
+    function congoPatternFor(role) {
+      return congoFrames.map(frame => frame[role]);
+    }
+
+    const congoDancers = [
+      { id: 'LN', color: '#2563eb', label: 'LN', pattern: congoPatternFor('LN') },
+      { id: 'FN', color: '#dc2626', label: 'FN', pattern: congoPatternFor('FN') },
+      { id: 'LS', color: '#2563eb', label: 'LS', pattern: congoPatternFor('LS') },
+      { id: 'FS', color: '#dc2626', label: 'FS', pattern: congoPatternFor('FS') },
+    ];
+
+    // ——— dance registry ———
+
+    const DANCES = {
+      san_benito: {
+        id: 'san_benito',
+        title: 'Porthogese — La fiesta de San Benito',
+        bpm: 89,
+        stepCount: 4,
+        dancers: sanBenitoDancers,
+        toCanvas: sanBenitoToCanvas,
+        drawBackdrop: sanBenitoBackdrop,
+        backdropName: 'Obrys kruhu',
+        showStepControls: false,
+        guideLabelsFromZero: false,
+        hideClosingGuidePoint: false,
+        noteHtml:
+          'Vizualizace tance Porthogese tak, jak nás jej učil Gianmarco. Originální hudbu sice neznáme, ' +
+          'ale italská balfolková komunita našla tuto píseň a zjistila, že na tanec sedí perfektně: ' +
+          'La fiesta de San Benito (<a href="https://youtu.be/wmtiT42PiAk?si=uNRYBLQwFSke3XO5" target="_blank" rel="noopener">hudba na youtube</a>). ' +
+          'Vytvořeno zcela pomocí ChatGPT, doupravil Josef Lát v červenci 2026.',
+      },
+      congo_de_captieux: {
+        id: 'congo_de_captieux',
+        title: 'Congo de Captieux',
+        bpm: 96,
+        stepCount: 16,
+        timeline: congoFrames,
+        dancers: congoDancers,
+        toCanvas: congoToCanvas,
+        drawBackdrop: congoBackdrop,
+        backdropName: 'Obrys podlahy',
+        showStepControls: true,
+        guideLabelsFromZero: true,
+        hideClosingGuidePoint: true,
+        wrapBeats: 0.5,
+        baseSpeed: 0.7,
+        sections: [
+          { fromBeat: 0, toBeat: 2, label: 'Část 1 — Saluto' },
+          { fromBeat: 2, toBeat: 4, label: 'Část 1 — Cambio di posto' },
+          { fromBeat: 4, toBeat: 6, label: 'Část 2 — Salto' },
+          { fromBeat: 6, toBeat: 8, label: 'Část 2 — Papillon' },
+          { fromBeat: 8, toBeat: 10, label: 'Část 3 — 1° diagonale' },
+          { fromBeat: 10, toBeat: 12, label: 'Část 3 — Tergicristallo' },
+          { fromBeat: 12, toBeat: 14, label: 'Část 4 — 2° diagonale' },
+          { fromBeat: 14, toBeat: 16, label: 'Část 4 — Spallata a konec' },
+        ],
+        noteHtml:
+          'Vizualizace tance Congo de Captieux (Guascogne) — dvě páry naproti sobě (quadrette), ' +
+          'podle popisu a diagramů na ' +
+          '<a href="https://ballifolk.altervista.org/congo_de_captieux.html" target="_blank" rel="noopener">ballifolk.altervista.org</a>. ' +
+          'Modrá = leadeři (LN/LS), červená = followeři (FN/FS). Pohyb převážně po stranách a úhlopříčkách čtverce. ' +
+          'Vytvořeno zcela pomocí Grok 4.5, doupravil Pavel Hübner v červenci 2026.',
+      },
+    };
+
+    // ——— engine ———
+
+    let currentDance = DANCES.san_benito;
+    let running = true;
+    let elapsedSeconds = 0;
+    let lastFrameNow = null;
+    // When set, dancers are frozen on pattern[holdFrame] (timeline index).
+    let holdFrame = null;
+    // One-shot tween between timeline frames (next/back buttons).
+    let stepTween = null;
+
+    function maxHoldFrame(dance) {
+      return getTimeline(dance).length - 1;
+    }
+
+    function beatDurationSec(dance) {
+      return 60 / dance.bpm;
+    }
+
+    function frameLabelAt(dance, index) {
+      const tl = getTimeline(dance);
+      return tl[Math.max(0, Math.min(index, tl.length - 1))].id;
+    }
+
+    function positionLabel(dance, state) {
+      if (stepTween) {
+        return frameLabelAt(dance, stepTween.toFrame);
+      }
+      if (holdFrame != null) {
+        return frameLabelAt(dance, holdFrame);
+      }
+      return state.frameId;
+    }
+
+    function sectionStateFor(dance, state) {
+      if (stepTween) {
+        const tl = getTimeline(dance);
+        return { beatFloat: tl[stepTween.fromFrame].beat };
+      }
+      if (holdFrame != null) {
+        const tl = getTimeline(dance);
+        return { beatFloat: tl[holdFrame].beat };
+      }
+      return state;
+    }
+
+    function syncPlayPauseButton() {
+      btnPlayPause.textContent = running ? 'Zastavit' : 'Přehrát';
+    }
+
+    function syncSpeedButton() {
+      btnSpeed.textContent = SPEED_LABELS[speedIndex];
+    }
+
+    function uiSpeed() {
+      return SPEED_STEPS[speedIndex];
+    }
+
+    function effectiveSpeed(dance) {
+      const base = dance.baseSpeed != null ? dance.baseSpeed : 1;
+      return base * uiSpeed();
+    }
+
+    function setStepButtonsEnabled(enabled) {
+      btnStepBack.disabled = !enabled;
+      btnStepFwd.disabled = !enabled;
+    }
+
+    function pauseAtCurrentFrame() {
+      const dance = currentDance;
+      if (stepTween) {
+        holdFrame = stepTween.toFrame;
+        stepTween = null;
+        setStepButtonsEnabled(true);
+      } else {
+        const state = getStateAtTime(elapsedSeconds, dance);
+        // Land on the frame currently shown (end of transition if waiting, start if mid-move).
+        holdFrame = state.moving ? state.stepIndex : state.destIndex;
+      }
+      running = false;
+      syncPlayPauseButton();
+    }
+
+    function playFromHold() {
+      const dance = currentDance;
+      if (stepTween) {
+        holdFrame = stepTween.toFrame;
+        stepTween = null;
+        setStepButtonsEnabled(true);
+      }
+      const tl = getTimeline(dance);
+      const idx = holdFrame == null ? 0 : Math.min(holdFrame, tl.length - 1);
+      elapsedSeconds = tl[idx].beat * beatDurationSec(dance);
+      holdFrame = null;
+      running = true;
+      lastFrameNow = null;
+      syncPlayPauseButton();
+    }
+
+    function stepBy(delta) {
+      if (stepTween || running) {
+        if (running) pauseAtCurrentFrame();
+        if (stepTween) return;
+      }
+      const dance = currentDance;
+      if (holdFrame == null) {
+        pauseAtCurrentFrame();
+      }
+
+      const max = maxHoldFrame(dance);
+      const from = holdFrame;
+      const to = (from + delta + (max + 1)) % (max + 1);
+
+      // Skip tween only if EVERY dancer is already at the destination pose
+      // (true duplicate frames). Never use this for loop wrap when poses differ.
+      const samePose = framesPoseEqual(dance, from, to);
+      if (samePose) {
+        holdFrame = to;
+        running = false;
+        syncPlayPauseButton();
+        return;
+      }
+
+      holdFrame = null;
+      running = false;
+      // Same subdivided move window as continuous play (half-beats split the parent move).
+      const moveBeats = subSegmentMoveBeats(dance, from, to);
+      const destIsHalf = isHalfBeatFrame(getTimeline(dance)[to]);
+      stepTween = {
+        fromFrame: from,
+        toFrame: to,
+        startMs: performance.now(),
+        durationMs: Math.max(0.05, moveBeats) * beatDurationSec(dance) * 1000 / effectiveSpeed(dance),
+        destIsHalf,
+      };
+      setStepButtonsEnabled(false);
+      syncPlayPauseButton();
+    }
+
+    function resetClock() {
+      elapsedSeconds = 0;
+      lastFrameNow = null;
+      holdFrame = null;
+      stepTween = null;
+      running = true;
+      setStepButtonsEnabled(true);
+      syncPlayPauseButton();
+      syncSpeedButton();
+    }
+
+    function applyDance(dance) {
+      currentDance = dance;
+      document.title = dance.title + ' — Pípovo stránky';
+      danceNoteBody.innerHTML = dance.noteHtml;
+      backdropLabel.textContent = dance.backdropName;
+      beatTotalEl.textContent = String(getCycleBeats(dance));
+      playbackControls.classList.toggle('is-visible', !!dance.showStepControls);
+      resetClock();
+    }
+
+    function drawGuidePoints(dance) {
+      const timeline = getTimeline(dance);
+      const lastIdx = timeline.length - 1;
+      const hideLast = dance.hideClosingGuidePoint && framesPoseEqual(dance, 0, lastIdx);
+      const labelCandidates = [];
+
+      dance.dancers.forEach((dancer) => {
+        const pts = dancer.pattern.map(p => dance.toCanvas(dancer, p));
         pts.forEach((p, idx) => {
+          if (hideLast && idx === lastIdx) return;
+
           ctx.save();
           ctx.fillStyle = dancer.color;
           ctx.globalAlpha = 0.30;
@@ -275,22 +908,64 @@
           ctx.fill();
           ctx.restore();
 
-          if (toggleLabels.checked && idx < 4) {
-            ctx.save();
-            ctx.fillStyle = '#111827';
-            ctx.font = '12px system-ui, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(String(idx + 1), p.x, p.y - 14);
-            ctx.restore();
+          if (toggleLabels.checked) {
+            labelCandidates.push({ id: String(timeline[idx].id), x: p.x, y: p.y });
           }
         });
       });
+
+      if (!toggleLabels.checked || !labelCandidates.length) return;
+
+      // Cluster nearby guide points so reused corners don't stack identical pixels.
+      const CLUSTER_PX = 14;
+      const clusters = [];
+      labelCandidates.forEach((c) => {
+        let hit = null;
+        for (let i = 0; i < clusters.length; i++) {
+          const cl = clusters[i];
+          const dx = c.x - cl.x;
+          const dy = c.y - cl.y;
+          if (dx * dx + dy * dy <= CLUSTER_PX * CLUSTER_PX) {
+            hit = cl;
+            break;
+          }
+        }
+        if (!hit) {
+          clusters.push({ x: c.x, y: c.y, n: 1, ids: new Set([c.id]) });
+        } else {
+          hit.x = (hit.x * hit.n + c.x) / (hit.n + 1);
+          hit.y = (hit.y * hit.n + c.y) / (hit.n + 1);
+          hit.n += 1;
+          hit.ids.add(c.id);
+        }
+      });
+
+      ctx.save();
+      ctx.fillStyle = '#111827';
+      ctx.font = '12px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      clusters.forEach((cl) => {
+        const ids = Array.from(cl.ids);
+        // Stable order: numeric beat then letter suffix (3 before 3a before 4).
+        ids.sort((a, b) => {
+          const na = parseFloat(a);
+          const nb = parseFloat(b);
+          if (na !== nb) return na - nb;
+          return a.localeCompare(b);
+        });
+        ctx.fillText(ids.join(', '), cl.x, cl.y - 14);
+      });
+      ctx.restore();
     }
 
-    function drawTrails() {
-      dancers.forEach((dancer) => {
-        const sampleCount = 80;
+    function drawTrails(dance) {
+      const timeline = getTimeline(dance);
+      const wrap = getWrapBeats(dance) > 0 ? 1 : 0;
+      const steps = (timeline.length - 1) + wrap;
+      const sampleCount = Math.max(80, steps * 20);
+
+      dance.dancers.forEach((dancer) => {
         ctx.save();
         ctx.strokeStyle = dancer.color;
         ctx.globalAlpha = 0.22;
@@ -299,11 +974,13 @@
 
         for (let s = 0; s <= sampleCount; s++) {
           const u = s / sampleCount;
-          const total = u * 4;
-          const seg = Math.min(3, Math.floor(total));
+          const total = u * steps;
+          const seg = Math.min(steps - 1, Math.floor(total));
           const phase = total - seg;
-          const p = patternPointAt(dancer.pattern, seg, phase);
-          const c = unwrappedToCanvas(dancer.baseAngle, p);
+          const dest = (seg === timeline.length - 1 && wrap) ? 0 : seg + 1;
+          const from = Math.min(seg, timeline.length - 1);
+          const p = patternPointAt(dancer.pattern, from, phase, dest);
+          const c = dance.toCanvas(dancer, p);
           if (s === 0) ctx.moveTo(c.x, c.y);
           else ctx.lineTo(c.x, c.y);
         }
@@ -312,48 +989,145 @@
       });
     }
 
-    function drawDancers(state) {
-      dancers.forEach((dancer) => {
-        const p = state.moving
-          ? patternPointAt(dancer.pattern, state.stepIndex, state.localMovePhase)
-          : dancer.pattern[state.stepIndex + 1];
-        const c = unwrappedToCanvas(dancer.baseAngle, p);
+    function dancerPoint(dancer, state) {
+      if (stepTween) {
+        const a = dancer.pattern[stepTween.fromFrame];
+        const b = dancer.pattern[stepTween.toFrame];
+        return [
+          lerp(a[0], b[0], state.localMovePhase),
+          lerp(a[1], b[1], state.localMovePhase),
+        ];
+      }
+      if (holdFrame != null) {
+        return dancer.pattern[holdFrame];
+      }
+      if (state.moving) {
+        return patternPointAt(
+          dancer.pattern, state.stepIndex, state.localMovePhase, state.destIndex
+        );
+      }
+      return dancer.pattern[state.destIndex];
+    }
+
+    function drawDancers(dance, state) {
+      dance.dancers.forEach((dancer) => {
+        const p = dancerPoint(dancer, state);
+        const c = dance.toCanvas(dancer, p);
 
         ctx.save();
         ctx.fillStyle = dancer.color;
         ctx.beginPath();
         ctx.arc(c.x, c.y, dotRadius, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'rgba(17,24,39,0.18)';
         ctx.stroke();
+
+        if (dancer.label) {
+          ctx.fillStyle = '#111827';
+          ctx.font = 'bold 11px system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(dancer.label, c.x, c.y - 18);
+        }
         ctx.restore();
       });
     }
 
     function render(state) {
+      const dance = currentDance;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (toggleCircle.checked) drawCircle();
-      if (toggleTrails.checked) drawTrails();
-      if (toggleGuidePoints.checked) drawGuidePoints();
-      drawDancers(state);
+      if (toggleBackdrop.checked) dance.drawBackdrop();
+      if (toggleTrails.checked) drawTrails(dance);
+      if (toggleGuidePoints.checked) drawGuidePoints(dance);
+      drawDancers(dance, state);
 
-      beatInCycleEl.textContent = String(state.beatInCycle);
+      beatInCycleEl.textContent = String(positionLabel(dance, state));
+      sectionLabelEl.textContent = sectionLabelFor(dance, sectionStateFor(dance, state));
     }
 
-    let running = true;
-    let startTime = performance.now();
-    let pausedElapsed = 0;
-
     function frame(now) {
-      const elapsed = running ? (now - startTime) / 1000 : pausedElapsed;
-      const state = getStateAtTime(elapsed);
+      if (stepTween) {
+        const u = Math.min(1, (now - stepTween.startMs) / stepTween.durationMs);
+        const eased = stepTween.destIsHalf ? u : easeOutCubic(u);
+        const state = {
+          beatIndex: stepTween.fromFrame,
+          beatInCycle: frameLabelAt(currentDance, stepTween.toFrame),
+          frameId: frameLabelAt(currentDance, stepTween.toFrame),
+          beatPhase: u * MOVE_FRACTION,
+          stepIndex: stepTween.fromFrame,
+          destIndex: stepTween.toFrame,
+          moving: u < 1,
+          localMovePhase: eased,
+          beatFloat: getTimeline(currentDance)[stepTween.fromFrame].beat,
+          destIsHalf: stepTween.destIsHalf,
+        };
+        render(state);
+        if (u >= 1) {
+          holdFrame = stepTween.toFrame;
+          stepTween = null;
+          setStepButtonsEnabled(true);
+        }
+        lastFrameNow = now;
+        requestAnimationFrame(frame);
+        return;
+      }
+
+      if (running) {
+        if (lastFrameNow != null) {
+          elapsedSeconds += ((now - lastFrameNow) / 1000) * effectiveSpeed(currentDance);
+        }
+      }
+      lastFrameNow = now;
+      const state = getStateAtTime(elapsedSeconds, currentDance);
       render(state);
       requestAnimationFrame(frame);
     }
 
+    // ——— UI init ———
+
+    Object.values(DANCES).forEach((dance) => {
+      const opt = document.createElement('option');
+      opt.value = dance.id;
+      opt.textContent = dance.title;
+      danceSelect.appendChild(opt);
+    });
+
+    danceSelect.addEventListener('change', () => {
+      applyDance(DANCES[danceSelect.value]);
+    });
+
+    toggleLabels.addEventListener('change', () => {
+      if (toggleLabels.checked) toggleGuidePoints.checked = true;
+    });
+
+    btnPlayPause.addEventListener('click', () => {
+      if (running) {
+        pauseAtCurrentFrame();
+      } else {
+        playFromHold();
+      }
+    });
+
+    btnStepBack.addEventListener('click', () => stepBy(-1));
+    btnStepFwd.addEventListener('click', () => stepBy(1));
+
+    btnSpeed.addEventListener('click', () => {
+      speedIndex = (speedIndex + 1) % SPEED_STEPS.length;
+      syncSpeedButton();
+      // If a step tween is running, scale its remaining duration to the new speed.
+      if (stepTween) {
+        const u = Math.min(1, (performance.now() - stepTween.startMs) / stepTween.durationMs);
+        const dance = currentDance;
+        const moveBeats = subSegmentMoveBeats(dance, stepTween.fromFrame, stepTween.toFrame);
+        const totalMs = Math.max(0.05, moveBeats) * beatDurationSec(dance) * 1000 / effectiveSpeed(dance);
+        stepTween.durationMs = totalMs;
+        stepTween.startMs = performance.now() - u * totalMs;
+      }
+    });
+
+    applyDance(DANCES.san_benito);
     requestAnimationFrame(frame);
   </script>
 </body>
