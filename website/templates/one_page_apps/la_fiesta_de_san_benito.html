@@ -274,8 +274,11 @@
       const { stepIndex, startBeat, endBeat } = findTimelineSegment(timeline, beatInCycle, cycleBeats);
       const segLen = Math.max(1e-9, endBeat - startBeat);
       const segPhase = (beatInCycle - startBeat) / segLen;
-      const moving = segPhase < MOVE_FRACTION;
-      const localMovePhase = moving ? easeOutCubic(segPhase / MOVE_FRACTION) : 1;
+      // Move for up to MOVE_FRACTION of a full beat; short (half-beat) segments
+      // become continuous motion with no pause, so 3→3a→4 stays smooth.
+      const moveFractionOfSeg = Math.min(1, MOVE_FRACTION / segLen);
+      const moving = segPhase < moveFractionOfSeg;
+      const localMovePhase = moving ? easeOutCubic(segPhase / moveFractionOfSeg) : 1;
       const destIndex = stepIndex + 1;
 
       return {
@@ -479,7 +482,6 @@
         MN: [-S, 0], WN: [S, -S],
         MS: [S, 0], WS: [-S, S],
       },
-	  <!-- so far so good -->
       {
         id: '11', beat: 11,
         MN: [-S, -S], WN: [S, 0],
@@ -679,17 +681,22 @@
       const to = (from + delta + (max + 1)) % (max + 1);
       const tl = getTimeline(dance);
 
-      // Same pose (e.g. closing frame ↔ start): just retarget the label, no motion.
-      const fromPt = dance.dancers[0].pattern[from];
-      const toPt = dance.dancers[0].pattern[to];
-      if (fromPt[0] === toPt[0] && fromPt[1] === toPt[1]) {
+      // Skip tween only if EVERY dancer is already at the destination pose
+      // (e.g. closing frame ↔ start). Checking only the first dancer wrongly
+      // skips steps where others move (11→12: MN stays, WN/WS move).
+      const samePose = dance.dancers.every((dancer) => {
+        const a = dancer.pattern[from];
+        const b = dancer.pattern[to];
+        return a[0] === b[0] && a[1] === b[1];
+      });
+      if (samePose) {
         holdFrame = to;
         running = false;
         syncPlayPauseButton();
         return;
       }
 
-      // Segment duration in beats → tween length (half-beat segments are shorter).
+      // Segment duration in beats → tween length matching playback move window.
       let segBeats;
       if (delta > 0) {
         const endBeat = to === 0 ? getCycleBeats(dance) : tl[to].beat;
@@ -705,11 +712,13 @@
 
       holdFrame = null;
       running = false;
+      // Same rule as playback: move for min(segment, MOVE_FRACTION) of a full beat.
+      const moveBeats = Math.min(Math.max(0.05, segBeats), MOVE_FRACTION);
       stepTween = {
         fromFrame: from,
         toFrame: to,
         startMs: performance.now(),
-        durationMs: Math.max(0.05, segBeats) * beatDurationSec(dance) * MOVE_FRACTION * 1000,
+        durationMs: moveBeats * beatDurationSec(dance) * 1000,
       };
       setStepButtonsEnabled(false);
       syncPlayPauseButton();
