@@ -724,8 +724,8 @@
           'Vizualizace tance Congo de Captieux (Guascogne) — dvě páry naproti sobě (quadrette), ' +
           'podle popisu a diagramů na ' +
           '<a href="https://ballifolk.altervista.org/congo_de_captieux.html" target="_blank" rel="noopener">ballifolk.altervista.org</a>. ' +
-          'Červená = muži (MN/MS), modrá = ženy (WN/WS). Pohyb převážně po stranách a úhlopříčkách čtverce. ' +
-          'Timeline podporuje půldoby (např. <code>0a</code> v 0.5).',
+          'Červená = leadeři (MN/MS), modrá = followeři (WN/WS). Pohyb převážně po stranách a úhlopříčkách čtverce. ' +
+          'Vytvořeno zcela pomocí Grok 4.5, doupravil Pavel Hübner v červenci 2026.',
       },
     };
 
@@ -893,6 +893,7 @@
       const timeline = getTimeline(dance);
       const lastIdx = timeline.length - 1;
       const hideLast = dance.hideClosingGuidePoint && framesPoseEqual(dance, 0, lastIdx);
+      const labelCandidates = [];
 
       dance.dancers.forEach((dancer) => {
         const pts = dancer.pattern.map(p => dance.toCanvas(dancer, p));
@@ -907,18 +908,55 @@
           ctx.fill();
           ctx.restore();
 
-          if (toggleLabels.checked && !(hideLast && idx === lastIdx)) {
-            const label = timeline[idx].id;
-            ctx.save();
-            ctx.fillStyle = '#111827';
-            ctx.font = '12px system-ui, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(label, p.x, p.y - 14);
-            ctx.restore();
+          if (toggleLabels.checked) {
+            labelCandidates.push({ id: String(timeline[idx].id), x: p.x, y: p.y });
           }
         });
       });
+
+      if (!toggleLabels.checked || !labelCandidates.length) return;
+
+      // Cluster nearby guide points so reused corners don't stack identical pixels.
+      const CLUSTER_PX = 14;
+      const clusters = [];
+      labelCandidates.forEach((c) => {
+        let hit = null;
+        for (let i = 0; i < clusters.length; i++) {
+          const cl = clusters[i];
+          const dx = c.x - cl.x;
+          const dy = c.y - cl.y;
+          if (dx * dx + dy * dy <= CLUSTER_PX * CLUSTER_PX) {
+            hit = cl;
+            break;
+          }
+        }
+        if (!hit) {
+          clusters.push({ x: c.x, y: c.y, n: 1, ids: new Set([c.id]) });
+        } else {
+          hit.x = (hit.x * hit.n + c.x) / (hit.n + 1);
+          hit.y = (hit.y * hit.n + c.y) / (hit.n + 1);
+          hit.n += 1;
+          hit.ids.add(c.id);
+        }
+      });
+
+      ctx.save();
+      ctx.fillStyle = '#111827';
+      ctx.font = '12px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      clusters.forEach((cl) => {
+        const ids = Array.from(cl.ids);
+        // Stable order: numeric beat then letter suffix (3 before 3a before 4).
+        ids.sort((a, b) => {
+          const na = parseFloat(a);
+          const nb = parseFloat(b);
+          if (na !== nb) return na - nb;
+          return a.localeCompare(b);
+        });
+        ctx.fillText(ids.join(', '), cl.x, cl.y - 14);
+      });
+      ctx.restore();
     }
 
     function drawTrails(dance) {
