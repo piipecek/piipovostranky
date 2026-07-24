@@ -85,6 +85,36 @@
       cursor: pointer;
     }
 
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #f3f4f6;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .playback {
+      display: none;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .playback.is-visible {
+      display: flex;
+    }
+
     .canvas-panel {
       padding: 10px;
     }
@@ -138,7 +168,12 @@
         <label><input type="checkbox" id="toggleLabels"> Čísla dob</label>
       </div>
       <div class="right-controls">
-        <div class="badge">Doba: <strong id="beatInCycle">1</strong> / <span id="beatTotal">4</span></div>
+        <div class="playback" id="playbackControls">
+          <button type="button" id="btnStepBack" title="O krok zpět">◀ Zpět</button>
+          <button type="button" id="btnPlayPause" title="Zastavit / přehrát">Zastavit</button>
+          <button type="button" id="btnStepFwd" title="O krok vpřed">Vpřed ▶</button>
+        </div>
+        <div class="badge">Pozice: <strong id="beatInCycle">1</strong> / <span id="beatTotal">4</span></div>
         <div class="section-label" id="sectionLabel"></div>
       </div>
     </div>
@@ -165,6 +200,10 @@
     const beatTotalEl = document.getElementById('beatTotal');
     const sectionLabelEl = document.getElementById('sectionLabel');
     const danceNoteBody = document.getElementById('danceNoteBody');
+    const playbackControls = document.getElementById('playbackControls');
+    const btnPlayPause = document.getElementById('btnPlayPause');
+    const btnStepBack = document.getElementById('btnStepBack');
+    const btnStepFwd = document.getElementById('btnStepFwd');
 
     // ——— shared helpers ———
 
@@ -424,7 +463,9 @@
         toCanvas: sanBenitoToCanvas,
         drawBackdrop: sanBenitoBackdrop,
         backdropName: 'Obrys kruhu',
+        showStepControls: false,
         guideLabelsFromZero: false,
+        hideClosingGuidePoint: false,
         noteHtml:
           'Vizualizace tance Porthogese tak, jak nás jej učil Gianmarco. Originální hudbu sice neznáme, ' +
           'ale italská balfolková komunita našla tuto píseň a zjistila, že na tanec sedí perfektně: ' +
@@ -440,7 +481,9 @@
         toCanvas: congoToCanvas,
         drawBackdrop: congoBackdrop,
         backdropName: 'Obrys podlahy',
+        showStepControls: true,
         guideLabelsFromZero: true,
+        hideClosingGuidePoint: true,
         sections: [
           { from: 0, to: 2, label: 'Část 1 — Saluto' },
           { from: 2, to: 4, label: 'Část 1 — Cambio di posto' },
@@ -462,10 +505,131 @@
     // ——— engine ———
 
     let currentDance = DANCES.san_benito;
-    let startTime = performance.now();
+    let running = true;
+    let elapsedSeconds = 0;
+    let lastFrameNow = null;
+    // When set, dancers are frozen on pattern[holdFrame] (integer step scrubbing).
+    let holdFrame = null;
+    // One-shot tween between integer frames (next/back buttons).
+    let stepTween = null;
+
+    function maxHoldFrame(dance) {
+      // Last pattern index (inclusive), derived from dance data — not from dance id.
+      return dance.dancers[0].pattern.length - 1;
+    }
+
+    function beatDurationSec(dance) {
+      return 60 / dance.bpm;
+    }
+
+    function positionLabel(dance, state) {
+      if (stepTween) {
+        return dance.guideLabelsFromZero ? stepTween.toFrame : stepTween.toFrame + 1;
+      }
+      if (holdFrame != null) {
+        return dance.guideLabelsFromZero ? holdFrame : holdFrame + 1;
+      }
+      if (dance.guideLabelsFromZero) {
+        // Show the frame we're leaving while moving, or the landed frame when waiting.
+        return state.moving ? state.stepIndex : state.stepIndex + 1;
+      }
+      return state.beatInCycle;
+    }
+
+    function sectionStepIndex(dance, state) {
+      if (stepTween) {
+        return Math.min(stepTween.fromFrame, dance.stepCount - 1);
+      }
+      if (holdFrame != null) {
+        return Math.min(holdFrame, dance.stepCount - 1);
+      }
+      return state.stepIndex;
+    }
+
+    function syncPlayPauseButton() {
+      btnPlayPause.textContent = running ? 'Zastavit' : 'Přehrát';
+    }
+
+    function setStepButtonsEnabled(enabled) {
+      btnStepBack.disabled = !enabled;
+      btnStepFwd.disabled = !enabled;
+    }
+
+    function pauseAtCurrentFrame() {
+      const dance = currentDance;
+      if (stepTween) {
+        holdFrame = stepTween.toFrame;
+        stepTween = null;
+        setStepButtonsEnabled(true);
+      } else {
+        const state = getStateAtTime(elapsedSeconds, dance);
+        // Land on the frame currently shown (end of transition if waiting, start if mid-move).
+        holdFrame = state.moving ? state.stepIndex : Math.min(state.stepIndex + 1, maxHoldFrame(dance));
+      }
+      running = false;
+      syncPlayPauseButton();
+    }
+
+    function playFromHold() {
+      const dance = currentDance;
+      if (stepTween) {
+        holdFrame = stepTween.toFrame;
+        stepTween = null;
+        setStepButtonsEnabled(true);
+      }
+      const frame = holdFrame == null ? 0 : holdFrame % dance.stepCount;
+      // Resume at the start of the beat that leaves this frame.
+      elapsedSeconds = frame * beatDurationSec(dance);
+      holdFrame = null;
+      running = true;
+      lastFrameNow = null;
+      syncPlayPauseButton();
+    }
+
+    function stepBy(delta) {
+      if (stepTween || running) {
+        if (running) pauseAtCurrentFrame();
+        if (stepTween) return;
+      }
+      const dance = currentDance;
+      if (holdFrame == null) {
+        pauseAtCurrentFrame();
+      }
+
+      const max = maxHoldFrame(dance);
+      const from = holdFrame;
+      const to = (from + delta + (max + 1)) % (max + 1);
+
+      // Same pose (e.g. 16 ↔ 0): just retarget the label, no motion.
+      const fromPt = dance.dancers[0].pattern[from];
+      const toPt = dance.dancers[0].pattern[to];
+      if (fromPt[0] === toPt[0] && fromPt[1] === toPt[1]) {
+        holdFrame = to;
+        running = false;
+        syncPlayPauseButton();
+        return;
+      }
+
+      holdFrame = null;
+      running = false;
+      stepTween = {
+        fromFrame: from,
+        toFrame: to,
+        startMs: performance.now(),
+        durationMs: beatDurationSec(dance) * MOVE_FRACTION * 1000,
+      };
+      setStepButtonsEnabled(false);
+      syncPlayPauseButton();
+    }
 
     function resetClock() {
-      startTime = performance.now();
+      elapsedSeconds = 0;
+      lastFrameNow = null;
+      holdFrame = null;
+      stepTween = null;
+      running = true;
+      setStepButtonsEnabled(true);
+      syncPlayPauseButton();
     }
 
     function applyDance(dance) {
@@ -474,6 +638,7 @@
       danceNoteBody.innerHTML = dance.noteHtml;
       backdropLabel.textContent = dance.backdropName;
       beatTotalEl.textContent = String(dance.stepCount);
+      playbackControls.classList.toggle('is-visible', !!dance.showStepControls);
       resetClock();
     }
 
@@ -481,8 +646,8 @@
       dance.dancers.forEach((dancer) => {
         const pts = dancer.pattern.map(p => dance.toCanvas(dancer, p));
         pts.forEach((p, idx) => {
-          // Skip duplicate closing frame label noise for Congo (16 === 0)
-          if (idx === dance.stepCount && dance.stepCount > 4) return;
+          // Skip duplicate closing frame when the dance opts out (e.g. pattern end === start).
+          if (dance.hideClosingGuidePoint && idx === dance.stepCount) return;
 
           ctx.save();
           ctx.fillStyle = dancer.color;
@@ -532,11 +697,27 @@
       });
     }
 
+    function dancerPoint(dancer, state) {
+      if (stepTween) {
+        const a = dancer.pattern[stepTween.fromFrame];
+        const b = dancer.pattern[stepTween.toFrame];
+        return [
+          lerp(a[0], b[0], state.localMovePhase),
+          lerp(a[1], b[1], state.localMovePhase),
+        ];
+      }
+      if (holdFrame != null) {
+        return dancer.pattern[holdFrame];
+      }
+      if (state.moving) {
+        return patternPointAt(dancer.pattern, state.stepIndex, state.localMovePhase);
+      }
+      return dancer.pattern[state.stepIndex + 1];
+    }
+
     function drawDancers(dance, state) {
       dance.dancers.forEach((dancer) => {
-        const p = state.moving
-          ? patternPointAt(dancer.pattern, state.stepIndex, state.localMovePhase)
-          : dancer.pattern[state.stepIndex + 1];
+        const p = dancerPoint(dancer, state);
         const c = dance.toCanvas(dancer, p);
 
         ctx.save();
@@ -568,13 +749,39 @@
       if (toggleGuidePoints.checked) drawGuidePoints(dance);
       drawDancers(dance, state);
 
-      beatInCycleEl.textContent = String(state.beatInCycle);
-      sectionLabelEl.textContent = sectionLabelFor(dance, state.stepIndex);
+      beatInCycleEl.textContent = String(positionLabel(dance, state));
+      sectionLabelEl.textContent = sectionLabelFor(dance, sectionStepIndex(dance, state));
     }
 
     function frame(now) {
-      const elapsed = (now - startTime) / 1000;
-      const state = getStateAtTime(elapsed, currentDance);
+      if (stepTween) {
+        const u = Math.min(1, (now - stepTween.startMs) / stepTween.durationMs);
+        const state = {
+          beatIndex: stepTween.fromFrame,
+          beatInCycle: stepTween.toFrame,
+          beatPhase: u * MOVE_FRACTION,
+          stepIndex: Math.min(stepTween.fromFrame, currentDance.stepCount - 1),
+          moving: u < 1,
+          localMovePhase: easeOutCubic(u),
+        };
+        render(state);
+        if (u >= 1) {
+          holdFrame = stepTween.toFrame;
+          stepTween = null;
+          setStepButtonsEnabled(true);
+        }
+        lastFrameNow = now;
+        requestAnimationFrame(frame);
+        return;
+      }
+
+      if (running) {
+        if (lastFrameNow != null) {
+          elapsedSeconds += (now - lastFrameNow) / 1000;
+        }
+      }
+      lastFrameNow = now;
+      const state = getStateAtTime(elapsedSeconds, currentDance);
       render(state);
       requestAnimationFrame(frame);
     }
@@ -591,6 +798,17 @@
     danceSelect.addEventListener('change', () => {
       applyDance(DANCES[danceSelect.value]);
     });
+
+    btnPlayPause.addEventListener('click', () => {
+      if (running) {
+        pauseAtCurrentFrame();
+      } else {
+        playFromHold();
+      }
+    });
+
+    btnStepBack.addEventListener('click', () => stepBy(-1));
+    btnStepFwd.addEventListener('click', () => stepBy(1));
 
     applyDance(DANCES.san_benito);
     requestAnimationFrame(frame);
