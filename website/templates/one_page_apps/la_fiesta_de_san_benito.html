@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Porthogese - La fiesta de San Benito</title>
+  <title>Vizualizace tanců — Pípovo stránky</title>
   <style>
     :root {
       --bg: #FFF1E2;
@@ -75,26 +75,14 @@
       cursor: pointer;
     }
 
-    button {
+    select {
       border: 1px solid var(--line);
       background: white;
       color: var(--text);
       border-radius: 10px;
       padding: 8px 12px;
-      cursor: pointer;
       font-size: 14px;
-    }
-
-    button:hover {
-      background: #f3f4f6;
-    }
-
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px 18px;
-      align-items: center;
-      font-size: 15px;
+      cursor: pointer;
     }
 
     .canvas-panel {
@@ -114,98 +102,71 @@
       font-size: 14px;
       line-height: 1.45;
     }
+
+    .note strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .badge {
+      font-size: 15px;
+    }
+
+    .section-label {
+      color: var(--muted);
+      font-size: 14px;
+      min-height: 1.2em;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="panel note">
-      <a href="{{url_for('guest_views.dashboard')}}">Zpět na dashboard Pípovo stránek</a><br>
-      Vizualizace tance Porthogese tak, jak nás jej učil Gianmarco. Originální hudbu sice neznáme, ale italská balfolková komunita našla tuto píseň a zjistila, že na tanec sedí perfektně: La fiesta de San Benito (<a href="https://youtu.be/wmtiT42PiAk?si=uNRYBLQwFSke3XO5" target="_blank">hudba na youtube</a>). Vytvořeno zcela pomocí ChatGPT, doupravil Josef Lát v červenci 2026.
+    <div class="panel note" id="danceNote">
+      <a href="{{url_for('guest_views.dashboard')}}">Zpět na dashboard Pípovo stránek</a>
+      <div id="danceNoteBody" style="margin-top: 8px;"></div>
     </div>
 
     <div class="panel controls">
       <div class="left-controls">
-        <label><input type="checkbox" id="toggleCircle" checked> Obrys kruhu</label>
+        <label>
+          Tanec
+          <select id="danceSelect" aria-label="Výběr tance"></select>
+        </label>
+        <label><input type="checkbox" id="toggleBackdrop" checked> <span id="backdropLabel">Podklad</span></label>
         <label><input type="checkbox" id="toggleTrails" checked> Trajektorie</label>
         <label><input type="checkbox" id="toggleGuidePoints" checked> Průchozí body</label>
         <label><input type="checkbox" id="toggleLabels"> Čísla dob</label>
       </div>
       <div class="right-controls">
-        <div class="badge">Doba v taktu: <strong id="beatInCycle">1</strong> / 4</div>
+        <div class="badge">Doba: <strong id="beatInCycle">1</strong> / <span id="beatTotal">4</span></div>
+        <div class="section-label" id="sectionLabel"></div>
       </div>
     </div>
-
 
     <div class="panel canvas-panel">
       <canvas id="danceCanvas" width="900" height="900"></canvas>
     </div>
-
   </div>
 
   <script>
     const canvas = document.getElementById('danceCanvas');
     const ctx = canvas.getContext('2d');
+    const center = { x: canvas.width / 2, y: canvas.height / 2 };
+    const dotRadius = 10;
+    const MOVE_FRACTION = 0.5;
 
-    const toggleCircle = document.getElementById('toggleCircle');
+    const danceSelect = document.getElementById('danceSelect');
+    const toggleBackdrop = document.getElementById('toggleBackdrop');
     const toggleTrails = document.getElementById('toggleTrails');
     const toggleGuidePoints = document.getElementById('toggleGuidePoints');
     const toggleLabels = document.getElementById('toggleLabels');
-
+    const backdropLabel = document.getElementById('backdropLabel');
     const beatInCycleEl = document.getElementById('beatInCycle');
-    const totalBeatEl = document.getElementById('totalBeat');
-    const pulses = [1,2,3,4].map(n => document.getElementById('pulse' + n));
+    const beatTotalEl = document.getElementById('beatTotal');
+    const sectionLabelEl = document.getElementById('sectionLabel');
+    const danceNoteBody = document.getElementById('danceNoteBody');
 
-    const BPM = 89;
-    const BEAT_DURATION = 60 / BPM;
-    const MOVE_FRACTION = 0.5;
-    const MOVE_DURATION = BEAT_DURATION * MOVE_FRACTION;
-    const WAIT_DURATION = BEAT_DURATION - MOVE_DURATION;
-
-
-    const center = { x: canvas.width / 2, y: canvas.height / 2 };
-    const baseRadius = 270;
-    const radialUnit = 38;
-    const slotAngle = Math.PI / 8;     // 22.5° between neighboring dots
-    const xUnitAngle = Math.PI / 16;   // x = 4 corresponds to 45° = next dot of same color
-    const dotRadius = 10;
-
-    const bluePattern = [
-      [0, 1],
-      [2, 0],
-      [2, -2],
-      [2, 0],
-      [4, 1],
-    ];
-
-    const redPattern = [
-      [4, -2],
-      [4, 0],
-      [2, 1],
-      [0, 0],
-      [0, -2],
-    ];
-
-    const dancers = [];
-
-    // Osm stejných úseků po 45°. Modrý a červený tanečník v každém
-    // úseku používají stejný počátek osy x. Díky tomu modří vystupují
-    // ven v polohách x = 2 (mod 4), zatímco červení v x = 0 (mod 4):
-    // jejich vnější pozice jsou tedy po obvodu vzájemně posunuté o x = 2.
-    for (let i = 0; i < 8; i++) {
-      const baseAngle = Math.PI / 2 + i * (Math.PI / 4);
-
-      dancers.push({
-        color: '#2563eb',
-        baseAngle,
-        pattern: bluePattern,
-      });
-
-      dancers.push({
-        color: '#dc2626',
-        baseAngle,
-        pattern: redPattern,
-      });
-    }
+    // ——— shared helpers ———
 
     function easeOutCubic(t) {
       return 1 - Math.pow(1 - t, 3);
@@ -224,28 +185,18 @@
       ];
     }
 
-    function unwrappedToCanvas(baseAngle, p) {
-      const [x, y] = p;
-      const angle = baseAngle + x * xUnitAngle;
-      const radius = baseRadius - y * radialUnit;
-      return {
-        x: center.x + radius * Math.cos(angle),
-        y: center.y - radius * Math.sin(angle),
-      };
-    }
-
-    function getStateAtTime(t) {
-      const beatFloat = t / BEAT_DURATION;
+    function getStateAtTime(t, dance) {
+      const beatDuration = 60 / dance.bpm;
+      const beatFloat = t / beatDuration;
       const beatIndex = Math.floor(beatFloat);
       const beatPhase = beatFloat - beatIndex;
-      const stepIndex = (beatIndex) % 4;
-
+      const stepIndex = beatIndex % dance.stepCount;
       const moving = beatPhase < MOVE_FRACTION;
       const localMovePhase = moving ? easeOutCubic(beatPhase / MOVE_FRACTION) : 1;
 
       return {
         beatIndex,
-        beatInCycle: ((stepIndex + 1) % 4) + 1,
+        beatInCycle: stepIndex + 1,
         beatPhase,
         stepIndex,
         moving,
@@ -253,20 +204,286 @@
       };
     }
 
-    function drawCircle() {
+    function sectionLabelFor(dance, stepIndex) {
+      if (!dance.sections) return '';
+      const hit = dance.sections.find(s => stepIndex >= s.from && stepIndex < s.to);
+      return hit ? hit.label : '';
+    }
+
+    // ——— San Benito (polar circle) ———
+
+    const sanBenitoBaseRadius = 270;
+    const sanBenitoRadialUnit = 38;
+    const sanBenitoXUnitAngle = Math.PI / 16;
+
+    const bluePattern = [
+      [0, 1],
+      [2, 0],
+      [2, -2],
+      [2, 0],
+      [4, 1],
+    ];
+
+    const redPattern = [
+      [4, -2],
+      [4, 0],
+      [2, 1],
+      [0, 0],
+      [0, -2],
+    ];
+
+    const sanBenitoDancers = [];
+    // Osm stejných úseků po 45°. Modrý a červený tanečník v každém
+    // úseku používají stejný počátek osy x.
+    for (let i = 0; i < 8; i++) {
+      const baseAngle = Math.PI / 2 + i * (Math.PI / 4);
+      sanBenitoDancers.push({
+        color: '#2563eb',
+        label: '',
+        baseAngle,
+        pattern: bluePattern,
+      });
+      sanBenitoDancers.push({
+        color: '#dc2626',
+        label: '',
+        baseAngle,
+        pattern: redPattern,
+      });
+    }
+
+    function sanBenitoToCanvas(dancer, p) {
+      const [x, y] = p;
+      const angle = dancer.baseAngle + x * sanBenitoXUnitAngle;
+      const radius = sanBenitoBaseRadius - y * sanBenitoRadialUnit;
+      return {
+        x: center.x + radius * Math.cos(angle),
+        y: center.y - radius * Math.sin(angle),
+      };
+    }
+
+    function sanBenitoBackdrop() {
       ctx.save();
       ctx.strokeStyle = '#c7cdd8';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(center.x, center.y, baseRadius, 0, Math.PI * 2);
+      ctx.arc(center.x, center.y, sanBenitoBaseRadius, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
 
-    function drawGuidePoints() {
-      dancers.forEach((dancer) => {
-        const pts = dancer.pattern.map(p => unwrappedToCanvas(dancer.baseAngle, p));
+    // ——— Congo de Captieux (Cartesian square / quadrette) ———
+    // Dance coords: x right, y up. Man left of partner from each couple's facing.
+    // Integer frames 0..16 only (no half-beats); pattern[16] === pattern[0].
+
+    const congoUnit = 95;
+
+    function congoToCanvas(_dancer, p) {
+      return {
+        x: center.x + p[0] * congoUnit,
+        y: center.y - p[1] * congoUnit,
+      };
+    }
+
+    function congoBackdrop() {
+      const half = 2.8 * congoUnit;
+      ctx.save();
+      ctx.strokeStyle = '#c7cdd8';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(center.x - half, center.y - half, half * 2, half * 2);
+
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.moveTo(center.x - half, center.y);
+      ctx.lineTo(center.x + half, center.y);
+      ctx.moveTo(center.x, center.y - half);
+      ctx.lineTo(center.x, center.y + half);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '13px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('N', center.x, center.y - half - 10);
+      ctx.fillText('S', center.x, center.y + half + 18);
+      ctx.restore();
+    }
+
+    // Individuals: MN / WN (north couple), MS / WS (south couple)
+    const congoFrames = {
+      // 0 home
+      0: {
+        MN: [1.4, 2.4], WN: [-1.4, 2.4],
+        MS: [-1.4, -2.4], WS: [1.4, -2.4],
+      },
+      // 1 saluto — advance
+      1: {
+        MN: [1.4, 1.0], WN: [-1.4, 1.0],
+        MS: [-1.4, -1.0], WS: [1.4, -1.0],
+      },
+      // 2 back home
+      2: {
+        MN: [1.4, 2.4], WN: [-1.4, 2.4],
+        MS: [-1.4, -2.4], WS: [1.4, -2.4],
+      },
+      // 3 cambio mid — advance + partners crossing
+      3: {
+        MN: [0.15, 1.35], WN: [-0.15, 1.35],
+        MS: [-0.15, -1.35], WS: [0.15, -1.35],
+      },
+      // 4 after cambio — partners swapped within couple
+      4: {
+        MN: [-1.4, 2.4], WN: [1.4, 2.4],
+        MS: [1.4, -2.4], WS: [-1.4, -2.4],
+      },
+      // 5 salto — meet / lift
+      5: {
+        MN: [-0.55, 0.45], WN: [0.55, 0.45],
+        MS: [0.55, -0.45], WS: [-0.55, -0.45],
+      },
+      // 6 return after left turn
+      6: {
+        MN: [-1.4, 2.4], WN: [1.4, 2.4],
+        MS: [1.4, -2.4], WS: [-1.4, -2.4],
+      },
+      // 7 papillon mid — R-shoulder cross toward opposite
+      7: {
+        MN: [0.25, 0.7], WN: [-0.25, 0.7],
+        MS: [-0.25, -0.7], WS: [0.25, -0.7],
+      },
+      // 8 after papillon — back to original sides for diagonale
+      8: {
+        MN: [1.4, 2.4], WN: [-1.4, 2.4],
+        MS: [-1.4, -2.4], WS: [1.4, -2.4],
+      },
+      // 9 1° diagonale mid — four in a line
+      9: {
+        MN: [-2.2, 0], WN: [-0.5, 0],
+        WS: [0.5, 0], MS: [2.2, 0],
+      },
+      // 10 ladies + men swapped sides
+      10: {
+        MN: [1.4, -2.4], WN: [-1.4, -2.4],
+        MS: [-1.4, 2.4], WS: [1.4, 2.4],
+      },
+      // 11 tergicristallo mid
+      11: {
+        MN: [0.9, -1.15], WN: [-0.7, -0.35],
+        MS: [-0.9, 1.15], WS: [0.7, 0.35],
+      },
+      // 12 settled after tergicristallo
+      12: {
+        MN: [1.4, -2.4], WN: [-1.4, -2.4],
+        MS: [-1.4, 2.4], WS: [1.4, 2.4],
+      },
+      // 13 2° diagonale mid — four in a line (return)
+      13: {
+        MN: [2.2, 0], WN: [0.5, 0],
+        WS: [-0.5, 0], MS: [-2.2, 0],
+      },
+      // 14 after 2° diagonale
+      14: {
+        MN: [-1.4, 2.4], WN: [1.4, 2.4],
+        MS: [1.4, -2.4], WS: [-1.4, -2.4],
+      },
+      // 15 spallata — men shoulder bump, ladies approach / lift setup
+      15: {
+        MN: [-0.35, 0.15], WN: [0.85, 1.05],
+        MS: [0.35, -0.15], WS: [-0.85, -1.05],
+      },
+      // 16 home (loop)
+      16: {
+        MN: [1.4, 2.4], WN: [-1.4, 2.4],
+        MS: [-1.4, -2.4], WS: [1.4, -2.4],
+      },
+    };
+
+    function congoPatternFor(role) {
+      const pattern = [];
+      for (let i = 0; i <= 16; i++) {
+        pattern.push(congoFrames[i][role]);
+      }
+      return pattern;
+    }
+
+    const congoDancers = [
+      { id: 'MN', color: '#2563eb', label: 'MN', pattern: congoPatternFor('MN') },
+      { id: 'WN', color: '#60a5fa', label: 'WN', pattern: congoPatternFor('WN') },
+      { id: 'MS', color: '#dc2626', label: 'MS', pattern: congoPatternFor('MS') },
+      { id: 'WS', color: '#f87171', label: 'WS', pattern: congoPatternFor('WS') },
+    ];
+
+    // ——— dance registry ———
+
+    const DANCES = {
+      san_benito: {
+        id: 'san_benito',
+        title: 'Porthogese — La fiesta de San Benito',
+        bpm: 89,
+        stepCount: 4,
+        dancers: sanBenitoDancers,
+        toCanvas: sanBenitoToCanvas,
+        drawBackdrop: sanBenitoBackdrop,
+        backdropName: 'Obrys kruhu',
+        guideLabelsFromZero: false,
+        noteHtml:
+          'Vizualizace tance Porthogese tak, jak nás jej učil Gianmarco. Originální hudbu sice neznáme, ' +
+          'ale italská balfolková komunita našla tuto píseň a zjistila, že na tanec sedí perfektně: ' +
+          'La fiesta de San Benito (<a href="https://youtu.be/wmtiT42PiAk?si=uNRYBLQwFSke3XO5" target="_blank" rel="noopener">hudba na youtube</a>). ' +
+          'Vytvořeno zcela pomocí ChatGPT, doupravil Josef Lát v červenci 2026.',
+      },
+      congo_de_captieux: {
+        id: 'congo_de_captieux',
+        title: 'Congo de Captieux',
+        bpm: 96,
+        stepCount: 16,
+        dancers: congoDancers,
+        toCanvas: congoToCanvas,
+        drawBackdrop: congoBackdrop,
+        backdropName: 'Obrys podlahy',
+        guideLabelsFromZero: true,
+        sections: [
+          { from: 0, to: 2, label: 'Část 1 — Saluto' },
+          { from: 2, to: 4, label: 'Část 1 — Cambio di posto' },
+          { from: 4, to: 6, label: 'Část 2 — Salto' },
+          { from: 6, to: 8, label: 'Část 2 — Papillon' },
+          { from: 8, to: 10, label: 'Část 3 — 1° diagonale' },
+          { from: 10, to: 12, label: 'Část 3 — Tergicristallo' },
+          { from: 12, to: 14, label: 'Část 4 — 2° diagonale' },
+          { from: 14, to: 16, label: 'Část 4 — Spallata a konec' },
+        ],
+        noteHtml:
+          'Vizualizace tance Congo de Captieux (Guascogne) — dvě páry naproti sobě (quadrette), ' +
+          'podle popisu a diagramů na ' +
+          '<a href="https://ballifolk.altervista.org/congo_de_captieux.html" target="_blank" rel="noopener">ballifolk.altervista.org</a>. ' +
+          'Modrá = severní pár (MN/WN), červená = jižní pár (MS/WS). Pouze celočíselné pozice 0–16; mezikroky se interpolují.',
+      },
+    };
+
+    // ——— engine ———
+
+    let currentDance = DANCES.san_benito;
+    let startTime = performance.now();
+
+    function resetClock() {
+      startTime = performance.now();
+    }
+
+    function applyDance(dance) {
+      currentDance = dance;
+      document.title = dance.title + ' — Pípovo stránky';
+      danceNoteBody.innerHTML = dance.noteHtml;
+      backdropLabel.textContent = dance.backdropName;
+      beatTotalEl.textContent = String(dance.stepCount);
+      resetClock();
+    }
+
+    function drawGuidePoints(dance) {
+      dance.dancers.forEach((dancer) => {
+        const pts = dancer.pattern.map(p => dance.toCanvas(dancer, p));
         pts.forEach((p, idx) => {
+          // Skip duplicate closing frame label noise for Congo (16 === 0)
+          if (idx === dance.stepCount && dance.stepCount > 4) return;
+
           ctx.save();
           ctx.fillStyle = dancer.color;
           ctx.globalAlpha = 0.30;
@@ -275,22 +492,25 @@
           ctx.fill();
           ctx.restore();
 
-          if (toggleLabels.checked && idx < 4) {
+          if (toggleLabels.checked && idx < dance.stepCount) {
+            const label = dance.guideLabelsFromZero ? String(idx) : String(idx + 1);
             ctx.save();
             ctx.fillStyle = '#111827';
             ctx.font = '12px system-ui, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(String(idx + 1), p.x, p.y - 14);
+            ctx.fillText(label, p.x, p.y - 14);
             ctx.restore();
           }
         });
       });
     }
 
-    function drawTrails() {
-      dancers.forEach((dancer) => {
-        const sampleCount = 80;
+    function drawTrails(dance) {
+      const steps = dance.stepCount;
+      const sampleCount = Math.max(80, steps * 20);
+
+      dance.dancers.forEach((dancer) => {
         ctx.save();
         ctx.strokeStyle = dancer.color;
         ctx.globalAlpha = 0.22;
@@ -299,11 +519,11 @@
 
         for (let s = 0; s <= sampleCount; s++) {
           const u = s / sampleCount;
-          const total = u * 4;
-          const seg = Math.min(3, Math.floor(total));
+          const total = u * steps;
+          const seg = Math.min(steps - 1, Math.floor(total));
           const phase = total - seg;
           const p = patternPointAt(dancer.pattern, seg, phase);
-          const c = unwrappedToCanvas(dancer.baseAngle, p);
+          const c = dance.toCanvas(dancer, p);
           if (s === 0) ctx.moveTo(c.x, c.y);
           else ctx.lineTo(c.x, c.y);
         }
@@ -312,48 +532,67 @@
       });
     }
 
-    function drawDancers(state) {
-      dancers.forEach((dancer) => {
+    function drawDancers(dance, state) {
+      dance.dancers.forEach((dancer) => {
         const p = state.moving
           ? patternPointAt(dancer.pattern, state.stepIndex, state.localMovePhase)
           : dancer.pattern[state.stepIndex + 1];
-        const c = unwrappedToCanvas(dancer.baseAngle, p);
+        const c = dance.toCanvas(dancer, p);
 
         ctx.save();
         ctx.fillStyle = dancer.color;
         ctx.beginPath();
         ctx.arc(c.x, c.y, dotRadius, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'rgba(17,24,39,0.18)';
         ctx.stroke();
+
+        if (dancer.label) {
+          ctx.fillStyle = '#111827';
+          ctx.font = 'bold 11px system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(dancer.label, c.x, c.y - 18);
+        }
         ctx.restore();
       });
     }
 
     function render(state) {
+      const dance = currentDance;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (toggleCircle.checked) drawCircle();
-      if (toggleTrails.checked) drawTrails();
-      if (toggleGuidePoints.checked) drawGuidePoints();
-      drawDancers(state);
+      if (toggleBackdrop.checked) dance.drawBackdrop();
+      if (toggleTrails.checked) drawTrails(dance);
+      if (toggleGuidePoints.checked) drawGuidePoints(dance);
+      drawDancers(dance, state);
 
       beatInCycleEl.textContent = String(state.beatInCycle);
+      sectionLabelEl.textContent = sectionLabelFor(dance, state.stepIndex);
     }
 
-    let running = true;
-    let startTime = performance.now();
-    let pausedElapsed = 0;
-
     function frame(now) {
-      const elapsed = running ? (now - startTime) / 1000 : pausedElapsed;
-      const state = getStateAtTime(elapsed);
+      const elapsed = (now - startTime) / 1000;
+      const state = getStateAtTime(elapsed, currentDance);
       render(state);
       requestAnimationFrame(frame);
     }
 
+    // ——— UI init ———
+
+    Object.values(DANCES).forEach((dance) => {
+      const opt = document.createElement('option');
+      opt.value = dance.id;
+      opt.textContent = dance.title;
+      danceSelect.appendChild(opt);
+    });
+
+    danceSelect.addEventListener('change', () => {
+      applyDance(DANCES[danceSelect.value]);
+    });
+
+    applyDance(DANCES.san_benito);
     requestAnimationFrame(frame);
   </script>
 </body>
