@@ -224,28 +224,78 @@
       ];
     }
 
-    function getStateAtTime(t, dance) {
-      const beatDuration = 60 / dance.bpm;
-      const beatFloat = t / beatDuration;
-      const beatIndex = Math.floor(beatFloat);
-      const beatPhase = beatFloat - beatIndex;
-      const stepIndex = beatIndex % dance.stepCount;
-      const moving = beatPhase < MOVE_FRACTION;
-      const localMovePhase = moving ? easeOutCubic(beatPhase / MOVE_FRACTION) : 1;
+    /** Ordered keyframes for a dance. Each entry: { id, beat }. Last beat == cycle length. */
+    function getTimeline(dance) {
+      if (dance.timeline) {
+        return dance.timeline.map(f => ({ id: f.id, beat: f.beat }));
+      }
+      // Default: one keyframe per integer beat 0..stepCount
+      const tl = [];
+      for (let i = 0; i <= dance.stepCount; i++) {
+        tl.push({ id: String(dance.guideLabelsFromZero ? i : i + 1), beat: i });
+      }
+      if (!dance.guideLabelsFromZero) {
+        for (let i = 0; i < dance.stepCount; i++) tl[i].id = String(i + 1);
+        tl[dance.stepCount].id = '1';
+      }
+      return tl;
+    }
 
+    function getCycleBeats(dance) {
+      const tl = getTimeline(dance);
+      return tl[tl.length - 1].beat;
+    }
+
+    function findTimelineSegment(timeline, beatInCycle, cycleBeats) {
+      // beatInCycle in [0, cycleBeats). Segment i runs from timeline[i].beat to timeline[i+1].beat
+      // (wrapping: last segment ends at cycleBeats).
+      for (let i = 0; i < timeline.length - 1; i++) {
+        const start = timeline[i].beat;
+        const end = timeline[i + 1].beat;
+        if (beatInCycle >= start && beatInCycle < end) {
+          return { stepIndex: i, startBeat: start, endBeat: end };
+        }
+      }
+      // Exactly at cycle end → treat as start of cycle
+      const last = timeline.length - 2;
       return {
-        beatIndex,
-        beatInCycle: stepIndex + 1,
-        beatPhase,
-        stepIndex,
-        moving,
-        localMovePhase,
+        stepIndex: Math.max(0, last),
+        startBeat: timeline[Math.max(0, last)].beat,
+        endBeat: cycleBeats,
       };
     }
 
-    function sectionLabelFor(dance, stepIndex) {
+    function getStateAtTime(t, dance) {
+      const beatDuration = 60 / dance.bpm;
+      const timeline = getTimeline(dance);
+      const cycleBeats = getCycleBeats(dance);
+      const totalBeats = t / beatDuration;
+      const beatInCycle = ((totalBeats % cycleBeats) + cycleBeats) % cycleBeats;
+      const { stepIndex, startBeat, endBeat } = findTimelineSegment(timeline, beatInCycle, cycleBeats);
+      const segLen = Math.max(1e-9, endBeat - startBeat);
+      const segPhase = (beatInCycle - startBeat) / segLen;
+      const moving = segPhase < MOVE_FRACTION;
+      const localMovePhase = moving ? easeOutCubic(segPhase / MOVE_FRACTION) : 1;
+      const destIndex = stepIndex + 1;
+
+      return {
+        beatIndex: Math.floor(totalBeats),
+        beatInCycle: timeline[destIndex] ? timeline[destIndex].id : timeline[stepIndex].id,
+        beatPhase: segPhase,
+        stepIndex,
+        destIndex,
+        frameId: moving ? timeline[stepIndex].id : timeline[destIndex].id,
+        moving,
+        localMovePhase,
+        beatFloat: beatInCycle,
+        segmentBeats: segLen,
+      };
+    }
+
+    function sectionLabelFor(dance, state) {
       if (!dance.sections) return '';
-      const hit = dance.sections.find(s => stepIndex >= s.from && stepIndex < s.to);
+      const beat = state.beatFloat != null ? state.beatFloat : 0;
+      const hit = dance.sections.find(s => beat >= s.fromBeat && beat < s.toBeat);
       return hit ? hit.label : '';
     }
 
@@ -313,7 +363,7 @@
     // ——— Congo de Captieux (Cartesian square / quadrette) ———
     // Dance coords: x right, y up. Square half-side CONGO_S.
     // Start at the four corners; other frames stay on edges or diagonals.
-    // Integer frames 0..16 only (no half-beats); pattern[16] === pattern[0].
+    // Timeline may include half-beats (e.g. "0a" at beat 0.5).
 
     const CONGO_S = 2.4;
     const congoUnit = 120;
@@ -360,111 +410,117 @@
     }
 
     // Corners: NW=(-S,S) WN, NE=(S,S) MN, SW=(-S,-S) MS, SE=(S,-S) WS
-    // (man left of partner when facing inward).
+    // One list per keyframe: id + beat + dancer positions (edit the dance here only).
     const S = CONGO_S;
 
-    const congoFrames = {
-      // 0 home — four corners
-      0: {
+    const congoFrames = [
+      {
+        id: '0', beat: 0,
         MN: [S, S], WN: [-S, S],
         MS: [-S, -S], WS: [S, -S],
       },
-      // 1 saluto — advance along left/right edges toward midline
-      1: {
+      {
+        id: '1', beat: 1,
         MN: [S, S * 0.28], WN: [-S, S * 0.28],
         MS: [-S, -S * 0.28], WS: [S, -S * 0.28],
       },
-      // 2 back home
-      2: {
+      {
+        id: '2', beat: 2,
         MN: [S, S], WN: [-S, S],
         MS: [-S, -S], WS: [S, -S],
       },
-      // 3 cambio mid — partners cross along top/bottom edges
-      3: {
+      {
+        id: '3', beat: 3,
         MN: [S, S * 0.28], WN: [-S, S * 0.28],
         MS: [-S, -S * 0.28], WS: [S, -S * 0.28],
       },
-      // 4 after cambio — swapped corners
-      4: {
+      {
+        id: '3a', beat: 3.5,
+        MN: [0, S * 0.4], WN: [0, S * 0.2],
+        MS: [-S, -S * 0.28], WS: [S, -S * 0.28],
+      },
+      {
+        id: '4', beat: 4,
         MN: [-S, S], WN: [S, S],
         MS: [S, -S], WS: [-S, -S],
       },
-      // 5 salto — meet near midline along side edges
-      5: {
+      {
+        id: '5', beat: 5,
         MN: [-S, S * 0.18], WN: [S, S * 0.18],
         MS: [S, -S * 0.18], WS: [-S, -S * 0.18],
       },
-      // 6 return after left turn
-      6: {
+      {
+        id: '6', beat: 6,
         MN: [-S, S], WN: [S, S],
         MS: [S, -S], WS: [-S, -S],
       },
-      // 7 papillon mid — cross through center on diagonals
-      7: {
-        MN: [-S * 0.15, S * 0.15], WN: [S * 0.15, S * 0.15],
+      {
+        id: '6a', beat: 6.5,
+        MN: [0, S], WN: [0, S * 0.64],
+        MS: [S, -S], WS: [-S, -S],
+      },
+      {
+        id: '7', beat: 7,
+        MN: [S, S * 0.28], WN: [-S, S * 0.28],
         MS: [S * 0.15, -S * 0.15], WS: [-S * 0.15, -S * 0.15],
       },
-      // 8 after papillon — home corners for diagonale
-      8: {
+      {
+        id: '8', beat: 8,
         MN: [S, S], WN: [-S, S],
         MS: [-S, -S], WS: [S, -S],
       },
-      // 9 1° diagonale mid — four in a line on horizontal midline
-      //     (ladies crossing center; men at left/right edge midpoints)
-      9: {
+      {
+        id: '9', beat: 9,
         MN: [S, 0], WN: [S * 0.22, 0],
         WS: [-S * 0.22, 0], MS: [-S, 0],
       },
-      // 10 ladies + men finished swap — opposite corners
-      10: {
+      {
+        id: '10', beat: 10,
+        MN: [-S, 0], WN: [S, -S],
+        MS: [S, 0], WS: [-S, S],
+      },
+	  <!-- so far so good -->
+      {
+        id: '11', beat: 11,
+        MN: [-S, -S], WN: [S, 0],
+        MS: [S, S], WS: [-S, 0],
+      },
+      {
+        id: '12', beat: 12,
         MN: [-S, -S], WN: [S, -S],
         MS: [S, S], WS: [-S, S],
       },
-      // 11 tergicristallo mid — men slide on top/bottom edges; ladies advance
-      11: {
-        MN: [0, -S], WN: [S * 0.4, -S * 0.4],
-        MS: [0, S], WS: [-S * 0.4, S * 0.4],
-      },
-      // 12 settled after tergicristallo
-      12: {
-        MN: [-S, -S], WN: [S, -S],
-        MS: [S, S], WS: [-S, S],
-      },
-      // 13 2° diagonale mid — four in a line (return)
-      13: {
+      {
+        id: '13', beat: 13,
         MN: [-S, 0], WN: [-S * 0.22, 0],
         WS: [S * 0.22, 0], MS: [S, 0],
       },
-      // 14 after 2° diagonale — back toward home corners
-      14: {
+      {
+        id: '14', beat: 14,
         MN: [S, S], WN: [-S, S],
         MS: [-S, -S], WS: [S, -S],
       },
-      // 15 spallata — men meet at center on diagonals; ladies approach on edges
-      15: {
+      {
+        id: '15', beat: 15,
         MN: [-S * 0.15, S * 0.15], WN: [-S, S * 0.4],
         MS: [S * 0.15, -S * 0.15], WS: [S, -S * 0.4],
       },
-      // 16 home (loop)
-      16: {
+      {
+        id: '16', beat: 16,
         MN: [S, S], WN: [-S, S],
         MS: [-S, -S], WS: [S, -S],
       },
-    };
+    ];
 
     function congoPatternFor(role) {
-      const pattern = [];
-      for (let i = 0; i <= 16; i++) {
-        pattern.push(congoFrames[i][role]);
-      }
-      return pattern;
+      return congoFrames.map(frame => frame[role]);
     }
 
     const congoDancers = [
-      { id: 'MN', color: '#dc2626', label: 'MN', pattern: congoPatternFor('MN') },
-      { id: 'WN', color: '#2563eb', label: 'WN', pattern: congoPatternFor('WN') },
-      { id: 'MS', color: '#dc2626', label: 'MS', pattern: congoPatternFor('MS') },
-      { id: 'WS', color: '#2563eb', label: 'WS', pattern: congoPatternFor('WS') },
+      { id: 'MN', color: '#2563eb', label: 'MN', pattern: congoPatternFor('MN') },
+      { id: 'WN', color: '#dc2626', label: 'WN', pattern: congoPatternFor('WN') },
+      { id: 'MS', color: '#2563eb', label: 'MS', pattern: congoPatternFor('MS') },
+      { id: 'WS', color: '#dc2626', label: 'WS', pattern: congoPatternFor('WS') },
     ];
 
     // ——— dance registry ———
@@ -493,6 +549,7 @@
         title: 'Congo de Captieux',
         bpm: 96,
         stepCount: 16,
+        timeline: congoFrames,
         dancers: congoDancers,
         toCanvas: congoToCanvas,
         drawBackdrop: congoBackdrop,
@@ -501,20 +558,21 @@
         guideLabelsFromZero: true,
         hideClosingGuidePoint: true,
         sections: [
-          { from: 0, to: 2, label: 'Část 1 — Saluto' },
-          { from: 2, to: 4, label: 'Část 1 — Cambio di posto' },
-          { from: 4, to: 6, label: 'Část 2 — Salto' },
-          { from: 6, to: 8, label: 'Část 2 — Papillon' },
-          { from: 8, to: 10, label: 'Část 3 — 1° diagonale' },
-          { from: 10, to: 12, label: 'Část 3 — Tergicristallo' },
-          { from: 12, to: 14, label: 'Část 4 — 2° diagonale' },
-          { from: 14, to: 16, label: 'Část 4 — Spallata a konec' },
+          { fromBeat: 0, toBeat: 2, label: 'Část 1 — Saluto' },
+          { fromBeat: 2, toBeat: 4, label: 'Část 1 — Cambio di posto' },
+          { fromBeat: 4, toBeat: 6, label: 'Část 2 — Salto' },
+          { fromBeat: 6, toBeat: 8, label: 'Část 2 — Papillon' },
+          { fromBeat: 8, toBeat: 10, label: 'Část 3 — 1° diagonale' },
+          { fromBeat: 10, toBeat: 12, label: 'Část 3 — Tergicristallo' },
+          { fromBeat: 12, toBeat: 14, label: 'Část 4 — 2° diagonale' },
+          { fromBeat: 14, toBeat: 16, label: 'Část 4 — Spallata a konec' },
         ],
         noteHtml:
           'Vizualizace tance Congo de Captieux (Guascogne) — dvě páry naproti sobě (quadrette), ' +
           'podle popisu a diagramů na ' +
           '<a href="https://ballifolk.altervista.org/congo_de_captieux.html" target="_blank" rel="noopener">ballifolk.altervista.org</a>. ' +
-          'Modrá = severní pár (MN/WN), červená = jižní pár (MS/WS). Pohyb převážně po stranách a úhlopříčkách čtverce. Pouze celočíselné pozice 0–16; mezikroky se interpolují.',
+          'Červená = muži (MN/MS), modrá = ženy (WN/WS). Pohyb převážně po stranách a úhlopříčkách čtverce. ' +
+          'Timeline podporuje půldoby (např. <code>0a</code> v 0.5).',
       },
     };
 
@@ -524,42 +582,44 @@
     let running = true;
     let elapsedSeconds = 0;
     let lastFrameNow = null;
-    // When set, dancers are frozen on pattern[holdFrame] (integer step scrubbing).
+    // When set, dancers are frozen on pattern[holdFrame] (timeline index).
     let holdFrame = null;
-    // One-shot tween between integer frames (next/back buttons).
+    // One-shot tween between timeline frames (next/back buttons).
     let stepTween = null;
 
     function maxHoldFrame(dance) {
-      // Last pattern index (inclusive), derived from dance data — not from dance id.
-      return dance.dancers[0].pattern.length - 1;
+      return getTimeline(dance).length - 1;
     }
 
     function beatDurationSec(dance) {
       return 60 / dance.bpm;
     }
 
-    function positionLabel(dance, state) {
-      if (stepTween) {
-        return dance.guideLabelsFromZero ? stepTween.toFrame : stepTween.toFrame + 1;
-      }
-      if (holdFrame != null) {
-        return dance.guideLabelsFromZero ? holdFrame : holdFrame + 1;
-      }
-      if (dance.guideLabelsFromZero) {
-        // Show the frame we're leaving while moving, or the landed frame when waiting.
-        return state.moving ? state.stepIndex : state.stepIndex + 1;
-      }
-      return state.beatInCycle;
+    function frameLabelAt(dance, index) {
+      const tl = getTimeline(dance);
+      return tl[Math.max(0, Math.min(index, tl.length - 1))].id;
     }
 
-    function sectionStepIndex(dance, state) {
+    function positionLabel(dance, state) {
       if (stepTween) {
-        return Math.min(stepTween.fromFrame, dance.stepCount - 1);
+        return frameLabelAt(dance, stepTween.toFrame);
       }
       if (holdFrame != null) {
-        return Math.min(holdFrame, dance.stepCount - 1);
+        return frameLabelAt(dance, holdFrame);
       }
-      return state.stepIndex;
+      return state.frameId;
+    }
+
+    function sectionStateFor(dance, state) {
+      if (stepTween) {
+        const tl = getTimeline(dance);
+        return { beatFloat: tl[stepTween.fromFrame].beat };
+      }
+      if (holdFrame != null) {
+        const tl = getTimeline(dance);
+        return { beatFloat: tl[holdFrame].beat };
+      }
+      return state;
     }
 
     function syncPlayPauseButton() {
@@ -580,7 +640,7 @@
       } else {
         const state = getStateAtTime(elapsedSeconds, dance);
         // Land on the frame currently shown (end of transition if waiting, start if mid-move).
-        holdFrame = state.moving ? state.stepIndex : Math.min(state.stepIndex + 1, maxHoldFrame(dance));
+        holdFrame = state.moving ? state.stepIndex : state.destIndex;
       }
       running = false;
       syncPlayPauseButton();
@@ -593,9 +653,11 @@
         stepTween = null;
         setStepButtonsEnabled(true);
       }
-      const frame = holdFrame == null ? 0 : holdFrame % dance.stepCount;
-      // Resume at the start of the beat that leaves this frame.
-      elapsedSeconds = frame * beatDurationSec(dance);
+      const tl = getTimeline(dance);
+      let idx = holdFrame == null ? 0 : holdFrame;
+      // Closing keyframe shares the start pose — resume from beat 0.
+      if (idx >= tl.length - 1) idx = 0;
+      elapsedSeconds = tl[idx].beat * beatDurationSec(dance);
       holdFrame = null;
       running = true;
       lastFrameNow = null;
@@ -615,8 +677,9 @@
       const max = maxHoldFrame(dance);
       const from = holdFrame;
       const to = (from + delta + (max + 1)) % (max + 1);
+      const tl = getTimeline(dance);
 
-      // Same pose (e.g. 16 ↔ 0): just retarget the label, no motion.
+      // Same pose (e.g. closing frame ↔ start): just retarget the label, no motion.
       const fromPt = dance.dancers[0].pattern[from];
       const toPt = dance.dancers[0].pattern[to];
       if (fromPt[0] === toPt[0] && fromPt[1] === toPt[1]) {
@@ -626,13 +689,27 @@
         return;
       }
 
+      // Segment duration in beats → tween length (half-beat segments are shorter).
+      let segBeats;
+      if (delta > 0) {
+        const endBeat = to === 0 ? getCycleBeats(dance) : tl[to].beat;
+        const startBeat = tl[from].beat;
+        segBeats = endBeat - startBeat;
+        if (segBeats <= 0) segBeats = getCycleBeats(dance) - startBeat + tl[to].beat;
+      } else {
+        const endBeat = from === 0 ? getCycleBeats(dance) : tl[from].beat;
+        const startBeat = tl[to].beat;
+        segBeats = endBeat - startBeat;
+        if (segBeats <= 0) segBeats = getCycleBeats(dance) - startBeat + tl[from].beat;
+      }
+
       holdFrame = null;
       running = false;
       stepTween = {
         fromFrame: from,
         toFrame: to,
         startMs: performance.now(),
-        durationMs: beatDurationSec(dance) * MOVE_FRACTION * 1000,
+        durationMs: Math.max(0.05, segBeats) * beatDurationSec(dance) * MOVE_FRACTION * 1000,
       };
       setStepButtonsEnabled(false);
       syncPlayPauseButton();
@@ -653,17 +730,19 @@
       document.title = dance.title + ' — Pípovo stránky';
       danceNoteBody.innerHTML = dance.noteHtml;
       backdropLabel.textContent = dance.backdropName;
-      beatTotalEl.textContent = String(dance.stepCount);
+      beatTotalEl.textContent = String(getCycleBeats(dance));
       playbackControls.classList.toggle('is-visible', !!dance.showStepControls);
       resetClock();
     }
 
     function drawGuidePoints(dance) {
+      const timeline = getTimeline(dance);
+      const lastIdx = timeline.length - 1;
+
       dance.dancers.forEach((dancer) => {
         const pts = dancer.pattern.map(p => dance.toCanvas(dancer, p));
         pts.forEach((p, idx) => {
-          // Skip duplicate closing frame when the dance opts out (e.g. pattern end === start).
-          if (dance.hideClosingGuidePoint && idx === dance.stepCount) return;
+          if (dance.hideClosingGuidePoint && idx === lastIdx) return;
 
           ctx.save();
           ctx.fillStyle = dancer.color;
@@ -673,8 +752,8 @@
           ctx.fill();
           ctx.restore();
 
-          if (toggleLabels.checked && idx < dance.stepCount) {
-            const label = dance.guideLabelsFromZero ? String(idx) : String(idx + 1);
+          if (toggleLabels.checked && idx < lastIdx) {
+            const label = timeline[idx].id;
             ctx.save();
             ctx.fillStyle = '#111827';
             ctx.font = '12px system-ui, sans-serif';
@@ -688,7 +767,8 @@
     }
 
     function drawTrails(dance) {
-      const steps = dance.stepCount;
+      const timeline = getTimeline(dance);
+      const steps = timeline.length - 1;
       const sampleCount = Math.max(80, steps * 20);
 
       dance.dancers.forEach((dancer) => {
@@ -728,7 +808,7 @@
       if (state.moving) {
         return patternPointAt(dancer.pattern, state.stepIndex, state.localMovePhase);
       }
-      return dancer.pattern[state.stepIndex + 1];
+      return dancer.pattern[state.destIndex];
     }
 
     function drawDancers(dance, state) {
@@ -766,7 +846,7 @@
       drawDancers(dance, state);
 
       beatInCycleEl.textContent = String(positionLabel(dance, state));
-      sectionLabelEl.textContent = sectionLabelFor(dance, sectionStepIndex(dance, state));
+      sectionLabelEl.textContent = sectionLabelFor(dance, sectionStateFor(dance, state));
     }
 
     function frame(now) {
@@ -774,11 +854,14 @@
         const u = Math.min(1, (now - stepTween.startMs) / stepTween.durationMs);
         const state = {
           beatIndex: stepTween.fromFrame,
-          beatInCycle: stepTween.toFrame,
+          beatInCycle: frameLabelAt(currentDance, stepTween.toFrame),
+          frameId: frameLabelAt(currentDance, stepTween.toFrame),
           beatPhase: u * MOVE_FRACTION,
-          stepIndex: Math.min(stepTween.fromFrame, currentDance.stepCount - 1),
+          stepIndex: stepTween.fromFrame,
+          destIndex: stepTween.toFrame,
           moving: u < 1,
           localMovePhase: easeOutCubic(u),
+          beatFloat: getTimeline(currentDance)[stepTween.fromFrame].beat,
         };
         render(state);
         if (u >= 1) {
