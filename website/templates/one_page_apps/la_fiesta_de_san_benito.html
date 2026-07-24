@@ -799,6 +799,10 @@
       applyDance(DANCES[danceSelect.value]);
     });
 
+    toggleLabels.addEventListener('change', () => {
+      if (toggleLabels.checked) toggleGuidePoints.checked = true;
+    });
+
     btnPlayPause.addEventListener('click', () => {
       if (running) {
         pauseAtCurrentFrame();
