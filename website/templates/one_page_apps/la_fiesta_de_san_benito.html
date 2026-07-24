@@ -215,16 +215,25 @@
       return a + (b - a) * t;
     }
 
-    function patternPointAt(pattern, stepIndex, phase) {
+    function patternPointAt(pattern, stepIndex, phase, destIndex) {
+      const endIdx = destIndex != null ? destIndex : stepIndex + 1;
       const start = pattern[stepIndex];
-      const end = pattern[stepIndex + 1];
+      const end = pattern[endIdx];
       return [
         lerp(start[0], end[0], phase),
         lerp(start[1], end[1], phase),
       ];
     }
 
-    /** Ordered keyframes for a dance. Each entry: { id, beat }. Last beat == cycle length. */
+    function framesPoseEqual(dance, i, j) {
+      return dance.dancers.every((dancer) => {
+        const a = dancer.pattern[i];
+        const b = dancer.pattern[j];
+        return a && b && a[0] === b[0] && a[1] === b[1];
+      });
+    }
+
+    /** Ordered keyframes for a dance. Each entry: { id, beat }. */
     function getTimeline(dance) {
       if (dance.timeline) {
         return dance.timeline.map(f => ({ id: f.id, beat: f.beat }));
@@ -241,37 +250,65 @@
       return tl;
     }
 
-    function getCycleBeats(dance) {
-      const tl = getTimeline(dance);
-      return tl[tl.length - 1].beat;
+    // When the last keyframe is not a duplicate of the first, the engine adds a
+    // wrap segment last→first so playback/stepping never jump. Closing-frame
+    // dances (last pose == first) keep the old model with no extra wrap.
+    function getWrapBeats(dance) {
+      if (dance.wrapBeats === 0) return 0;
+      const n = dance.dancers[0].pattern.length;
+      if (n < 2) return 0;
+      if (framesPoseEqual(dance, 0, n - 1)) return 0;
+      if (dance.wrapBeats != null) return dance.wrapBeats;
+      // Custom timeline without a closing duplicate → wrap by default
+      if (dance.timeline) return 1;
+      return 0;
     }
 
-    function findTimelineSegment(timeline, beatInCycle, cycleBeats) {
-      // beatInCycle in [0, cycleBeats). Segment i runs from timeline[i].beat to timeline[i+1].beat
-      // (wrapping: last segment ends at cycleBeats).
+    function getCycleBeats(dance) {
+      const tl = getTimeline(dance);
+      return tl[tl.length - 1].beat + getWrapBeats(dance);
+    }
+
+    function findTimelineSegment(timeline, beatInCycle, cycleBeats, wrapBeats) {
       for (let i = 0; i < timeline.length - 1; i++) {
         const start = timeline[i].beat;
         const end = timeline[i + 1].beat;
         if (beatInCycle >= start && beatInCycle < end) {
-          return { stepIndex: i, startBeat: start, endBeat: end };
+          return { stepIndex: i, destIndex: i + 1, startBeat: start, endBeat: end };
         }
       }
-      // Exactly at cycle end → treat as start of cycle
-      const last = timeline.length - 2;
-      return {
-        stepIndex: Math.max(0, last),
-        startBeat: timeline[Math.max(0, last)].beat,
-        endBeat: cycleBeats,
-      };
+      const last = timeline.length - 1;
+      // Wrap last → first (no closing keyframe in the data)
+      if (wrapBeats > 0 && beatInCycle >= timeline[last].beat) {
+        return {
+          stepIndex: last,
+          destIndex: 0,
+          startBeat: timeline[last].beat,
+          endBeat: cycleBeats,
+        };
+      }
+      // Closing-frame model: sit on final segment
+      if (last >= 1) {
+        return {
+          stepIndex: last - 1,
+          destIndex: last,
+          startBeat: timeline[last - 1].beat,
+          endBeat: timeline[last].beat,
+        };
+      }
+      return { stepIndex: 0, destIndex: 0, startBeat: 0, endBeat: cycleBeats };
     }
 
     function getStateAtTime(t, dance) {
       const beatDuration = 60 / dance.bpm;
       const timeline = getTimeline(dance);
+      const wrapBeats = getWrapBeats(dance);
       const cycleBeats = getCycleBeats(dance);
       const totalBeats = t / beatDuration;
       const beatInCycle = ((totalBeats % cycleBeats) + cycleBeats) % cycleBeats;
-      const { stepIndex, startBeat, endBeat } = findTimelineSegment(timeline, beatInCycle, cycleBeats);
+      const { stepIndex, destIndex, startBeat, endBeat } = findTimelineSegment(
+        timeline, beatInCycle, cycleBeats, wrapBeats
+      );
       const segLen = Math.max(1e-9, endBeat - startBeat);
       const segPhase = (beatInCycle - startBeat) / segLen;
       // Move for up to MOVE_FRACTION of a full beat; short (half-beat) segments
@@ -279,11 +316,10 @@
       const moveFractionOfSeg = Math.min(1, MOVE_FRACTION / segLen);
       const moving = segPhase < moveFractionOfSeg;
       const localMovePhase = moving ? easeOutCubic(segPhase / moveFractionOfSeg) : 1;
-      const destIndex = stepIndex + 1;
 
       return {
         beatIndex: Math.floor(totalBeats),
-        beatInCycle: timeline[destIndex] ? timeline[destIndex].id : timeline[stepIndex].id,
+        beatInCycle: timeline[destIndex].id,
         beatPhase: segPhase,
         stepIndex,
         destIndex,
@@ -300,6 +336,19 @@
       const beat = state.beatFloat != null ? state.beatFloat : 0;
       const hit = dance.sections.find(s => beat >= s.fromBeat && beat < s.toBeat);
       return hit ? hit.label : '';
+    }
+
+    /** Duration in beats of the segment from timeline index rom → 	o (adjacent, incl. wrap). */
+    function adjacentSegmentBeats(dance, from, to) {
+      const tl = getTimeline(dance);
+      const n = tl.length;
+      if (from === n - 1 && to === 0) {
+        return Math.max(0.05, getWrapBeats(dance) || (getCycleBeats(dance) - tl[from].beat));
+      }
+      if (from === 0 && to === n - 1) {
+        return Math.max(0.05, getWrapBeats(dance) || (getCycleBeats(dance) - tl[to].beat));
+      }
+      return Math.max(0.05, Math.abs(tl[to].beat - tl[from].beat));
     }
 
     // ——— San Benito (polar circle) ———
@@ -512,11 +561,6 @@
         MN: [0, S * 0.4], WN: [0, S * 0.2],
         MS: [-S * 0.15, -S * 0.15], WS: [S, -S * 0.4],
       },
-      {
-        id: '16', beat: 16,
-        MN: [S, S], WN: [-S, S],
-        MS: [-S, -S], WS: [S, -S],
-      },
     ];
 
     function congoPatternFor(role) {
@@ -564,6 +608,7 @@
         showStepControls: true,
         guideLabelsFromZero: true,
         hideClosingGuidePoint: true,
+        wrapBeats: 0.5,
         sections: [
           { fromBeat: 0, toBeat: 2, label: 'Část 1 — Saluto' },
           { fromBeat: 2, toBeat: 4, label: 'Část 1 — Cambio di posto' },
@@ -661,9 +706,7 @@
         setStepButtonsEnabled(true);
       }
       const tl = getTimeline(dance);
-      let idx = holdFrame == null ? 0 : holdFrame;
-      // Closing keyframe shares the start pose — resume from beat 0.
-      if (idx >= tl.length - 1) idx = 0;
+      const idx = holdFrame == null ? 0 : Math.min(holdFrame, tl.length - 1);
       elapsedSeconds = tl[idx].beat * beatDurationSec(dance);
       holdFrame = null;
       running = true;
@@ -684,16 +727,10 @@
       const max = maxHoldFrame(dance);
       const from = holdFrame;
       const to = (from + delta + (max + 1)) % (max + 1);
-      const tl = getTimeline(dance);
 
       // Skip tween only if EVERY dancer is already at the destination pose
-      // (e.g. closing frame ↔ start). Checking only the first dancer wrongly
-      // skips steps where others move (11→12: MN stays, WN/WS move).
-      const samePose = dance.dancers.every((dancer) => {
-        const a = dancer.pattern[from];
-        const b = dancer.pattern[to];
-        return a[0] === b[0] && a[1] === b[1];
-      });
+      // (true duplicate frames). Never use this for loop wrap when poses differ.
+      const samePose = framesPoseEqual(dance, from, to);
       if (samePose) {
         holdFrame = to;
         running = false;
@@ -701,24 +738,11 @@
         return;
       }
 
-      // Segment duration in beats → tween length matching playback move window.
-      let segBeats;
-      if (delta > 0) {
-        const endBeat = to === 0 ? getCycleBeats(dance) : tl[to].beat;
-        const startBeat = tl[from].beat;
-        segBeats = endBeat - startBeat;
-        if (segBeats <= 0) segBeats = getCycleBeats(dance) - startBeat + tl[to].beat;
-      } else {
-        const endBeat = from === 0 ? getCycleBeats(dance) : tl[from].beat;
-        const startBeat = tl[to].beat;
-        segBeats = endBeat - startBeat;
-        if (segBeats <= 0) segBeats = getCycleBeats(dance) - startBeat + tl[from].beat;
-      }
-
       holdFrame = null;
       running = false;
       // Same rule as playback: move for min(segment, MOVE_FRACTION) of a full beat.
-      const moveBeats = Math.min(Math.max(0.05, segBeats), MOVE_FRACTION);
+      const segBeats = adjacentSegmentBeats(dance, from, to);
+      const moveBeats = Math.min(segBeats, MOVE_FRACTION);
       stepTween = {
         fromFrame: from,
         toFrame: to,
@@ -752,11 +776,12 @@
     function drawGuidePoints(dance) {
       const timeline = getTimeline(dance);
       const lastIdx = timeline.length - 1;
+      const hideLast = dance.hideClosingGuidePoint && framesPoseEqual(dance, 0, lastIdx);
 
       dance.dancers.forEach((dancer) => {
         const pts = dancer.pattern.map(p => dance.toCanvas(dancer, p));
         pts.forEach((p, idx) => {
-          if (dance.hideClosingGuidePoint && idx === lastIdx) return;
+          if (hideLast && idx === lastIdx) return;
 
           ctx.save();
           ctx.fillStyle = dancer.color;
@@ -766,7 +791,7 @@
           ctx.fill();
           ctx.restore();
 
-          if (toggleLabels.checked && idx < lastIdx) {
+          if (toggleLabels.checked && !(hideLast && idx === lastIdx)) {
             const label = timeline[idx].id;
             ctx.save();
             ctx.fillStyle = '#111827';
@@ -782,7 +807,8 @@
 
     function drawTrails(dance) {
       const timeline = getTimeline(dance);
-      const steps = timeline.length - 1;
+      const wrap = getWrapBeats(dance) > 0 ? 1 : 0;
+      const steps = (timeline.length - 1) + wrap;
       const sampleCount = Math.max(80, steps * 20);
 
       dance.dancers.forEach((dancer) => {
@@ -797,7 +823,9 @@
           const total = u * steps;
           const seg = Math.min(steps - 1, Math.floor(total));
           const phase = total - seg;
-          const p = patternPointAt(dancer.pattern, seg, phase);
+          const dest = (seg === timeline.length - 1 && wrap) ? 0 : seg + 1;
+          const from = Math.min(seg, timeline.length - 1);
+          const p = patternPointAt(dancer.pattern, from, phase, dest);
           const c = dance.toCanvas(dancer, p);
           if (s === 0) ctx.moveTo(c.x, c.y);
           else ctx.lineTo(c.x, c.y);
@@ -820,7 +848,9 @@
         return dancer.pattern[holdFrame];
       }
       if (state.moving) {
-        return patternPointAt(dancer.pattern, state.stepIndex, state.localMovePhase);
+        return patternPointAt(
+          dancer.pattern, state.stepIndex, state.localMovePhase, state.destIndex
+        );
       }
       return dancer.pattern[state.destIndex];
     }
