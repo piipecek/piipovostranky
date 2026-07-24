@@ -561,105 +561,105 @@
       ctx.restore();
     }
 
-    // Corners: NW=(-S,S) WN, NE=(S,S) MN, SW=(-S,-S) MS, SE=(S,-S) WS
+    // Corners: NW=(-S,S) FN, NE=(S,S) LN, SW=(-S,-S) LS, SE=(S,-S) FS
     // One list per keyframe: id + beat + dancer positions (edit the dance here only).
     const S = CONGO_S;
 
     const congoFrames = [
       {
         id: '0', beat: 0,
-        MN: [S, S], WN: [-S, S],
-        MS: [-S, -S], WS: [S, -S],
+        LN: [S, S], FN: [-S, S],
+        LS: [-S, -S], FS: [S, -S],
       },
       {
         id: '1', beat: 1,
-        MN: [S, S * 0.28], WN: [-S, S * 0.28],
-        MS: [-S, -S * 0.28], WS: [S, -S * 0.28],
+        LN: [S, S * 0.28], FN: [-S, S * 0.28],
+        LS: [-S, -S * 0.28], FS: [S, -S * 0.28],
       },
       {
         id: '2', beat: 2,
-        MN: [S, S], WN: [-S, S],
-        MS: [-S, -S], WS: [S, -S],
+        LN: [S, S], FN: [-S, S],
+        LS: [-S, -S], FS: [S, -S],
       },
       {
         id: '3', beat: 3,
-        MN: [S, S * 0.28], WN: [-S, S * 0.28],
-        MS: [-S, -S * 0.28], WS: [S, -S * 0.28],
+        LN: [S, S * 0.28], FN: [-S, S * 0.28],
+        LS: [-S, -S * 0.28], FS: [S, -S * 0.28],
       },
       {
         id: '3a', beat: 3.5,
-        MN: [0, S * 0.2], WN: [0, S * 0.4],
-        MS: [0, -S * 0.2], WS: [0, -S * 0.4],
+        LN: [0, S * 0.2], FN: [0, S * 0.4],
+        LS: [0, -S * 0.2], FS: [0, -S * 0.4],
       },
       {
         id: '4', beat: 4,
-        MN: [-S, S], WN: [S, S],
-        MS: [S, -S], WS: [-S, -S],
+        LN: [-S, S], FN: [S, S],
+        LS: [S, -S], FS: [-S, -S],
       },
       {
         id: '5', beat: 5,
-        MN: [-S, S * 0.18], WN: [S, S * 0.18],
-        MS: [S, -S * 0.18], WS: [-S, -S * 0.18],
+        LN: [-S, S * 0.18], FN: [S, S * 0.18],
+        LS: [S, -S * 0.18], FS: [-S, -S * 0.18],
       },
       {
         id: '6', beat: 6,
-        MN: [-S, S], WN: [S, S],
-        MS: [S, -S], WS: [-S, -S],
+        LN: [-S, S], FN: [S, S],
+        LS: [S, -S], FS: [-S, -S],
       },
       {
         id: '6a', beat: 6.5,
-        MN: [0, S], WN: [0, S * 0.64],
-        MS: [0, -S], WS: [0, -S * 0.64],
+        LN: [0, S], FN: [0, S * 0.64],
+        LS: [0, -S], FS: [0, -S * 0.64],
       },
       {
         id: '7', beat: 7,
-        MN: [S, S * 0.28], WN: [-S, S * 0.28],
-        MS: [-S, -S * 0.28], WS: [S, -S * 0.28],
+        LN: [S, S * 0.28], FN: [-S, S * 0.28],
+        LS: [-S, -S * 0.28], FS: [S, -S * 0.28],
       },
       {
         id: '8', beat: 8,
-        MN: [S, S], WN: [-S, S],
-        MS: [-S, -S], WS: [S, -S],
+        LN: [S, S], FN: [-S, S],
+        LS: [-S, -S], FS: [S, -S],
       },
       {
         id: '9', beat: 9,
-        MN: [S, 0], WN: [S * 0.22, 0],
-        WS: [-S * 0.22, 0], MS: [-S, 0],
+        LN: [S, 0], FN: [S * 0.22, 0],
+        FS: [-S * 0.22, 0], LS: [-S, 0],
       },
       {
         id: '10', beat: 10,
-        MN: [-S, 0], WN: [S, -S],
-        MS: [S, 0], WS: [-S, S],
+        LN: [-S, 0], FN: [S, -S],
+        LS: [S, 0], FS: [-S, S],
       },
       {
         id: '11', beat: 11,
-        MN: [-S, -S], WN: [S, 0],
-        MS: [S, S], WS: [-S, 0],
+        LN: [-S, -S], FN: [S, 0],
+        LS: [S, S], FS: [-S, 0],
       },
       {
         id: '12', beat: 12,
-        MN: [-S, -S], WN: [S, -S],
-        MS: [S, S], WS: [-S, S],
+        LN: [-S, -S], FN: [S, -S],
+        LS: [S, S], FS: [-S, S],
       },
       {
         id: '13', beat: 13,
-        MN: [-S, 0], WN: [-S * 0.22, 0],
-        WS: [S * 0.22, 0], MS: [S, 0],
+        LN: [-S, 0], FN: [-S * 0.22, 0],
+        FS: [S * 0.22, 0], LS: [S, 0],
       },
       {
         id: '14', beat: 14,
-        MN: [S, 0], WN: [-S, S],
-        MS: [-S, 0], WS: [S, -S],
+        LN: [S, 0], FN: [-S, S],
+        LS: [-S, 0], FS: [S, -S],
       },
       {
         id: '15', beat: 15,
-        MN: [S * 0.15, S * 0.15], WN: [S * 0.4, S * 0.4],
-        MS: [-S * 0.15, -S * 0.15], WS: [-S * 0.4, -S * 0.4],
+        LN: [S * 0.15, S * 0.15], FN: [S * 0.4, S * 0.4],
+        LS: [-S * 0.15, -S * 0.15], FS: [-S * 0.4, -S * 0.4],
       },
       {
         id: '15a', beat: 15.5,
-        MN: [0, S * 0.4], WN: [0, S * 0.2],
-        MS: [0, -S * 0.4], WS: [0, -S * 0.2],
+        LN: [0, S * 0.4], FN: [0, S * 0.2],
+        LS: [0, -S * 0.4], FS: [0, -S * 0.2],
       },
     ];
 
@@ -668,10 +668,10 @@
     }
 
     const congoDancers = [
-      { id: 'MN', color: '#2563eb', label: 'MN', pattern: congoPatternFor('MN') },
-      { id: 'WN', color: '#dc2626', label: 'WN', pattern: congoPatternFor('WN') },
-      { id: 'MS', color: '#2563eb', label: 'MS', pattern: congoPatternFor('MS') },
-      { id: 'WS', color: '#dc2626', label: 'WS', pattern: congoPatternFor('WS') },
+      { id: 'LN', color: '#2563eb', label: 'LN', pattern: congoPatternFor('LN') },
+      { id: 'FN', color: '#dc2626', label: 'FN', pattern: congoPatternFor('FN') },
+      { id: 'LS', color: '#2563eb', label: 'LS', pattern: congoPatternFor('LS') },
+      { id: 'FS', color: '#dc2626', label: 'FS', pattern: congoPatternFor('FS') },
     ];
 
     // ——— dance registry ———
@@ -724,7 +724,7 @@
           'Vizualizace tance Congo de Captieux (Guascogne) — dvě páry naproti sobě (quadrette), ' +
           'podle popisu a diagramů na ' +
           '<a href="https://ballifolk.altervista.org/congo_de_captieux.html" target="_blank" rel="noopener">ballifolk.altervista.org</a>. ' +
-          'Červená = leadeři (MN/MS), modrá = followeři (WN/WS). Pohyb převážně po stranách a úhlopříčkách čtverce. ' +
+          'Modrá = leadeři (LN/LS), červená = followeři (FN/FS). Pohyb převážně po stranách a úhlopříčkách čtverce. ' +
           'Vytvořeno zcela pomocí Grok 4.5, doupravil Pavel Hübner v červenci 2026.',
       },
     };
