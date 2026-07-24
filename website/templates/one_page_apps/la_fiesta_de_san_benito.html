@@ -275,73 +275,171 @@
       return tl[tl.length - 1].beat + getWrapBeats(dance);
     }
 
-    function findTimelineSegment(timeline, beatInCycle, cycleBeats, wrapBeats) {
-      for (let i = 0; i < timeline.length - 1; i++) {
-        const start = timeline[i].beat;
-        const end = timeline[i + 1].beat;
-        if (beatInCycle >= start && beatInCycle < end) {
-          return { stepIndex: i, destIndex: i + 1, startBeat: start, endBeat: end };
-        }
-      }
-      const last = timeline.length - 1;
-      // Wrap last → first (no closing keyframe in the data)
-      if (wrapBeats > 0 && beatInCycle >= timeline[last].beat) {
-        return {
-          stepIndex: last,
-          destIndex: 0,
-          startBeat: timeline[last].beat,
-          endBeat: cycleBeats,
-        };
-      }
-      // Closing-frame model: sit on final segment
-      if (last >= 1) {
-        return {
-          stepIndex: last - 1,
-          destIndex: last,
-          startBeat: timeline[last - 1].beat,
-          endBeat: timeline[last].beat,
-        };
-      }
-      return { stepIndex: 0, destIndex: 0, startBeat: 0, endBeat: cycleBeats };
-    }
-
     function isHalfBeatFrame(frame) {
       if (!frame) return false;
       if (/[a-z]$/i.test(String(frame.id))) return true;
       return Math.abs(frame.beat - Math.round(frame.beat)) > 1e-6;
     }
 
-    function getStateAtTime(t, dance) {
-      const beatDuration = 60 / dance.bpm;
+    function getFullBeatIndices(timeline) {
+      const idxs = [];
+      for (let i = 0; i < timeline.length; i++) {
+        if (!isHalfBeatFrame(timeline[i])) idxs.push(i);
+      }
+      return idxs.length ? idxs : [0];
+    }
+
+    /** Effective beat time for a waypoint inside a full-beat group (wrap end → cycleBeats). */
+    function groupWaypointBeat(timeline, idx, group) {
+      if (group.wraps && idx === group.bIdx) return group.bBeat;
+      return timeline[idx].beat;
+    }
+
+    /**
+     * Full-beat group containing beatInCycle: from full-beat A to next full-beat B,
+     * including any half-beat waypoints in between. Pause lives only at B.
+     */
+    function findFullBeatGroup(dance, beatInCycle) {
+      const timeline = getTimeline(dance);
+      const cycleBeats = getCycleBeats(dance);
+      const wrapBeats = getWrapBeats(dance);
+      const fullIdxs = getFullBeatIndices(timeline);
+
+      for (let g = 0; g < fullIdxs.length; g++) {
+        const aIdx = fullIdxs[g];
+        const isLast = g === fullIdxs.length - 1;
+        const bIdx = isLast ? fullIdxs[0] : fullIdxs[g + 1];
+        const aBeat = timeline[aIdx].beat;
+        const wraps = isLast && wrapBeats > 0;
+        const bBeat = wraps ? cycleBeats : timeline[bIdx].beat;
+
+        const inGroup = wraps
+          ? beatInCycle >= aBeat
+          : (beatInCycle >= aBeat && beatInCycle < bBeat);
+
+        if (!inGroup) continue;
+
+        const waypoints = [];
+        if (!wraps) {
+          for (let i = aIdx; i <= bIdx; i++) waypoints.push(i);
+        } else {
+          for (let i = aIdx; i < timeline.length; i++) waypoints.push(i);
+          if (waypoints[waypoints.length - 1] !== bIdx) waypoints.push(bIdx);
+        }
+
+        return { aIdx, bIdx, aBeat, bBeat, waypoints, wraps };
+      }
+
+      // Fallback: first group
+      const aIdx = fullIdxs[0];
+      const bIdx = fullIdxs.length > 1 ? fullIdxs[1] : aIdx;
+      const waypoints = [];
+      for (let i = aIdx; i <= bIdx; i++) waypoints.push(i);
+      return {
+        aIdx,
+        bIdx,
+        aBeat: timeline[aIdx].beat,
+        bBeat: timeline[bIdx].beat,
+        waypoints,
+        wraps: false,
+      };
+    }
+
+    function findGroupForSegment(dance, from, to) {
       const timeline = getTimeline(dance);
       const wrapBeats = getWrapBeats(dance);
       const cycleBeats = getCycleBeats(dance);
+      const n = timeline.length;
+      // Probe a beat slightly inside the segment (incl. wrap either direction).
+      let probe;
+      if (from === n - 1 && to === 0 && wrapBeats > 0) {
+        probe = timeline[from].beat + Math.min(0.01, wrapBeats / 2);
+      } else if (from === 0 && to === n - 1 && wrapBeats > 0) {
+        probe = timeline[to].beat + Math.min(0.01, wrapBeats / 2);
+      } else {
+        const a = timeline[from].beat;
+        const b = timeline[to].beat;
+        probe = a + (b - a) * 0.5;
+      }
+      if (probe >= cycleBeats) probe = Math.max(0, cycleBeats - 1e-6);
+      return findFullBeatGroup(dance, probe);
+    }
+
+    /** Move duration (in beats) for one keyframe→keyframe step inside its full-beat group. */
+    function subSegmentMoveBeats(dance, from, to) {
+      const timeline = getTimeline(dance);
+      const group = findGroupForSegment(dance, from, to);
+      const parentDuration = Math.max(1e-9, group.bBeat - group.aBeat);
+      const moveWindow = parentDuration * MOVE_FRACTION;
+      const bFrom = groupWaypointBeat(timeline, from, group);
+      const bTo = groupWaypointBeat(timeline, to, group);
+      const delta = Math.abs(bTo - bFrom);
+      return Math.max(0.05, moveWindow * (delta / parentDuration));
+    }
+
+    function getStateAtTime(t, dance) {
+      const beatDuration = 60 / dance.bpm;
+      const timeline = getTimeline(dance);
+      const cycleBeats = getCycleBeats(dance);
       const totalBeats = t / beatDuration;
       const beatInCycle = ((totalBeats % cycleBeats) + cycleBeats) % cycleBeats;
-      const { stepIndex, destIndex, startBeat, endBeat } = findTimelineSegment(
-        timeline, beatInCycle, cycleBeats, wrapBeats
-      );
-      const segLen = Math.max(1e-9, endBeat - startBeat);
-      const segPhase = (beatInCycle - startBeat) / segLen;
-      // Pause only when landing on a full beat. Half-beat destinations never wait,
-      // even if the previous/next keyframe is a full beat.
+      const group = findFullBeatGroup(dance, beatInCycle);
+      const parentDuration = Math.max(1e-9, group.bBeat - group.aBeat);
+      const moveWindow = parentDuration * MOVE_FRACTION;
+      const localInParent = beatInCycle - group.aBeat;
+
+      // Wait on the destination full beat after the move window.
+      if (localInParent >= moveWindow) {
+        return {
+          beatIndex: Math.floor(totalBeats),
+          beatInCycle: timeline[group.bIdx].id,
+          beatPhase: 1,
+          stepIndex: group.waypoints[group.waypoints.length - 2] ?? group.aIdx,
+          destIndex: group.bIdx,
+          frameId: timeline[group.bIdx].id,
+          moving: false,
+          localMovePhase: 1,
+          beatFloat: beatInCycle,
+          segmentBeats: parentDuration,
+          destIsHalf: false,
+        };
+      }
+
+      // Progress u through the move window maps across all waypoints A..B.
+      const u = localInParent / moveWindow;
+      const fracs = group.waypoints.map((idx) => {
+        const b = groupWaypointBeat(timeline, idx, group);
+        return (b - group.aBeat) / parentDuration;
+      });
+
+      let sub = 0;
+      for (let i = 0; i < fracs.length - 1; i++) {
+        if (u >= fracs[i] && u <= fracs[i + 1] + 1e-9) {
+          sub = i;
+          break;
+        }
+        if (i === fracs.length - 2) sub = i;
+      }
+
+      const f0 = fracs[sub];
+      const f1 = fracs[sub + 1];
+      const span = Math.max(1e-9, f1 - f0);
+      const raw = Math.min(1, Math.max(0, (u - f0) / span));
+      const stepIndex = group.waypoints[sub];
+      const destIndex = group.waypoints[sub + 1];
       const destIsHalf = isHalfBeatFrame(timeline[destIndex]);
-      const moveFractionOfSeg = destIsHalf ? 1 : MOVE_FRACTION;
-      const moving = segPhase < moveFractionOfSeg;
-      const raw = moving ? segPhase / moveFractionOfSeg : 1;
-      const localMovePhase = destIsHalf ? raw : easeOutCubic(raw);
 
       return {
         beatIndex: Math.floor(totalBeats),
         beatInCycle: timeline[destIndex].id,
-        beatPhase: segPhase,
+        beatPhase: raw,
         stepIndex,
         destIndex,
-        frameId: moving ? timeline[stepIndex].id : timeline[destIndex].id,
-        moving,
-        localMovePhase,
+        frameId: raw < 1 ? timeline[stepIndex].id : timeline[destIndex].id,
+        moving: raw < 1,
+        localMovePhase: destIsHalf ? raw : easeOutCubic(raw),
         beatFloat: beatInCycle,
-        segmentBeats: segLen,
+        segmentBeats: parentDuration * span,
         destIsHalf,
       };
     }
@@ -351,19 +449,6 @@
       const beat = state.beatFloat != null ? state.beatFloat : 0;
       const hit = dance.sections.find(s => beat >= s.fromBeat && beat < s.toBeat);
       return hit ? hit.label : '';
-    }
-
-    /** Duration in beats of the segment from timeline index rom → 	o (adjacent, incl. wrap). */
-    function adjacentSegmentBeats(dance, from, to) {
-      const tl = getTimeline(dance);
-      const n = tl.length;
-      if (from === n - 1 && to === 0) {
-        return Math.max(0.05, getWrapBeats(dance) || (getCycleBeats(dance) - tl[from].beat));
-      }
-      if (from === 0 && to === n - 1) {
-        return Math.max(0.05, getWrapBeats(dance) || (getCycleBeats(dance) - tl[to].beat));
-      }
-      return Math.max(0.05, Math.abs(tl[to].beat - tl[from].beat));
     }
 
     // ——— San Benito (polar circle) ———
@@ -769,10 +854,9 @@
 
       holdFrame = null;
       running = false;
-      // Pause only when the destination is a full beat; half-beat targets never wait.
-      const segBeats = adjacentSegmentBeats(dance, from, to);
+      // Same subdivided move window as continuous play (half-beats split the parent move).
+      const moveBeats = subSegmentMoveBeats(dance, from, to);
       const destIsHalf = isHalfBeatFrame(getTimeline(dance)[to]);
-      const moveBeats = destIsHalf ? segBeats : segBeats * MOVE_FRACTION;
       stepTween = {
         fromFrame: from,
         toFrame: to,
@@ -998,8 +1082,7 @@
       if (stepTween) {
         const u = Math.min(1, (performance.now() - stepTween.startMs) / stepTween.durationMs);
         const dance = currentDance;
-        const segBeats = adjacentSegmentBeats(dance, stepTween.fromFrame, stepTween.toFrame);
-        const moveBeats = stepTween.destIsHalf ? segBeats : segBeats * MOVE_FRACTION;
+        const moveBeats = subSegmentMoveBeats(dance, stepTween.fromFrame, stepTween.toFrame);
         const totalMs = Math.max(0.05, moveBeats) * beatDurationSec(dance) * 1000 / effectiveSpeed(dance);
         stepTween.durationMs = totalMs;
         stepTween.startMs = performance.now() - u * totalMs;
