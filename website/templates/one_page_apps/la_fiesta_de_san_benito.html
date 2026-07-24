@@ -311,10 +311,12 @@
     }
 
     // ——— Congo de Captieux (Cartesian square / quadrette) ———
-    // Dance coords: x right, y up. Man left of partner from each couple's facing.
+    // Dance coords: x right, y up. Square half-side CONGO_S.
+    // Start at the four corners; other frames stay on edges or diagonals.
     // Integer frames 0..16 only (no half-beats); pattern[16] === pattern[0].
 
-    const congoUnit = 95;
+    const CONGO_S = 2.4;
+    const congoUnit = 120;
 
     function congoToCanvas(_dancer, p) {
       return {
@@ -324,115 +326,129 @@
     }
 
     function congoBackdrop() {
-      const half = 2.8 * congoUnit;
+      const half = CONGO_S * congoUnit;
+      const left = center.x - half;
+      const right = center.x + half;
+      const top = center.y - half;
+      const bottom = center.y + half;
+
       ctx.save();
       ctx.strokeStyle = '#c7cdd8';
       ctx.lineWidth = 2;
-      ctx.strokeRect(center.x - half, center.y - half, half * 2, half * 2);
 
-      ctx.setLineDash([6, 6]);
+      // Square floor
+      ctx.strokeRect(left, top, half * 2, half * 2);
+
+      // Diagonals (X)
       ctx.beginPath();
-      ctx.moveTo(center.x - half, center.y);
-      ctx.lineTo(center.x + half, center.y);
-      ctx.moveTo(center.x, center.y - half);
-      ctx.lineTo(center.x, center.y + half);
+      ctx.moveTo(left, top);
+      ctx.lineTo(right, bottom);
+      ctx.moveTo(right, top);
+      ctx.lineTo(left, bottom);
+      ctx.stroke();
+
+      // Horizontal midline
+      ctx.setLineDash([5, 5]);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(left, center.y);
+      ctx.lineTo(right, center.y);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      ctx.fillStyle = '#9ca3af';
-      ctx.font = '13px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('N', center.x, center.y - half - 10);
-      ctx.fillText('S', center.x, center.y + half + 18);
       ctx.restore();
     }
 
-    // Individuals: MN / WN (north couple), MS / WS (south couple)
+    // Corners: NW=(-S,S) WN, NE=(S,S) MN, SW=(-S,-S) MS, SE=(S,-S) WS
+    // (man left of partner when facing inward).
+    const S = CONGO_S;
+
     const congoFrames = {
-      // 0 home
+      // 0 home — four corners
       0: {
-        MN: [1.4, 2.4], WN: [-1.4, 2.4],
-        MS: [-1.4, -2.4], WS: [1.4, -2.4],
+        MN: [S, S], WN: [-S, S],
+        MS: [-S, -S], WS: [S, -S],
       },
-      // 1 saluto — advance
+      // 1 saluto — advance along left/right edges toward midline
       1: {
-        MN: [1.4, 1.0], WN: [-1.4, 1.0],
-        MS: [-1.4, -1.0], WS: [1.4, -1.0],
+        MN: [S, S * 0.28], WN: [-S, S * 0.28],
+        MS: [-S, -S * 0.28], WS: [S, -S * 0.28],
       },
       // 2 back home
       2: {
-        MN: [1.4, 2.4], WN: [-1.4, 2.4],
-        MS: [-1.4, -2.4], WS: [1.4, -2.4],
+        MN: [S, S], WN: [-S, S],
+        MS: [-S, -S], WS: [S, -S],
       },
-      // 3 cambio mid — advance + partners crossing
+      // 3 cambio mid — partners cross along top/bottom edges
       3: {
-        MN: [0.15, 1.35], WN: [-0.15, 1.35],
-        MS: [-0.15, -1.35], WS: [0.15, -1.35],
+        MN: [S, S * 0.28], WN: [-S, S * 0.28],
+        MS: [-S, -S * 0.28], WS: [S, -S * 0.28],
       },
-      // 4 after cambio — partners swapped within couple
+      // 4 after cambio — swapped corners
       4: {
-        MN: [-1.4, 2.4], WN: [1.4, 2.4],
-        MS: [1.4, -2.4], WS: [-1.4, -2.4],
+        MN: [-S, S], WN: [S, S],
+        MS: [S, -S], WS: [-S, -S],
       },
-      // 5 salto — meet / lift
+      // 5 salto — meet near midline along side edges
       5: {
-        MN: [-0.55, 0.45], WN: [0.55, 0.45],
-        MS: [0.55, -0.45], WS: [-0.55, -0.45],
+        MN: [-S, S * 0.18], WN: [S, S * 0.18],
+        MS: [S, -S * 0.18], WS: [-S, -S * 0.18],
       },
       // 6 return after left turn
       6: {
-        MN: [-1.4, 2.4], WN: [1.4, 2.4],
-        MS: [1.4, -2.4], WS: [-1.4, -2.4],
+        MN: [-S, S], WN: [S, S],
+        MS: [S, -S], WS: [-S, -S],
       },
-      // 7 papillon mid — R-shoulder cross toward opposite
+      // 7 papillon mid — cross through center on diagonals
       7: {
-        MN: [0.25, 0.7], WN: [-0.25, 0.7],
-        MS: [-0.25, -0.7], WS: [0.25, -0.7],
+        MN: [-S * 0.15, S * 0.15], WN: [S * 0.15, S * 0.15],
+        MS: [S * 0.15, -S * 0.15], WS: [-S * 0.15, -S * 0.15],
       },
-      // 8 after papillon — back to original sides for diagonale
+      // 8 after papillon — home corners for diagonale
       8: {
-        MN: [1.4, 2.4], WN: [-1.4, 2.4],
-        MS: [-1.4, -2.4], WS: [1.4, -2.4],
+        MN: [S, S], WN: [-S, S],
+        MS: [-S, -S], WS: [S, -S],
       },
-      // 9 1° diagonale mid — four in a line
+      // 9 1° diagonale mid — four in a line on horizontal midline
+      //     (ladies crossing center; men at left/right edge midpoints)
       9: {
-        MN: [-2.2, 0], WN: [-0.5, 0],
-        WS: [0.5, 0], MS: [2.2, 0],
+        MN: [S, 0], WN: [S * 0.22, 0],
+        WS: [-S * 0.22, 0], MS: [-S, 0],
       },
-      // 10 ladies + men swapped sides
+      // 10 ladies + men finished swap — opposite corners
       10: {
-        MN: [1.4, -2.4], WN: [-1.4, -2.4],
-        MS: [-1.4, 2.4], WS: [1.4, 2.4],
+        MN: [-S, -S], WN: [S, -S],
+        MS: [S, S], WS: [-S, S],
       },
-      // 11 tergicristallo mid
+      // 11 tergicristallo mid — men slide on top/bottom edges; ladies advance
       11: {
-        MN: [0.9, -1.15], WN: [-0.7, -0.35],
-        MS: [-0.9, 1.15], WS: [0.7, 0.35],
+        MN: [0, -S], WN: [S * 0.4, -S * 0.4],
+        MS: [0, S], WS: [-S * 0.4, S * 0.4],
       },
       // 12 settled after tergicristallo
       12: {
-        MN: [1.4, -2.4], WN: [-1.4, -2.4],
-        MS: [-1.4, 2.4], WS: [1.4, 2.4],
+        MN: [-S, -S], WN: [S, -S],
+        MS: [S, S], WS: [-S, S],
       },
       // 13 2° diagonale mid — four in a line (return)
       13: {
-        MN: [2.2, 0], WN: [0.5, 0],
-        WS: [-0.5, 0], MS: [-2.2, 0],
+        MN: [-S, 0], WN: [-S * 0.22, 0],
+        WS: [S * 0.22, 0], MS: [S, 0],
       },
-      // 14 after 2° diagonale
+      // 14 after 2° diagonale — back toward home corners
       14: {
-        MN: [-1.4, 2.4], WN: [1.4, 2.4],
-        MS: [1.4, -2.4], WS: [-1.4, -2.4],
+        MN: [S, S], WN: [-S, S],
+        MS: [-S, -S], WS: [S, -S],
       },
-      // 15 spallata — men shoulder bump, ladies approach / lift setup
+      // 15 spallata — men meet at center on diagonals; ladies approach on edges
       15: {
-        MN: [-0.35, 0.15], WN: [0.85, 1.05],
-        MS: [0.35, -0.15], WS: [-0.85, -1.05],
+        MN: [-S * 0.15, S * 0.15], WN: [-S, S * 0.4],
+        MS: [S * 0.15, -S * 0.15], WS: [S, -S * 0.4],
       },
       // 16 home (loop)
       16: {
-        MN: [1.4, 2.4], WN: [-1.4, 2.4],
-        MS: [-1.4, -2.4], WS: [1.4, -2.4],
+        MN: [S, S], WN: [-S, S],
+        MS: [-S, -S], WS: [S, -S],
       },
     };
 
@@ -445,10 +461,10 @@
     }
 
     const congoDancers = [
-      { id: 'MN', color: '#2563eb', label: 'MN', pattern: congoPatternFor('MN') },
-      { id: 'WN', color: '#60a5fa', label: 'WN', pattern: congoPatternFor('WN') },
+      { id: 'MN', color: '#dc2626', label: 'MN', pattern: congoPatternFor('MN') },
+      { id: 'WN', color: '#2563eb', label: 'WN', pattern: congoPatternFor('WN') },
       { id: 'MS', color: '#dc2626', label: 'MS', pattern: congoPatternFor('MS') },
-      { id: 'WS', color: '#f87171', label: 'WS', pattern: congoPatternFor('WS') },
+      { id: 'WS', color: '#2563eb', label: 'WS', pattern: congoPatternFor('WS') },
     ];
 
     // ——— dance registry ———
@@ -498,7 +514,7 @@
           'Vizualizace tance Congo de Captieux (Guascogne) — dvě páry naproti sobě (quadrette), ' +
           'podle popisu a diagramů na ' +
           '<a href="https://ballifolk.altervista.org/congo_de_captieux.html" target="_blank" rel="noopener">ballifolk.altervista.org</a>. ' +
-          'Modrá = severní pár (MN/WN), červená = jižní pár (MS/WS). Pouze celočíselné pozice 0–16; mezikroky se interpolují.',
+          'Modrá = severní pár (MN/WN), červená = jižní pár (MS/WS). Pohyb převážně po stranách a úhlopříčkách čtverce. Pouze celočíselné pozice 0–16; mezikroky se interpolují.',
       },
     };
 
