@@ -172,6 +172,7 @@
           <button type="button" id="btnStepBack" title="O krok zpět">◀ Zpět</button>
           <button type="button" id="btnPlayPause" title="Zastavit / přehrát">Zastavit</button>
           <button type="button" id="btnStepFwd" title="O krok vpřed">Vpřed ▶</button>
+          <button type="button" id="btnSpeed" title="Rychlost přehrávání">1×</button>
         </div>
         <div class="badge">Pozice: <strong id="beatInCycle">1</strong> / <span id="beatTotal">4</span></div>
         <div class="section-label" id="sectionLabel"></div>
@@ -204,6 +205,11 @@
     const btnPlayPause = document.getElementById('btnPlayPause');
     const btnStepBack = document.getElementById('btnStepBack');
     const btnStepFwd = document.getElementById('btnStepFwd');
+    const btnSpeed = document.getElementById('btnSpeed');
+
+    const SPEED_STEPS = [1, 0.5, 0.25];
+    const SPEED_LABELS = ['1×', '½×', '¼×'];
+    let speedIndex = 0;
 
     // ——— shared helpers ———
 
@@ -299,6 +305,12 @@
       return { stepIndex: 0, destIndex: 0, startBeat: 0, endBeat: cycleBeats };
     }
 
+    function isHalfBeatFrame(frame) {
+      if (!frame) return false;
+      if (/[a-z]$/i.test(String(frame.id))) return true;
+      return Math.abs(frame.beat - Math.round(frame.beat)) > 1e-6;
+    }
+
     function getStateAtTime(t, dance) {
       const beatDuration = 60 / dance.bpm;
       const timeline = getTimeline(dance);
@@ -311,11 +323,13 @@
       );
       const segLen = Math.max(1e-9, endBeat - startBeat);
       const segPhase = (beatInCycle - startBeat) / segLen;
-      // Move for up to MOVE_FRACTION of a full beat; short (half-beat) segments
-      // become continuous motion with no pause, so 3→3a→4 stays smooth.
-      const moveFractionOfSeg = Math.min(1, MOVE_FRACTION / segLen);
+      // Pause only when landing on a full beat. Half-beat destinations never wait,
+      // even if the previous/next keyframe is a full beat.
+      const destIsHalf = isHalfBeatFrame(timeline[destIndex]);
+      const moveFractionOfSeg = destIsHalf ? 1 : MOVE_FRACTION;
       const moving = segPhase < moveFractionOfSeg;
-      const localMovePhase = moving ? easeOutCubic(segPhase / moveFractionOfSeg) : 1;
+      const raw = moving ? segPhase / moveFractionOfSeg : 1;
+      const localMovePhase = destIsHalf ? raw : easeOutCubic(raw);
 
       return {
         beatIndex: Math.floor(totalBeats),
@@ -328,6 +342,7 @@
         localMovePhase,
         beatFloat: beatInCycle,
         segmentBeats: segLen,
+        destIsHalf,
       };
     }
 
@@ -609,6 +624,7 @@
         guideLabelsFromZero: true,
         hideClosingGuidePoint: true,
         wrapBeats: 0.5,
+        baseSpeed: 0.5,
         sections: [
           { fromBeat: 0, toBeat: 2, label: 'Část 1 — Saluto' },
           { fromBeat: 2, toBeat: 4, label: 'Část 1 — Cambio di posto' },
@@ -678,6 +694,19 @@
       btnPlayPause.textContent = running ? 'Zastavit' : 'Přehrát';
     }
 
+    function syncSpeedButton() {
+      btnSpeed.textContent = SPEED_LABELS[speedIndex];
+    }
+
+    function uiSpeed() {
+      return SPEED_STEPS[speedIndex];
+    }
+
+    function effectiveSpeed(dance) {
+      const base = dance.baseSpeed != null ? dance.baseSpeed : 1;
+      return base * uiSpeed();
+    }
+
     function setStepButtonsEnabled(enabled) {
       btnStepBack.disabled = !enabled;
       btnStepFwd.disabled = !enabled;
@@ -740,14 +769,16 @@
 
       holdFrame = null;
       running = false;
-      // Same rule as playback: move for min(segment, MOVE_FRACTION) of a full beat.
+      // Pause only when the destination is a full beat; half-beat targets never wait.
       const segBeats = adjacentSegmentBeats(dance, from, to);
-      const moveBeats = Math.min(segBeats, MOVE_FRACTION);
+      const destIsHalf = isHalfBeatFrame(getTimeline(dance)[to]);
+      const moveBeats = destIsHalf ? segBeats : segBeats * MOVE_FRACTION;
       stepTween = {
         fromFrame: from,
         toFrame: to,
         startMs: performance.now(),
-        durationMs: moveBeats * beatDurationSec(dance) * 1000,
+        durationMs: Math.max(0.05, moveBeats) * beatDurationSec(dance) * 1000 / effectiveSpeed(dance),
+        destIsHalf,
       };
       setStepButtonsEnabled(false);
       syncPlayPauseButton();
@@ -761,6 +792,7 @@
       running = true;
       setStepButtonsEnabled(true);
       syncPlayPauseButton();
+      syncSpeedButton();
     }
 
     function applyDance(dance) {
@@ -896,6 +928,7 @@
     function frame(now) {
       if (stepTween) {
         const u = Math.min(1, (now - stepTween.startMs) / stepTween.durationMs);
+        const eased = stepTween.destIsHalf ? u : easeOutCubic(u);
         const state = {
           beatIndex: stepTween.fromFrame,
           beatInCycle: frameLabelAt(currentDance, stepTween.toFrame),
@@ -904,8 +937,9 @@
           stepIndex: stepTween.fromFrame,
           destIndex: stepTween.toFrame,
           moving: u < 1,
-          localMovePhase: easeOutCubic(u),
+          localMovePhase: eased,
           beatFloat: getTimeline(currentDance)[stepTween.fromFrame].beat,
+          destIsHalf: stepTween.destIsHalf,
         };
         render(state);
         if (u >= 1) {
@@ -920,7 +954,7 @@
 
       if (running) {
         if (lastFrameNow != null) {
-          elapsedSeconds += (now - lastFrameNow) / 1000;
+          elapsedSeconds += ((now - lastFrameNow) / 1000) * effectiveSpeed(currentDance);
         }
       }
       lastFrameNow = now;
@@ -956,6 +990,21 @@
 
     btnStepBack.addEventListener('click', () => stepBy(-1));
     btnStepFwd.addEventListener('click', () => stepBy(1));
+
+    btnSpeed.addEventListener('click', () => {
+      speedIndex = (speedIndex + 1) % SPEED_STEPS.length;
+      syncSpeedButton();
+      // If a step tween is running, scale its remaining duration to the new speed.
+      if (stepTween) {
+        const u = Math.min(1, (performance.now() - stepTween.startMs) / stepTween.durationMs);
+        const dance = currentDance;
+        const segBeats = adjacentSegmentBeats(dance, stepTween.fromFrame, stepTween.toFrame);
+        const moveBeats = stepTween.destIsHalf ? segBeats : segBeats * MOVE_FRACTION;
+        const totalMs = Math.max(0.05, moveBeats) * beatDurationSec(dance) * 1000 / effectiveSpeed(dance);
+        stepTween.durationMs = totalMs;
+        stepTween.startMs = performance.now() - u * totalMs;
+      }
+    });
 
     applyDance(DANCES.san_benito);
     requestAnimationFrame(frame);
