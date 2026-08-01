@@ -5,10 +5,32 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_required, logout_user, current_user
 from website.mail_handler import mail_sender
 from google.oauth2 import id_token
-from google.auth.transport import requests
+from google.auth.transport import requests as google_requests
+import os
+import requests
 
 
 auth_views = Blueprint("auth_views",__name__, template_folder="auth")
+
+# helper pro registrační endpoint
+def validate_turnstile(token, secret, remoteip=None):
+    url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+
+    data = {
+        'secret': secret,
+        'response': token
+    }
+
+    if remoteip:
+        data['remoteip'] = remoteip
+
+    try:
+        response = requests.post(url, data=data, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        print(f"Turnstile validation error: {e}")
+        return {'success': False, 'error-codes': ['internal-error']}
 
 
 @auth_views.route("/login", methods=["GET","POST"])
@@ -45,8 +67,17 @@ def register():
 	if current_user.is_authenticated:
 		return redirect(url_for("guest_views.dashboard"))
 	if request.method == "GET":
-		return render_template("auth/auth_register.html", site_url=current_app.config["SITE_URL"])
+		cloudflare_site_key = os.environ.get("CLOUDFLARE_SITE_KEY")
+		return render_template("auth/auth_register.html", site_url=current_app.config["SITE_URL"], cloudflare_site_key=cloudflare_site_key)
 	else:
+		token = request.form.get("cf-turnstile-response")
+		secret = os.environ.get("CLOUDFLARE_SECRET_KEY")
+		validation_result = validate_turnstile(token, secret)
+  
+		if not validation_result.get("success"):
+			flash("Ověření Turnstile selhalo. Prosím zkuste to znovu.", category="error")
+			return redirect(url_for("auth_views.register"))
+
 		email = request.form.get("email")
 		password = request.form.get("password")
 
@@ -109,7 +140,7 @@ def reset_password(token):
 @auth_views.route("/google_auth_receiver", methods=["POST"])
 def google_auth_receiver():
     token = request.form.get("credential")
-    idinfo = id_token.verify_oauth2_token(token, requests.Request(), current_app.config["GOOGLE_CLIENT_ID"], clock_skew_in_seconds=2)
+    idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), current_app.config["GOOGLE_CLIENT_ID"], clock_skew_in_seconds=2)
     User.manage_google_login(idinfo)
     return redirect(url_for("guest_views.dashboard"))
 
