@@ -23,10 +23,11 @@ python-dotenv = "*"
 pymysql = "*"
 pyjwt = "*"
 xlrd = "*"
-google-auth = "*"
 requests = "*"
 openpyxl = "*"
 czech-sort = "*"
+dotenv = "*"
+google-auth = "*"
 
 [dev-packages]
 ipykernel = "*"
