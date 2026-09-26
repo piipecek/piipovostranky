@@ -48,10 +48,6 @@ accurate_button.addEventListener("click", () => {
             }
 
             console.log(`Přesnost: ${pos.coords.accuracy.toFixed(1)} m`);
-
-            if (pos.coords.accuracy < 10) {
-                finish(pos);
-            }
         },
         (err) => {
             console.error("Chyba při získávání polohy:", err);
