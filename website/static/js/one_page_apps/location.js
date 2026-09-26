@@ -67,3 +67,18 @@ accurate_button.addEventListener("click", () => {
         }
     }, 5000);
 });
+
+let liveLocationSpan = document.getElementById("live_location");
+navigator.geolocation.watchPosition(
+    (pos) => {
+        liveLocationSpan.textContent = pos.coords.accuracy.toFixed(1) + " m";
+    },
+    (err) => {
+        console.error("Chyba při sledování polohy:", err);
+        liveLocationSpan.textContent = "Chyba při získávání polohy";
+    },
+    {
+        enableHighAccuracy: true,
+        maximumAge: 0
+    }
+);
