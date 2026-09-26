@@ -16,24 +16,58 @@ button.addEventListener("click", () => {
 });
 
 accurate_button.addEventListener("click", () => {
-    if (!navigator.geolocation) {
-        alert("Tento prohlížeč nepodporuje geolokaci.");
-        return;
-    }
+    let bestPosition = null;
+    let finished = false;
 
-    navigator.geolocation.getCurrentPosition(
+    accurate_button.classList.add("loading");
+
+    const finish = (pos) => {
+        if (finished) return;
+        finished = true;
+
+        navigator.geolocation.clearWatch(watchId);
+        clearTimeout(timeoutId);
+
+        accurate_button.classList.remove("loading");
+
+        const { latitude, longitude, accuracy } = pos.coords;
+
+        alert(
+            `Pošlu na server: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}. ` +
+            `Přesnost: ${accuracy.toFixed(1)} m.`
+        );
+    };
+
+    const watchId = navigator.geolocation.watchPosition(
         (pos) => {
-            const { latitude, longitude, accuracy } = pos.coords;
-            alert(`Pošlu na server: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}. Přesnost: ${accuracy} m.`);
+            if (
+                bestPosition === null ||
+                pos.coords.accuracy < bestPosition.coords.accuracy
+            ) {
+                bestPosition = pos;
+            }
+
+            console.log(`Přesnost: ${pos.coords.accuracy.toFixed(1)} m`);
+
+            if (pos.coords.accuracy < 10) {
+                finish(pos);
+            }
         },
         (err) => {
             console.error("Chyba při získávání polohy:", err);
-            alert("Nepodařilo se zjistit přesnou polohu. Zkontroluj oprávnění nebo signál GPS.");
         },
         {
-            enableHighAccuracy: true, // požaduj GPS (pokud je dostupné)
-            timeout: 15000,           // čekej až 15 s na fix
-            maximumAge: 0             // nepoužívej staré údaje
+            enableHighAccuracy: true,
+            maximumAge: 0
         }
     );
+
+    const timeoutId = setTimeout(() => {
+        if (bestPosition) {
+            finish(bestPosition);
+        } else {
+            navigator.geolocation.clearWatch(watchId);
+            alert("Nepodařilo se zjistit polohu.");
+        }
+    }, 5000);
 });

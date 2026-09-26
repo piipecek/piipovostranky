@@ -121,7 +121,7 @@ def jeopardy():
 
 @one_page_apps_views.route("/location")
 def location():
-    return render_template("guest/location.html", roles=get_roles(current_user))
+    return render_template("one_page_apps/location.html", roles=get_roles(current_user))
 
 @one_page_apps_views.route("/la_fiesta_de_san_benito")
 def la_fiesta_de_san_benito():
